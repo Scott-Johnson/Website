@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scott Johnson Composer</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #151518FF; /* Space-gray background */
+            color: #fff; /* Text color */
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        nav {
+            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+            padding: 20px;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-height: 40vh; /* Ensure the video fills the entire header */
+            overflow: hidden;
+        }
+
+        .header-banner {
+            width: 100%; /* Ensure the video fills the entire header */
+            height: auto; /* Maintain aspect ratio */
+            object-fit: cover; /* Cover the entire header area */
+        }
+
+        .fade-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: calc(0.25 * 15vw); /* Set font size to 25% of the viewport width */
+            text-align: center;
+            opacity: 0;
+            font-family: 'Ailerons', sans-serif;
+        }
+
+        .fade-in {
+            opacity: 1;
+            transition: opacity 5s; /* Adjust fade-in duration here */
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 10s; /* Adjust fade-out duration here */
+        }
+
+        .composer {
+            color: darkred;
+        }
+
+        section {
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        section h2 {
+            margin-bottom: 30px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px; /* Increase gap for more space between items */
+        }
+
+        .poster-box {
+            width: 100%;
+            padding-top: 150%; /* Adjust aspect ratio to 2:3 */
+            background-color: gray;
+            background-size: cover; /* Ensure the background image covers the entire box */
+            position: relative;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 1s, transform 1s; /* Remove animation from CSS */
+        }
+
+        .poster-box.in-view {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .poster-box:hover {
+            transform: scale(1.1); /* Increase size on hover */
+            transition: transform 0.3s;
+        }
+
+        .poster-box img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        #imdb-button {
+            text-align: center; /* Center align the IMDb button */
+            margin-top: 20px; /* Add space between the projects section and the IMDb button */
+        }
+
+        #imdb-button img {
+            width: 4%; /* Make the IMDb button 50% smaller */
+            height: auto; /* Maintain aspect ratio */
+            border-radius: 5px; /* Optional: Add border radius for rounded corners */
+            transition: transform 0.3s, filter 0.3s; /* Add smooth transitions for hover effects */
+        }
+
+        #imdb-button img:hover {
+            transform: scale(1.1); /* Grow bigger on hover */
+            filter: brightness(1.2); /* Change to a lighter shade on hover */
+        }
+
+        footer {
+            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+            padding: 20px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        /* Client and Collaborators section styles */
+        #clients {
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        #clients h2 {
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .client-logos img {
+                max-width: 80px; /* Adjust for smaller screens if necessary */
+                max-height: 80px; /* Adjust for smaller screens if necessary */
+            }
+        }
+
+        /* Individual client logos */
+        .client-logos img {
+            width: 80px; /* Adjust size as needed */
+            height: 80px; /* Adjust size as needed */
+            border-radius: 50%;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s, transform 1s;
+        }
+
+        .client-logos img.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .client-logos img:hover {
+            transform: scale(1.2); /* Increase size on hover */
+        }
+
+        /* Animation for all client logos */
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .imdb-icon:hover {
+            transform: scale(1.1); /* Increase size on hover */
+        }
+
+        #music {
+            padding: 50px 20px;
+            padding-top: 150px; /* Adjust this value as needed */
+            text-align: center;
+            background-color: #151518; /* Space-gray background */
+            color: #fff; /* Text color */
+        }
+        
+        .video-text {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            text-align: right;
+            color: white;
+        }
+
+        .video-text span {
+            display: block;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        .video-text .bold {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .video-text .italic {
+            font-style: italic;
+        }
+
+        .about-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 1050px; /* Adjust max-width as needed */
+            margin: 0 auto; /* Center the container horizontally */
+            padding: 0 50px; /* Add padding for space on the sides */
+            padding-top: 150px; /* Add top padding */
+
+        }
+
+        /* Adjustments for the text and image containers */
+        .text {
+            flex: 1;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        .image {
+            flex: 1;
+            text-align: center;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        /* Adjustments for the image */
+        .image img {
+            height: 75; /* Make the image height match the text container */
+            width: auto; /* Maintain aspect ratio */
+            max-width: 75%; /* Ensure the image doesn't overflow its container */
+        }
+
+        @media (max-width: 768px) {
+            /* Responsive adjustments if needed */
+            .about-content {
+                flex-direction: column;
+                padding: 0 20px; /* Adjust padding for smaller screens */
+            }
+
+            .text,
+            .image {
+                width: 100%;
+                text-align: left;
+            }
+        }
+        .dark-red {
+            color: #b22222;
+        }
+        .white {
+            color: #FFFFFF;
+        }
+        .fade-in-element {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 9s, transform 1s;
+        }
+
+        .fade-in-element.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .about-heading {
+            font-family: 'Ailerons', sans-serif; /* Set font family to Ailerons */
+            opacity: 0; /* Set initial opacity to 0 */
+            transition: opacity 4s; /* Define transition property */
+        }
+
+        .about-heading.fade-in {
+            opacity: 1; /* Set opacity to 1 when fade-in class is added */
+        }
+        
+        #connect {
+            padding: 50px 20px;
+            text-align: center;
+            background-color: #151518; /* Space-gray background */
+            color: #fff; /* Text color */
+        }
+
+        #connect h2 {
+            margin-bottom: 30px;
+        }
+
+        .email {
+            margin-bottom: 20px; /* Adjust spacing between email text and icons */
+            font-size: 18px;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px; /* Adjust spacing between icons */
+        }
+
+        .social-icons img {
+            width: 40px; /* Adjust size as needed */
+            height: auto;
+        }
+
+        .social-icons a {
+            display: inline-block;
+            transition: transform 0.3s ease-in-out; /* Add smooth hover effect */
+        }
+
+        .social-icons a:hover {
+            transform: scale(1.1); /* Increase size on hover */
+        }
+        
+        .email-link {
+            color: #ffffff; /* Change color to white or any other preferred color */
+            text-decoration: none; /* Remove underline */
+        }
+
+        .email-link:hover {
+            text-decoration: underline; /* Add underline on hover if desired */
+        }
+        
+        h2 {
+            font-family: 'Ailerons', sans-serif; /* Set font family to Ailerons */
+            color: #b22222; /* Set color to dark red */
+        }
+
+    </style>
+    <!-- Include custom font -->
+    <link rel="stylesheet" href="Ailerons.otf">
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#music">Music</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#contact">Connect</a></li>
+        </ul>
+    </nav>
+
+    <div class="video-container">
+        <video class="header-banner" autoplay muted loop>
+            <source src="header.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div id="fade-text" class="fade-text">
+            Scott Johnson <span class="composer">Composer</span>
+        </div>
+        <div class="video-text">
+            <span class="bold">EUROPA</span>
+            <span>dir. Jacqueline Elyse Rosenthal</span>
+            <span class="italic"></span>
+        </div>
+    </div>
+    
+    <section id="about">
+        <div class="about-content">
+            <div class="text">
+                <h2 class="about-heading"> <span class="white">ABOUT</span> <span class="dark-red">SCOTT</span></h2>
+                <p class="fade-in-element">Opting for a path less traveled, Scott pursued his undergraduate education at the esteemed USC School of Cinematic Arts, specializing in Film & Television Production—widely regarded as one of the foremost programs in the field. This strategic choice allowed him to engage with a vast network of filmmakers, far exceeding what he might have achieved through a conventional music school.</p>
+
+                <p class="fade-in-element">To date, Scott has scored over 100 USC thesis films and has earned the reputation of being a “secret weapon” within the program for his work ethic and collaborative spirit. His contributions have been instrumental in numerous projects that achieved critical acclaim, including those that have garnered awards at the Cannes Film Festival and the Student Academy Awards.</p>
+
+                <p class="fade-in-element">In 2020, Scott's expertise was showcased on a global stage when he scored a “Shot on iPhone” short for Apple Inc.</p>
+
+                <p class="fade-in-element">Prior to graduating film school, Scott was invited to join Hans Zimmer’s Bleeding Fingers Music. Post-USC, Scott's career trajectory has seen him collaborate with industry luminaries such as Roeban Katz and Alexandre Desplat. His expertise has also been sought by major networks like ABC, where he contributed to special editions of ABC 20/20’s “Black Panther: In Search of Wakanda” and “Disney 100: A Century of Dreams”.</p>
+
+                <p class="fade-in-element">Scott's versatility extends beyond scoring, having been commissioned to sound design segments for Coachella.</p>
+            </div>
+            <div class="image">
+                <img  class="fade-in-element"src="about.jpg" alt="About Image">
+            </div>
+        </div>
+    </section>
+
+
+    </section>
+
+    <section id="projects">
+        <h2>Projects</h2>
+        <div class="grid-container">
+            <div class="poster-box" style="background-image: url('poster01.jpg');"></div>
+            <div class="poster-box" style="background-image: url('poster02.jpg');"></div>
+            <div class="poster-box" style="background-image: url('poster03.jpg');"></div>
+            <div class="poster-box" style="background-image: url('poster04.jpg');"></div>
+            <div class="poster-box" style="background-image: url('poster05.jpg');"></div>
+            <div class="poster-box" style="background-image: url('poster06.jpg');"></div>
+            <div class="poster-box" style="background-image: url('poster07.jpg');"></div>
+            <div class="poster-box" style="background-image: url('poster08.jpg');"></div>
+            <div class="poster-box" style="background-image: url('poster09.jpg');"></div>
+            <div class="poster-box" style="background-image: url('poster10.jpg');"></div>
+        </div>
+        <div id="imdb-button">
+            <a href="https://www.imdb.com/name/nm10841602/?ref_=ttfc_fc_cr16" target="_blank">
+                <img src="IMDb.jpg" alt="IMDb">
+            </a>
+        </div>
+    </section>
+    
+    <section id="clients">
+        <h2>Clients and Collaborators</h2>
+        <div class="client-logos">
+            <img src="client01.jpg" class="fade-in">
+            <img src="client02.jpg" class="fade-in">
+            <img src="client03.jpg" class="fade-in">
+            <img src="client04.jpg" class="fade-in">
+            <img src="client05.jpg" class="fade-in">
+            <img src="client06.jpg" class="fade-in">
+            <img src="client07.jpg" class="fade-in">
+            <img src="client08.jpg" class="fade-in">
+            <img src="client09.jpg" class="fade-in">
+            <img src="client10.jpg" class="fade-in">
+        </div>
+    </section>
+    
+    <section id="music">
+        <h2>Music</h2>
+        <div class="music-player">
+            <iframe width="100%" height="600" scrolling="no" frameborder="no" src="https://play.reelcrafter.com/embed/89cfc08c-faf9-449a-9c25-e6e0d646bb9f"></iframe>
+        </div>
+    </section>
+
+    <section id="connect">
+        <h2>Connect</h2>
+        <p class="email"> <a href="mailto:scottjohnsoncomposer@gmail.com" class="email-link">scottjohnsoncomposer@gmail.com</a></p>
+        <div class="social-icons">
+            <a href="https://www.instagram.com/" target="_blank"><img src="connect-instagram.jpg" alt="Instagram"></a>
+            <a href="https://www.facebook.com/" target="_blank"><img src="connect-facebook.jpg" alt="Facebook"></a>
+            <a href="https://www.youtube.com/" target="_blank"><img src="connect-youtube.jpg" alt="YouTube"></a>
+            <a href="https://www.linkedin.com/" target="_blank"><img src="connect-linkedin.jpg" alt="LinkedIn"></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Scott Johnson Composer. All rights reserved.</p>
+    </footer>
+
+<script>
+    window.addEventListener('scroll', function () {
+        const headerBanner = document.querySelector('.header-banner');
+        const scrollPosition = window.scrollY;
+        const blurValue = Math.min(scrollPosition / 100, 5); // Adjust the divisor for more/less blur
+        headerBanner.style.filter = `blur(${blurValue}px)`;
+    });
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observerCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+        const aboutHeading = document.querySelector('.about-heading');
+        observer.observe(aboutHeading);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observerCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+        document.querySelectorAll('.poster-box').forEach(element => {
+            observer.observe(element);
+        });
+
+        const posterImages = ['poster01.jpg', 'poster02.jpg', 'poster03.jpg', 'poster04.jpg', 'poster05.jpg', 'poster06.jpg', 'poster07.jpg', 'poster08.jpg', 'poster09.jpg', 'poster10.jpg'];
+
+        const posterBoxes = document.querySelectorAll('.poster-box');
+
+        posterBoxes.forEach((box, index) => {
+            box.style.backgroundImage = `url(${posterImages[index]})`;
+        });
+
+        // Text fade-in and fade-out
+        const fadeText = document.getElementById('fade-text');
+
+        setTimeout(() => {
+            fadeText.classList.add('fade-in');
+        }, 1000); // Fade in after 1 second
+
+        setTimeout(() => {
+            fadeText.classList.remove('fade-in');
+            fadeText.classList.add('fade-out');
+        }, 4000); // Start fade out after 4 seconds
+
+        // Ensure fade-out completes as expected
+        setTimeout(() => {
+            fadeText.style.display = 'none'; // Optionally hide the element after fading out
+        }, 20000); // Duration of fade-out (4s) + transition duration (2s)
+
+        // Add dynamic video text
+        const videoText = document.querySelector('.video-text');
+
+        const textEvents = [
+            { time: 10, duration: 17, lines: ['EUROPA', 'dir. Jacqueline Elyse Rosenthal', ''] },
+            { time: 30, duration: 17, lines: ['COLOSSEUM', 'dir. Roel Reiné', 'As Technical Score Assistant'] },
+            { time: 49, duration: 11, lines: ['TASTE OF CHERRY', 'dir. Xinran Zou', ''] },
+            { time: 63, duration: 27, lines: ['COACHELLA 2024', 'DojaCat Livestream Outro', 'As Sound Designer'] },
+        ];
+
+        function updateTextContent(lines) {
+            const spans = videoText.querySelectorAll('span');
+            spans[0].textContent = lines[0];
+            spans[1].textContent = lines[1];
+            spans[2].textContent = lines[2];
+        }
+
+        function clearTextContent() {
+            const spans = videoText.querySelectorAll('span');
+            spans.forEach(span => {
+                span.style.opacity = '0';
+            });
+        }
+
+        const video = document.querySelector('.header-banner');
+        video.addEventListener('timeupdate', () => {
+            const currentTime = video.currentTime;
+            clearTextContent();
+            textEvents.forEach(event => {
+                if (currentTime >= event.time && currentTime < event.time + event.duration) {
+                    updateTextContent(event.lines);
+                    const spans = videoText.querySelectorAll('span');
+                    spans.forEach(span => {
+                        span.style.opacity = '1';
+                    });
+                }
+            });
+        });
+
+        // Loop the text events when the video ends
+        video.addEventListener('ended', () => {
+            video.currentTime = 0;
+            video.play();
+        });
+
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observerCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+        document.querySelectorAll('.fade-in-element').forEach(element => {
+            observer.observe(element);
+        });
+    
+        setTimeout(() => {
+            document.querySelectorAll('.client-logos img').forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('in-view');
+                }, index * 500); // Adjust the delay as needed
+            });
+        });
+
+        const posterImages = ['poster01.jpg', 'poster02.jpg', 'poster03.jpg', 'poster04.jpg', 'poster05.jpg', 'poster06.jpg', 'poster07.jpg', 'poster08.jpg', 'poster09.jpg', 'poster10.jpg'];
+
+        const posterBoxes = document.querySelectorAll('.poster-box');
+
+        posterBoxes.forEach((box, index) => {
+            box.style.backgroundImage = `url(${posterImages[index]})`;
+        });
+
+        // Text fade-in and fade-out
+        const fadeText = document.getElementById('fade-text');
+
+        setTimeout(() => {
+            fadeText.classList.add('fade-in');
+        }, 1000); // Fade in after 1 second
+
+        setTimeout(() => {
+            fadeText.classList.remove('fade-in');
+            fadeText.classList.add('fade-out');
+        }, 4000); // Start fade out after 4 seconds
+
+        // Ensure fade-out completes as expected
+        setTimeout(() => {
+            fadeText.style.display = 'none'; // Optionally hide the element after fading out
+        }, 20000); // Duration of fade-out (4s) + transition duration (2s)
+
+        // Add dynamic video text
+        const videoText = document.querySelector('.video-text');
+
+        const textEvents = [
+            { time: 10, duration: 17, lines: ['EUROPA', 'dir. Jacqueline Elyse Rosenthal', ''] },
+            { time: 30, duration: 17, lines: ['COLOSSEUM', 'dir. Roel Reiné', 'As Technical Score Assistant'] },
+            { time: 49, duration: 11, lines: ['TASTE OF CHERRY', 'dir. Xinran Zou', ''] },
+            { time: 63, duration: 27, lines: ['COACHELLA 2024', 'DojaCat Livestream Outro', 'As Sound Designer'] },
+        ];
+
+        function updateTextContent(lines) {
+            const spans = videoText.querySelectorAll('span');
+            spans[0].textContent = lines[0];
+            spans[1].textContent = lines[1];
+            spans[2].textContent = lines[2];
+        }
+
+        function clearTextContent() {
+            const spans = videoText.querySelectorAll('span');
+            spans.forEach(span => {
+                span.style.opacity = '0';
+            });
+        }
+
+        const video = document.querySelector('.header-banner');
+        video.addEventListener('timeupdate', () => {
+            const currentTime = video.currentTime;
+            clearTextContent();
+            textEvents.forEach(event => {
+                if (currentTime >= event.time && currentTime < event.time + event.duration) {
+                    updateTextContent(event.lines);
+                    const spans = videoText.querySelectorAll('span');
+                    spans.forEach(span => {
+                        span.style.opacity = '1';
+                    });
+                }
+            });
+        });
+
+        // Loop the text events when the video ends
+        video.addEventListener('ended', () => {
+            video.currentTime = 0;
+            video.play();
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observerCallback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            };
+
+            const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+            document.querySelectorAll('.client-logos img').forEach(element => {
+                observer.observe(element);
+            });
+        });
+
+    });
+</script>
+</body>
+
+</html>
