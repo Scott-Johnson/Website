@@ -174,9 +174,28 @@
                 max-height: 80px; /* Adjust for smaller screens if necessary */
             }
         }
+        
+        /* ClientsNew section styles */
+        #ClientsNew {
+            padding: 50px 0;
+            text-align: center;
+            background-color: #151518;
+            color: #fff;
+        }
 
-        /* Individual client logos */
-        .client-logos img {
+        #ClientsNew h2 {
+            margin-bottom: 30px;
+        }
+
+        /* Icons styles */
+        .ClientsNew-icons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .ClientsNew-icons .icon {
             width: 80px; /* Adjust size as needed */
             height: 80px; /* Adjust size as needed */
             border-radius: 50%;
@@ -185,26 +204,11 @@
             transition: opacity 1s, transform 1s;
         }
 
-        .client-logos img.in-view {
+        .ClientsNew-icons .icon.in-view {
             opacity: 1;
-            transform: translateY(0);
+            transform: scale(1);
         }
-
-        .client-logos img:hover {
-            transform: scale(1.2); /* Increase size on hover */
-        }
-
-        /* Animation for all client logos */
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
+        
         .imdb-icon:hover {
             transform: scale(1.1); /* Increase size on hover */
         }
@@ -437,19 +441,19 @@
         </div>
     </section>
     
-    <section id="clients">
-        <h2>Clients and Collaborators</h2>
-        <div class="client-logos">
-            <img src="client01.jpg" class="fade-in">
-            <img src="client02.jpg" class="fade-in">
-            <img src="client03.jpg" class="fade-in">
-            <img src="client04.jpg" class="fade-in">
-            <img src="client05.jpg" class="fade-in">
-            <img src="client06.jpg" class="fade-in">
-            <img src="client07.jpg" class="fade-in">
-            <img src="client08.jpg" class="fade-in">
-            <img src="client09.jpg" class="fade-in">
-            <img src="client10.jpg" class="fade-in">
+    <section id="ClientsNew">
+        <h2>Clients & Collaborators</h2>
+        <div class="ClientsNew-icons">
+            <img src="client01.jpg" class="icon" alt="Client 1">
+            <img src="client02.jpg" class="icon" alt="Client 2">
+            <img src="client03.jpg" class="icon" alt="Client 3">
+            <img src="client04.jpg" class="icon" alt="Client 4">
+            <img src="client05.jpg" class="icon" alt="Client 5">
+            <img src="client06.jpg" class="icon" alt="Client 6">
+            <img src="client07.jpg" class="icon" alt="Client 7">
+            <img src="client08.jpg" class="icon" alt="Client 8">
+            <img src="client09.jpg" class="icon" alt="Client 9">
+            <img src="client10.jpg" class="icon" alt="Client 10">
         </div>
     </section>
     
@@ -476,6 +480,54 @@
     </footer>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const textElement = document.getElementById('fade-text');
+        setTimeout(() => {
+            textElement.classList.add('fade-in');
+        }, 1000); // Adjust delay for fade-in here
+
+        setTimeout(() => {
+            textElement.classList.remove('fade-in');
+            textElement.classList.add('fade-out');
+        }, 6000); // Adjust delay for fade-out here
+
+        // Intersection Observer for Projects Section
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observerCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+        const posterBoxes = document.querySelectorAll('.poster-box');
+        posterBoxes.forEach((box, index) => {
+            observer.observe(box);
+        });
+
+        // Intersection Observer for Client Logos
+        const clientLogos = document.querySelectorAll('.client-logos img');
+        clientLogos.forEach((logo, index) => {
+            observer.observe(logo);
+        });
+
+        // Intersection Observer for ClientsNew Section with Sequential Fade-In
+        const ClientsNewIcons = document.querySelectorAll('.ClientsNew-icons .icon');
+        ClientsNewIcons.forEach((icon, index) => {
+            observer.observe(icon);
+            icon.style.transitionDelay = `${index * 0.4}s`; // Set delay for each icon based on its index
+        });
+    });
+
     window.addEventListener('scroll', function () {
         const headerBanner = document.querySelector('.header-banner');
         const scrollPosition = window.scrollY;
