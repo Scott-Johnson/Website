@@ -695,11 +695,31 @@
         });
 
         const posterImages = ['poster01.jpg', 'poster02.jpg', 'poster03.jpg', 'poster04.jpg', 'poster05.jpg', 'poster06.jpg', 'poster07.jpg', 'poster08.jpg', 'poster09.jpg', 'poster10.jpg'];
+        const posterAltText = [ 'Coloseum', //1
+                                'Europa',
+                                'Disney 100: A Century of Dreams', //3
+                                'You Will Not Replace Us',
+                                'Legally Brown', //5
+                                'Sano',
+                                'Neurodivergent', //7
+                                'Waves Apart',
+                                '20/20', //9
+                                'Top Chef'];
 
         const posterBoxes = document.querySelectorAll('.poster-box');
 
         posterBoxes.forEach((box, index) => {
             box.style.backgroundImage = `url(${posterImages[index]})`;
+
+            // Create img element
+            const img = document.createElement('img');
+            img.src = posterImages[index];
+            img.alt = posterAltText[index];
+            img.style.display = 'none'; // Hides the img element but allows the alt text to be read by screen readers
+
+            // Append img element to box
+            box.appendChild(img);
+
         });
 
         // Text fade-in and fade-out
