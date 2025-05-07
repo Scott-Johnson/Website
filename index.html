@@ -117,7 +117,7 @@
         }
 
         .poster-box:hover {
-            transform: scale(1.1); /* Increase size on hover */
+            transform: scale(1.03); /* Increase size on hover */
             transition: transform 0.3s;
         }
 
@@ -211,6 +211,26 @@
         .ClientsNew-icons .icon.in-view {
             opacity: 1;
             transform: scale(1);
+        }
+        
+        .collaborator-section {
+          padding: 20px 20px;
+          text-align: center;
+          max-width: 1600px;
+          margin: 0 auto;
+        }
+
+        .collaborator-names .name {
+          opacity: 0;
+          transform: translateY(10px);
+          display: inline-block;
+          margin: 0 6px;
+          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .collaborator-names .name.visible {
+          opacity: 0.4;
+          transform: translateY(0);
         }
         
         .imdb-icon:hover {
@@ -470,15 +490,48 @@
         </div>
     </section>
     
+    <section class="collaborator-section">
+      <div class="collaborator-names">
+        <span class="name">APPLE INC</span>
+        <span class="name">BLEEDING FINGERS MUSIC</span>
+        <span class="name">ABC</span>
+        <span class="name">COACHELLA</span>
+        <span class="name">CHELSEA SIK</span>
+        <span class="name">ROSE TINTED PRODUCTIONS</span>
+        <span class="name">CHRISSY MARSHALL</span>
+        <span class="name">15 PERF FILMS</span>
+        <span class="name">LANDPORT PRODUCTIONS</span>
+        <span class="name">LUKE HARRIS</span>
+        <span class="name">JOSH GREENE</span>
+        <span class="name">EMILY KIM</span>
+        <span class="name">AMAN ADLAKHA</span>
+        <span class="name">LUKE & RITA KONOPASKY</span>
+        <span class="name">ANTHONY BUSHMAN</span>
+        <span class="name">MARY POSATKO</span>
+        <span class="name">JULIAN STERN</span>
+        <span class="name">KIRSTEN HOANG</span>
+        <span class="name">JIACHENG WANG</span>
+        <span class="name">FREY DAGNE</span>
+        <span class="name">JELENA NIK</span>
+        <span class="name">ANDRES CASANOVA</span>
+        <span class="name">SOFIJA ELENA ALEKNA</span>
+        <span class="name">AFTON QUAST SALER</span>
+        <span class="name">JOAO PEDRO DRUMMOND</span>
+        <span class="name">NICHOLAS PUDJARMINTA</span>
+        <span class="name">KEVIN MAXWELL</span>
+        <span class="name">SUNDAY SMITH</span>
+        <span class="name">JOSHUA MORENO</span>
+        <span class="name">MARJAN MONA KOFFA</span>
+      </div>
+    </section>
+    
     <section id="music">
         <h2>Listen</h2>
         <div class="music-player">
             <iframe width="100%" height="600" scrolling="no" frameborder="no" src="https://play.reelcrafter.com/embed/89cfc08c-faf9-449a-9c25-e6e0d646bb9f"></iframe>
-            <iframe width="400" height="225" src="https://www.youtube.com/embed/bIxH5RTWUNg?si=DInGANpoVan_d2AD" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe> 
     </section>
 
     <section id="connect">
-        <img src="connect.jpg" alt="Connect" class="connect-image">
         <h2>Connect</h2>
         <p class="email"> <a href="mailto:scottjohnsoncomposer@gmail.com" class="email-link">scottjohnsoncomposer@gmail.com</a></p>
         <div class="social-icons">
@@ -804,8 +857,30 @@
             document.querySelectorAll('.client-logos img').forEach(element => {
                 observer.observe(element);
             });
+            
         });
 
+    });
+    document.addEventListener("DOMContentLoaded", () => {
+      const names = document.querySelectorAll(".collaborator-names .name");
+
+      const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            names.forEach((name, i) => {
+              setTimeout(() => {
+                name.classList.add("visible");
+              }, i * 150);
+            });
+            observer.unobserve(entry.target); // only trigger once
+          }
+        });
+      }, {
+        threshold: 0.3
+      });
+
+      const container = document.querySelector(".collaborator-section");
+      if (container) observer.observe(container);
     });
 </script>
 </body>
