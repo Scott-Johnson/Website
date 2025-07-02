@@ -27,9 +27,10 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            font-family: 'Arial', sans-serif; /* Keep Arial as primary for body for readability */
+            font-family: Arial, sans-serif; /* Keep Arial as primary for body for readability */
             line-height: 1.6;
             overflow-x: hidden; /* Prevent horizontal scroll due to animations */
+            /* overflow-y managed by JS for mobile menu */
         }
 
         /* Smooth Scrolling (global for better feel) */
@@ -62,13 +63,16 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(5px); /* Modern frosted glass effect */
             -webkit-backdrop-filter: blur(5px); /* Safari support */
+            display: flex; /* Use flexbox for desktop nav and toggle placement */
+            justify-content: center; /* Center desktop nav items */
+            align-items: center;
         }
 
         nav ul {
             list-style-type: none;
             padding: 0;
             margin: 0;
-            display: flex;
+            display: flex; /* Desktop nav is flex */
             justify-content: center;
             gap: 40px; /* Increased space between nav items */
         }
@@ -106,6 +110,102 @@
 
         .glow-hover:hover::after {
             transform: scaleX(1);
+        }
+
+        /* Mobile Navigation Toggle (Hamburger) */
+        .mobile-menu-toggle {
+            display: none; /* Hidden by default on desktop */
+            position: absolute; /* Position relative to nav */
+            top: 20px;
+            right: 20px;
+            z-index: 1001; /* Above mobile menu overlay */
+            width: 30px;
+            height: 25px;
+            cursor: pointer;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mobile-menu-toggle span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: var(--text-light);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(1) {
+            transform: translateY(11px) rotate(45deg);
+        }
+
+        .mobile-menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(3) {
+            transform: translateY(-11px) rotate(-45deg);
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Align items to the start (top) */
+            align-items: center; /* Horizontally center items */
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%; /* Ensure it covers full height */
+            background-color: rgba(21, 21, 24, 0.98); /* Darker, almost opaque */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 999;
+            transform: translateX(100%); /* Start off-screen (right) */
+            opacity: 0; /* Also fade in */
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+            /* Removed: overflow-y: auto; -- menu should not scroll internally */
+        }
+
+        .mobile-menu-overlay.active {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .mobile-menu-overlay ul {
+            list-style-type: none;
+            padding: 80px 0 40px; /* Adjusted padding-bottom */
+            margin: 0;
+            display: flex;
+            flex-direction: column; /* Links stack vertically */
+            gap: 20px; /* Space between links */
+            width: 100%; /* Ensure ul takes full width of overlay */
+            align-items: center; /* Center items horizontally within ul */
+        }
+
+        .mobile-menu-overlay ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: clamp(1.1em, 5vw, 1.6em); /* Tighter clamp for smaller, more consistently visible text */
+            font-weight: 500;
+            padding: 10px 20px;
+            display: block; /* Make whole area clickable */
+            opacity: 0; /* Hidden for staggered animation */
+            transform: translateY(20px); /* For slide-up effect */
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            transition-delay: var(--stagger-delay, 0s);
+        }
+
+        .mobile-menu-overlay.active ul li a {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mobile-menu-overlay ul li a:hover {
+            color: var(--glow-color);
+            text-shadow: 0 0 10px var(--glow-color), 0 0 2px var(--glow-color);
         }
 
         /* Hero Section (Video Container) */
@@ -216,18 +316,18 @@
         section {
             padding: var(--section-padding);
             text-align: center;
-            position: relative; /* For background effects */
+            position: relative;
             overflow: hidden;
-            background-color: var(--bg-dark); /* Ensure consistent background */
+            background-color: var(--bg-dark);
         }
 
         section h2 {
             font-family: 'Ailerons', sans-serif;
             color: var(--accent-red);
-            font-size: clamp(2rem, 5vw, 3.5rem); /* Responsive heading size */
+            font-size: clamp(2rem, 5vw, 3.5rem);
             margin-bottom: 50px;
             position: relative;
-            display: inline-block; /* For underline effect */
+            display: inline-block;
         }
 
         section h2::after {
@@ -244,24 +344,24 @@
 
         /* About Section */
         #about {
-            padding-top: 100px; /* Adjusted padding-top */
-            z-index: 1; /* Ensure content stays above the effects */
+            padding-top: 100px;
+            z-index: 1;
         }
 
         .about-content {
             display: flex;
-            flex-direction: column; /* Default to column for mobile */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             max-width: 1100px;
             margin: 0 auto;
-            gap: 40px; /* Space between text and image */
-            text-align: left; /* Align text to left within its container */
+            gap: 40px;
+            text-align: left;
         }
 
         @media (min-width: 768px) {
             .about-content {
-                flex-direction: row; /* Row for larger screens */
+                flex-direction: row;
                 text-align: left;
             }
         }
@@ -269,13 +369,13 @@
         .about-content .text {
             flex: 1;
             padding: 0 20px;
-            max-width: 600px; /* Control text width */
+            max-width: 600px;
         }
 
         .about-content .text p {
             margin-bottom: 20px;
             font-size: 1.1em;
-            color: rgba(255, 255, 255, 0.9); /* Slightly lighter text */
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .about-content .image {
@@ -286,7 +386,7 @@
 
         .about-content .image img {
             width: 100%;
-            max-width: 350px; /* Control image max width */
+            max-width: 350px;
             height: auto;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
@@ -339,11 +439,11 @@
           width: 300px;
           height: 300px;
           background: radial-gradient(circle at center, var(--accent-red) 0%, transparent 70%);
-          opacity: 0.1; /* Reduced opacity */
-          filter: blur(100px); /* Increased blur */
+          opacity: 0.1;
+          filter: blur(100px);
           animation: glowPulse 6s ease-in-out infinite, floatUpDown 10s ease-in-out infinite;
           transform-origin: center;
-          z-index: -1; /* Behind content */
+          z-index: -1;
         }
 
         #about::before {
@@ -354,7 +454,7 @@
         #about::after {
           bottom: 10%;
           right: -150px;
-          animation-delay: 2s; /* Stagger animation */
+          animation-delay: 2s;
         }
 
         @keyframes floatUpDown {
@@ -369,13 +469,13 @@
 
         /* Projects Section */
         #projects {
-            background-color: #1a1a1e; /* Slightly different background for contrast */
+            background-color: #1a1a1e;
             padding-top: var(--section-padding);
         }
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 30px;
             max-width: 1200px;
             margin: 0 auto;
@@ -383,7 +483,7 @@
 
         .poster-box {
             width: 100%;
-            padding-top: 150%; /* Aspect ratio 2:3 */
+            padding-top: 150%;
             background-color: #333;
             background-size: cover;
             background-position: center;
@@ -408,7 +508,7 @@
         }
         
         .poster-box img {
-            display: none; /* Keep hidden, alt text for accessibility */
+            display: none;
         }
 
         #imdb-button {
@@ -416,9 +516,9 @@
         }
 
         #imdb-button img {
-            width: 60px; /* Larger IMDb button */
+            width: 60px;
             height: auto;
-            border-radius: 50%; /* Circular for a modern touch */
+            border-radius: 50%;
             transition: transform var(--transition-speed) ease, filter var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
@@ -439,29 +539,29 @@
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 40px; /* More space between logos */
+            gap: 40px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
         .ClientsNew-icons .icon {
-            width: 100px; /* Larger icons */
+            width: 100px;
             height: 100px;
             border-radius: 50%;
-            object-fit: contain; /* Ensure logo fits */
-            background-color: #222; /* Subtle background for logos */
+            object-fit: contain;
+            background-color: #222;
             padding: 10px;
             opacity: 0;
             transform: scale(0.8);
             transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow var(--transition-speed) ease;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            filter: grayscale(80%) brightness(0.8); /* Desaturate for modern look */
+            filter: grayscale(80%) brightness(0.8);
         }
 
         .ClientsNew-icons .icon.in-view {
             opacity: 1;
             transform: scale(1);
-            filter: grayscale(0%) brightness(1); /* Full color on view */
+            filter: grayscale(0%) brightness(1);
         }
 
         .ClientsNew-icons .icon:hover {
@@ -471,7 +571,7 @@
         }
 
         .collaborator-section {
-            padding: 20px 20px 80px; /* More padding at bottom */
+            padding: 20px 20px 80px;
             text-align: center;
             max-width: 1600px;
             margin: 0 auto;
@@ -479,12 +579,12 @@
 
         .collaborator-names {
             font-size: 1.1em;
-            color: rgba(255, 255, 255, 0.6); /* Muted color */
+            color: rgba(255, 255, 255, 0.6);
             margin-top: 30px;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px 25px; /* Row and column gap */
+            gap: 15px 25px;
         }
 
         .collaborator-names .name {
@@ -492,24 +592,24 @@
             transform: translateY(10px);
             display: inline-block;
             transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-            padding: 5px 10px; /* Small padding */
+            padding: 5px 10px;
             border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.05); /* Very subtle background */
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .collaborator-names .name.visible {
-            opacity: 0.8; /* Slightly less opaque */
+            opacity: 0.8;
             transform: translateY(0);
         }
 
         /* Music Section */
         #music {
-            background-color: #1a1a1e; /* Consistent with projects section */
+            background-color: #1a1a1e;
             padding-top: var(--section-padding);
         }
 
         .music-player {
-            max-width: 900px; /* Wider player */
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
             background-color: #222;
@@ -519,18 +619,18 @@
         }
 
         .music-player iframe {
-            border-radius: 8px; /* Match container border-radius */
+            border-radius: 8px;
         }
 
         /* Connect Section */
         #connect {
             background-color: var(--bg-dark);
             padding-top: var(--section-padding);
-            padding-bottom: 100px; /* More space at the bottom */
+            padding-bottom: 100px;
         }
 
         #connect .email {
-            margin-bottom: 40px; /* Increased spacing */
+            margin-bottom: 40px;
             font-size: 1.2em;
         }
 
@@ -549,11 +649,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 30px; /* Increased gap */
+            gap: 30px;
         }
 
         .social-icons img {
-            width: 50px; /* Larger icons */
+            width: 50px;
             height: auto;
             border-radius: 50%;
             transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease, filter var(--transition-speed) ease;
@@ -569,30 +669,29 @@
 
         /* Footer */
         footer {
-            background-color: rgba(0, 0, 0, 0.9); /* Darker footer */
+            background-color: rgba(0, 0, 0, 0.9);
             padding: 30px 20px;
             text-align: center;
             font-size: 0.9em;
             color: rgba(255, 255, 255, 0.7);
-            border-top: 1px solid rgba(255, 255, 255, 0.05); /* Subtle top border */
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* Responsive Adjustments */
-        @media (max-width: 1024px) {
-            .grid-container {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 25px;
-            }
-        }
-
         @media (max-width: 768px) {
-            nav ul {
-                gap: 20px;
-                flex-wrap: wrap;
+            nav ul.desktop-nav {
+                display: none; /* Hide desktop nav on mobile */
             }
 
-            nav ul li a {
-                font-size: 1em;
+            .mobile-menu-toggle {
+                display: flex; /* Show hamburger on mobile */
+            }
+
+            /* Adjust nav for mobile (make it right-aligned for hamburger) */
+            nav {
+                justify-content: flex-end; /* Push hamburger to right */
+                padding-right: 20px; /* Keep padding */
+                padding-left: 20px; /* Balance padding */
             }
 
             .video-container {
@@ -613,8 +712,9 @@
                 font-size: 0.8em;
             }
 
+            /* Optimized section padding for mobile */
             section {
-                padding: 60px 15px;
+                padding: 60px 15px; /* Reduced horizontal padding */
             }
 
             section h2 {
@@ -623,17 +723,24 @@
             }
 
             .about-content {
-                padding: 0 15px;
+                flex-direction: column; /* Stack for mobile */
+                padding: 0 15px; /* Adjusted padding */
                 gap: 30px;
             }
 
             .about-content .text {
-                padding: 0;
+                padding: 0; /* Remove extra padding inherited from larger screens */
+                text-align: center; /* Center text on mobile */
             }
 
             .about-content .text p {
-                font-size: 1em;
+                font-size: 1em; /* Slightly smaller for mobile readability */
             }
+            
+            .about-content .image img {
+                max-width: 80%; /* Ensure image doesn't get too big on small screens */
+            }
+
 
             .ClientsNew-icons {
                 gap: 25px;
@@ -658,15 +765,7 @@
         }
 
         @media (max-width: 480px) {
-            nav ul {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            nav ul li {
-                margin-right: 0;
-            }
-
+            /* Desktop nav is already hidden by general 768px rule */
             .grid-container {
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                 gap: 20px;
@@ -685,6 +784,16 @@
                 font-size: 0.9em;
                 gap: 10px 15px;
             }
+
+            /* Further adjustment for very small screens for mobile menu links */
+            .mobile-menu-overlay ul li a {
+                font-size: clamp(1.0em, 4.5vw, 1.4em); /* Even tighter clamp for smallest screens, smaller min font */
+            }
+        }
+
+        /* Class to prevent body scrolling when mobile menu is open */
+        body.no-scroll {
+            overflow: hidden !important;
         }
     </style>
 </head>
@@ -696,12 +805,27 @@
     </video>
 
     <nav>
-        <ul>
+        <div class="mobile-menu-toggle" id="mobile-menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <ul class="desktop-nav">
             <li><a href="#about" class="glow-hover">About</a></li>
             <li><a href="#music" class="glow-hover">Music</a></li>
             <li><a href="#projects" class="glow-hover">Projects</a></li>
             <li><a href="#connect" class="glow-hover">Connect</a></li>
         </ul>
+
+        <div class="mobile-menu-overlay" id="mobile-menu-overlay">
+            <ul>
+                <li><a href="#about" class="glow-hover mobile-nav-link">About</a></li>
+                <li><a href="#music" class="glow-hover mobile-nav-link">Music</a></li>
+                <li><a href="#projects" class="glow-hover mobile-nav-link">Projects</a></li>
+                <li><a href="#connect" class="glow-hover mobile-nav-link">Connect</a></li>
+            </ul>
+        </div>
     </nav>
 
     <div class="video-container">
@@ -868,8 +992,8 @@
         requestAnimationFrame(animation);
     }
 
-    // Attach custom smooth scrolling to navigation links
-    document.querySelectorAll('nav ul li a').forEach(anchor => {
+    // Attach custom smooth scrolling to desktop navigation links
+    document.querySelectorAll('nav ul.desktop-nav li a').forEach(anchor => { // Target desktop nav links
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             smoothScrollTo(this.getAttribute('href'));
@@ -1003,6 +1127,56 @@
         });
 
     });
+
+    // --- Mobile Menu Logic ---
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const mobileNavLinks = document.querySelectorAll('.mobile-menu-overlay ul li a'); // Select links specifically in the overlay
+
+    mobileMenuToggle.addEventListener('click', () => {
+        mobileMenuToggle.classList.toggle('active');
+        mobileMenuOverlay.classList.toggle('active');
+        document.body.classList.toggle('no-scroll'); // Toggle no-scroll class on body
+
+        // Stagger animation for links in mobile menu when opening
+        if (mobileMenuOverlay.classList.contains('active')) {
+            mobileNavLinks.forEach((link, index) => {
+                link.style.setProperty('--stagger-delay', `${index * 0.1 + 0.1}s`); // Add a base delay to start after menu opens
+                link.style.opacity = '1';
+                link.style.transform = 'translateY(0)';
+            });
+        } else {
+            // Reset state for smoother re-opening when closing
+            mobileNavLinks.forEach(link => {
+                link.style.transitionDelay = '0s'; // Reset delay
+                link.style.opacity = '0';
+                link.style.transform = 'translateY(20px)';
+            });
+        }
+    });
+
+    mobileNavLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            // Use smoothScrollTo for menu links
+            smoothScrollTo(link.getAttribute('href'));
+            
+            // Close menu after clicking a link
+            mobileMenuToggle.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+            document.body.classList.remove('no-scroll');
+        });
+    });
+
+    // Add CSS rule for 'no-scroll' dynamically
+    const styleSheet = document.createElement('style');
+    styleSheet.innerHTML = `
+        body.no-scroll {
+            overflow: hidden !important;
+        }
+    `;
+    document.head.appendChild(styleSheet);
+    // --- End of Mobile Menu Logic ---
 </script>
 </body>
+
 </html>
