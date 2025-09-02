@@ -16,7 +16,7 @@
             --bg-dark: #151518;
             --text-light: #fff;
             --accent-red: #b22222;
-            --nav-bg: rgba(21, 21, 24, 0.9); /* Slightly more opaque for nav */
+            --nav-bg: rgba(21, 21, 24, 0.9);
             --glow-color: #b22222;
             --transition-speed: 0.3s;
             --section-padding: 80px 20px;
@@ -27,15 +27,13 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif; /* Keep Arial as primary for body for readability */
+            font-family: Arial, sans-serif;
             line-height: 1.6;
-            overflow-x: hidden; /* Prevent horizontal scroll due to animations */
-            /* overflow-y managed by JS for mobile menu */
+            overflow-x: hidden;
         }
 
-        /* Smooth Scrolling (global for better feel) */
         html {
-            scroll-behavior: auto; /* Managed by custom JS */
+            scroll-behavior: auto;
         }
 
         #bg-video {
@@ -48,7 +46,7 @@
             z-index: -1;
             pointer-events: none;
             filter: brightness(0.4) saturate(0.9);
-            opacity: 0.7; /* Soften the background video slightly */
+            opacity: 0.7;
             transition: opacity 1s ease-in-out;
         }
 
@@ -61,10 +59,10 @@
             top: 0;
             z-index: 1000;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(5px); /* Modern frosted glass effect */
-            -webkit-backdrop-filter: blur(5px); /* Safari support */
-            display: flex; /* Use flexbox for desktop nav and toggle placement */
-            justify-content: center; /* Center desktop nav items */
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
             align-items: center;
         }
 
@@ -72,9 +70,9 @@
             list-style-type: none;
             padding: 0;
             margin: 0;
-            display: flex; /* Desktop nav is flex */
+            display: flex;
             justify-content: center;
-            gap: 40px; /* Increased space between nav items */
+            gap: 40px;
         }
 
         nav ul li a {
@@ -95,7 +93,6 @@
             text-shadow: 0 0 10px var(--glow-color), 0 0 2px var(--glow-color);
         }
 
-        /* Active navigation link indicator */
         .glow-hover::after {
             content: '';
             position: absolute;
@@ -114,11 +111,11 @@
 
         /* Mobile Navigation Toggle (Hamburger) */
         .mobile-menu-toggle {
-            display: none; /* Hidden by default on desktop */
-            position: absolute; /* Position relative to nav */
+            display: none;
+            position: absolute;
             top: 20px;
             right: 20px;
-            z-index: 1001; /* Above mobile menu overlay */
+            z-index: 1001;
             width: 30px;
             height: 25px;
             cursor: pointer;
@@ -152,21 +149,20 @@
         .mobile-menu-overlay {
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* Align items to the start (top) */
-            align-items: center; /* Horizontally center items */
+            justify-content: flex-start;
+            align-items: center;
             position: fixed;
             top: 0;
             right: 0;
             width: 100%;
-            height: 100%; /* Ensure it covers full height */
-            background-color: rgba(21, 21, 24, 0.98); /* Darker, almost opaque */
+            height: 100%;
+            background-color: rgba(21, 21, 24, 0.98);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             z-index: 999;
-            transform: translateX(100%); /* Start off-screen (right) */
-            opacity: 0; /* Also fade in */
+            transform: translateX(100%);
+            opacity: 0;
             transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-            /* Removed: overflow-y: auto; -- menu should not scroll internally */
         }
 
         .mobile-menu-overlay.active {
@@ -176,24 +172,24 @@
 
         .mobile-menu-overlay ul {
             list-style-type: none;
-            padding: 80px 0 40px; /* Adjusted padding-bottom */
+            padding: 80px 0 40px;
             margin: 0;
             display: flex;
-            flex-direction: column; /* Links stack vertically */
-            gap: 20px; /* Space between links */
-            width: 100%; /* Ensure ul takes full width of overlay */
-            align-items: center; /* Center items horizontally within ul */
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            align-items: center;
         }
 
         .mobile-menu-overlay ul li a {
             color: var(--text-light);
             text-decoration: none;
-            font-size: clamp(1.1em, 5vw, 1.6em); /* Tighter clamp for smaller, more consistently visible text */
+            font-size: clamp(1.1em, 5vw, 1.6em);
             font-weight: 500;
             padding: 10px 20px;
-            display: block; /* Make whole area clickable */
-            opacity: 0; /* Hidden for staggered animation */
-            transform: translateY(20px); /* For slide-up effect */
+            display: block;
+            opacity: 0;
+            transform: translateY(20px);
             transition: opacity 0.4s ease-out, transform 0.4s ease-out;
             transition-delay: var(--stagger-delay, 0s);
         }
@@ -212,9 +208,9 @@
         .video-container {
             position: relative;
             width: 100%;
-            height: 70vh; /* Make hero section taller */
+            height: 70vh;
             overflow: hidden;
-            display: flex; /* Use flex for centering content */
+            display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
@@ -227,7 +223,7 @@
             position: absolute;
             left: 0;
             width: 100%;
-            height: 120px; /* Increased blur fade height */
+            height: 120px;
             z-index: 2;
             pointer-events: none;
         }
@@ -241,29 +237,29 @@
             bottom: 0;
             background: linear-gradient(to top, var(--bg-dark) 0%, transparent 100%);
         }
-        
+
         .header-banner {
-            position: absolute; /* Position to fill container */
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.6); /* Slightly dim the video */
+            filter: brightness(0.6);
             transition: filter 0.5s ease-out;
         }
 
         .fade-text {
-            position: relative; /* Relative to video-container */
+            position: relative;
             z-index: 3;
-            font-size: clamp(3rem, 10vw, 7rem); /* Responsive font size */
+            font-size: clamp(3rem, 10vw, 7rem);
             font-family: 'Ailerons', sans-serif;
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 1.5s ease-out, transform 1.5s ease-out;
-            color: var(--text-light); /* Ensure main text is white */
+            color: var(--text-light);
             letter-spacing: 0.1em;
-            text-shadow: 0 0 15px rgba(0,0,0,0.8);
+            text-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
         }
 
         .fade-in {
@@ -279,21 +275,21 @@
 
         .composer {
             color: var(--accent-red);
-            display: block; /* Break 'Composer' to new line */
-            font-size: 0.5em; /* Smaller than main name */
+            display: block;
+            font-size: 0.5em;
             letter-spacing: 0.2em;
-            margin-top: -10px; /* Pull closer to name */
+            margin-top: -10px;
         }
 
         .video-text {
             position: absolute;
             bottom: 35px;
-            right: 20px; /* More padding */
+            right: 20px;
             text-align: right;
             color: var(--text-light);
             z-index: 3;
             font-size: 0.9em;
-            text-shadow: 0 0 5px rgba(0,0,0,0.7);
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
         }
 
         .video-text span {
@@ -403,6 +399,7 @@
         .dark-red {
             color: var(--accent-red);
         }
+
         .white {
             color: var(--text-light);
         }
@@ -434,37 +431,47 @@
         /* About Section Glow Accents */
         #about::before,
         #about::after {
-          content: "";
-          position: absolute;
-          width: 300px;
-          height: 300px;
-          background: radial-gradient(circle at center, var(--accent-red) 0%, transparent 70%);
-          opacity: 0.1;
-          filter: blur(100px);
-          animation: glowPulse 6s ease-in-out infinite, floatUpDown 10s ease-in-out infinite;
-          transform-origin: center;
-          z-index: -1;
+            content: "";
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle at center, var(--accent-red) 0%, transparent 70%);
+            opacity: 0.1;
+            filter: blur(100px);
+            animation: glowPulse 6s ease-in-out infinite, floatUpDown 10s ease-in-out infinite;
+            transform-origin: center;
+            z-index: -1;
         }
 
         #about::before {
-          top: 10%;
-          left: -150px;
+            top: 10%;
+            left: -150px;
         }
 
         #about::after {
-          bottom: 10%;
-          right: -150px;
-          animation-delay: 2s;
+            bottom: 10%;
+            right: -150px;
+            animation-delay: 2s;
         }
 
         @keyframes floatUpDown {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(50px); }
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(50px);
+            }
         }
 
         @keyframes glowPulse {
-          0%, 100% { opacity: 0.1; transform: scale(1); }
-          50% { opacity: 0.25; transform: scale(1.05); }
+            0%, 100% {
+                opacity: 0.1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.25;
+                transform: scale(1.05);
+            }
         }
 
         /* Projects Section */
@@ -506,7 +513,7 @@
             transform: translateY(-5px) scale(1.02);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         }
-        
+
         .poster-box img {
             display: none;
         }
@@ -528,6 +535,140 @@
             filter: brightness(1.1);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
         }
+
+        /* By The Numbers Section */
+        #by-the-numbers {
+            background-color: #1a1a1e;
+            padding: 40px 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background-color: #222;
+            padding: 25px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .stat-card.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .stat-number {
+            font-family: 'Ailerons', sans-serif;
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            color: var(--accent-red);
+            font-weight: bold;
+            margin: 0;
+            line-height: 1;
+            padding-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .stat-summary {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 10px;
+            min-height: 40px;
+        }
+
+        .timeline-card {
+            grid-column: 1 / -1;
+            background-color: #222;
+            padding: 30px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+
+        .timeline-card.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline-visuals {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .graph-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 500px;
+            text-align: left;
+            position: relative;
+        }
+
+        .graph-label {
+            font-size: 0.9em;
+            color: var(--text-light);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .graph-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .graph-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #b22222, #e63946);
+            width: 0%;
+            transition: width 2s ease-out;
+            position: relative;
+        }
+
+        .graph-bar-text {
+            font-size: 0.8em;
+            font-weight: bold;
+            color: var(--text-light);
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            white-space: nowrap; /* Fixes the text wrapping issue */
+        }
+
 
         /* Clients & Collaborators Section */
         #ClientsNew {
@@ -570,41 +711,11 @@
             filter: grayscale(0%) brightness(1.1);
         }
 
-        .collaborator-section {
-            padding: 20px 20px 80px;
-            text-align: center;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        .collaborator-names {
-            font-size: 1.1em;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 30px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px 25px;
-        }
-
-        .collaborator-names .name {
-            opacity: 0;
-            transform: translateY(10px);
-            display: inline-block;
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-            padding: 5px 10px;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-
-        .collaborator-names .name.visible {
-            opacity: 0.8;
-            transform: translateY(0);
-        }
+        /* Removed the collaborator-section completely as requested */
 
         /* Music Section */
         #music {
-            background-color: #1a1a1e;
+            background-color: var(--bg-dark);
             padding-top: var(--section-padding);
         }
 
@@ -624,7 +735,7 @@
 
         /* Connect Section */
         #connect {
-            background-color: var(--bg-dark);
+            background-color: #1a1a1e;
             padding-top: var(--section-padding);
             padding-bottom: 100px;
         }
@@ -680,18 +791,17 @@
         /* Responsive Adjustments */
         @media (max-width: 768px) {
             nav ul.desktop-nav {
-                display: none; /* Hide desktop nav on mobile */
+                display: none;
             }
 
             .mobile-menu-toggle {
-                display: flex; /* Show hamburger on mobile */
+                display: flex;
             }
 
-            /* Adjust nav for mobile (make it right-aligned for hamburger) */
             nav {
-                justify-content: flex-end; /* Push hamburger to right */
-                padding-right: 20px; /* Keep padding */
-                padding-left: 20px; /* Balance padding */
+                justify-content: flex-end;
+                padding-right: 20px;
+                padding-left: 20px;
             }
 
             .video-container {
@@ -712,9 +822,8 @@
                 font-size: 0.8em;
             }
 
-            /* Optimized section padding for mobile */
             section {
-                padding: 60px 15px; /* Reduced horizontal padding */
+                padding: 60px 15px;
             }
 
             section h2 {
@@ -723,24 +832,23 @@
             }
 
             .about-content {
-                flex-direction: column; /* Stack for mobile */
-                padding: 0 15px; /* Adjusted padding */
+                flex-direction: column;
+                padding: 0 15px;
                 gap: 30px;
             }
 
             .about-content .text {
-                padding: 0; /* Remove extra padding inherited from larger screens */
-                text-align: center; /* Center text on mobile */
+                padding: 0;
+                text-align: center;
             }
 
             .about-content .text p {
-                font-size: 1em; /* Slightly smaller for mobile readability */
-            }
-            
-            .about-content .image img {
-                max-width: 80%; /* Ensure image doesn't get too big on small screens */
+                font-size: 1em;
             }
 
+            .about-content .image img {
+                max-width: 80%;
+            }
 
             .ClientsNew-icons {
                 gap: 25px;
@@ -765,7 +873,6 @@
         }
 
         @media (max-width: 480px) {
-            /* Desktop nav is already hidden by general 768px rule */
             .grid-container {
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                 gap: 20px;
@@ -780,18 +887,11 @@
                 height: 70px;
             }
 
-            .collaborator-names {
-                font-size: 0.9em;
-                gap: 10px 15px;
-            }
-
-            /* Further adjustment for very small screens for mobile menu links */
             .mobile-menu-overlay ul li a {
-                font-size: clamp(1.0em, 4.5vw, 1.4em); /* Even tighter clamp for smallest screens, smaller min font */
+                font-size: clamp(1.0em, 4.5vw, 1.4em);
             }
         }
 
-        /* Class to prevent body scrolling when mobile menu is open */
         body.no-scroll {
             overflow: hidden !important;
         }
@@ -842,19 +942,19 @@
             <span class="italic"></span>
         </div>
     </div>
-    
+
     <section id="about">
         <h2 class="about-heading"><span class="white">ABOUT</span> <span class="dark-red">SCOTT</span></h2>
         <div class="about-content">
             <div class="text">
                 <p class="fade-in-element">Scott pursued his undergraduate education at the esteemed <strong>USC School of Cinematic Arts</strong>, specializing in Film & Television Production—widely regarded as the world's leading academic program in the film & entertainment field.</p>
-                
+
                 <p class="fade-in-element">While at USC, Scott made history scoring <strong>over 100 USC thesis films</strong> and earned the reputation of being a “secret weapon” within the program for his work ethic and collaborative spirit. His contributions have been instrumental in numerous projects that achieved critical acclaim, including those that have garnered awards at the <strong>Cannes Film Festival</strong> and the <strong>Student Academy Awards</strong>.</p>
 
                 <p class="fade-in-element">In 2020, Scott's work was showcased on a global stage when he scored a “Shot on iPhone” short for <strong>Apple Inc</strong>.</p>
 
                 <p class="fade-in-element">Prior to graduating film school, Scott was invited to join <strong>Hans Zimmer’s Bleeding Fingers Music</strong>.</p>
-                
+
                 <p class="fade-in-element">Scott's career trajectory has seen him collaborate with industry luminaries such as Roeban Katz and <strong>Alexandre Desplat</strong>. He has also worked with major networks like ABC, where he contributed to special editions of ABC 20/20’s <strong><em>“Black Panther: In Search of Wakanda”</em></strong> and <strong><em>“Disney 100: A Century of Dreams”</em></strong>.</p>
 
                 <p class="fade-in-element">Scott's versatility extends beyond scoring, having been commissioned to sound design segments for <strong>Coachella</strong>.</p>
@@ -885,7 +985,70 @@
             </a>
         </div>
     </section>
-    
+
+    <section id="by-the-numbers">
+        <h2>By The Numbers</h2>
+        <div class="stats-grid">
+            <div class="stat-card fade-in-element" data-target-number="60000000">
+                <p class="stat-number">0M+</p>
+                <p class="stat-label">Audience Reach</p>
+                <p class="stat-summary">Primetime network shows such as ABC's 20/20 with 2-5 million viewers per broadcast, as well as YouTube premiere with a global audience of 15M+ viewers.</p>
+            </div>
+            <div class="stat-card fade-in-element" data-target-number="250" data-plus="true">
+                <p class="stat-number">0+</p>
+                <p class="stat-label">Scores Delivered</p>
+                <p class="stat-summary">Full scores and stems delivered for feature films, short films, video games, and other media.</p>
+            </div>
+            <div class="stat-card fade-in-element" data-target-number="150" data-plus="true">
+                <p class="stat-number">0+</p>
+                <p class="stat-label">Major Network Placements</p>
+                <p class="stat-summary">Prime-Time placements on ABC, CBS, NBC, other placements on Netflix, Disney+, HBO Max, Hulu.</p>
+            </div>
+            <div class="stat-card fade-in-element" data-target-number="50" data-plus="true">
+                <p class="stat-number">0+</p>
+                <p class="stat-label">Ongoing Partnerships</p>
+                <p class="stat-summary">Collaborations from USC, NYU, and various film networks, teams, and music publishers.</p>
+            </div>
+            <div class="stat-card fade-in-element" data-target-number="10" data-plus="true">
+                <p class="stat-number">0+</p>
+                <p class="stat-label">Awards / Nominations</p>
+                <p class="stat-summary">For best original score and best original song, as well as awards for producing and project management roles.</p>
+            </div>
+            <div class="timeline-card fade-in-element">
+                <h3 class="stat-label">Timeline & Efficiency</h3>
+                <div class="timeline-visuals">
+                    <div class="graph-item">
+                        <span class="graph-label">Creative Turnaround</span>
+                        <div class="graph-bar-container">
+                            <div class="graph-bar" data-width="100%" data-delay="0s">
+                                <span class="graph-bar-text">Full Short Film Score: 3 Weeks</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="graph-item">
+                        <span class="graph-label">Project Delivery</span>
+                        <div class="graph-bar-container">
+                            <div class="graph-bar" data-width="100%" data-delay="0.5s">
+                                <span class="graph-bar-text">100% On-Time or Ahead of Schedule</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="graph-item">
+                        <span class="graph-label">Annual Music Output</span>
+                        <div class="graph-bar-container">
+                            <div class="graph-bar" data-width="100%" data-delay="1s">
+                                <span class="graph-bar-text">35+ Hours</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-summary">
+                    <p>My ability to work quickly and with precision is a top priority. I am able to accommodate urgent projects with timelines as short as 48 hours.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="ClientsNew">
         <h2>Clients & Collaborators</h2>
         <div class="ClientsNew-icons">
@@ -901,42 +1064,10 @@
             <img src="client10.jpg" class="icon" alt="Lanport Productions Logo">
         </div>
     </section>
-    
+
     <section class="collaborator-section">
-      <div class="collaborator-names">
-        <span class="name">APPLE INC</span>
-        <span class="name">BLEEDING FINGERS MUSIC</span>
-        <span class="name">ABC</span>
-        <span class="name">COACHELLA</span>
-        <span class="name">CHELSEA SIK</span>
-        <span class="name">ROSE TINTED PRODUCTIONS</span>
-        <span class="name">CHRISSY MARSHALL</span>
-        <span class="name">15 PERF FILMS</span>
-        <span class="name">LANDPORT PRODUCTIONS</span>
-        <span class="name">LUKE HARRIS</span>
-        <span class="name">JOSH GREENE</span>
-        <span class="name">EMILY KIM</span>
-        <span class="name">AMAN ADLAKHA</span>
-        <span class="name">LUKE & RITA KONOPASKY</span>
-        <span class="name">ANTHONY BUSHMAN</span>
-        <span class="name">MARY POSATKO</span>
-        <span class="name">JULIAN STERN</span>
-        <span class="name">KIRSTEN HOANG</span>
-        <span class="name">JIACHENG WANG</span>
-        <span class="name">FREY DAGNE</span>
-        <span class="name">JELENA NIK</span>
-        <span class="name">ANDRES CASANOVA</span>
-        <span class="name">SOFIJA ELENA ALEKNA</span>
-        <span class="name">AFTON QUAST SALER</span>
-        <span class="name">JOAO PEDRO DRUMMOND</span>
-        <span class="name">NICHOLAS PUDJARMINTA</span>
-        <span class="name">KEVIN MAXWELL</span>
-        <span class="name">SUNDAY SMITH</span>
-        <span class="name">JOSHUA MORENO</span>
-        <span class="name">MARJAN MONA KOFFA</span>
-      </div>
-    </section>
-    
+      </section>
+
     <section id="music">
         <h2>Listen</h2>
         <div class="music-player">
@@ -959,224 +1090,296 @@
         <p>© 2024 Scott Johnson Composer. All rights reserved.</p>
     </footer>
 
-<script>
-    // Custom Smooth Scrolling Function
-    function smoothScrollTo(targetId) {
-        const targetElement = document.querySelector(targetId);
-        if (!targetElement) return;
+    <script>
+        // Custom Smooth Scrolling Function
+        function smoothScrollTo(targetId) {
+            const targetElement = document.querySelector(targetId);
+            if (!targetElement) return;
 
-        const startPosition = window.pageYOffset;
-        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-        const distance = targetPosition - startPosition;
-        const duration = 1200; // Increased duration for a smoother, slower feel (like CapCut)
-        let startTime = null;
+            const startPosition = window.pageYOffset;
+            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+            const distance = targetPosition - startPosition;
+            const duration = 1200;
+            let startTime = null;
 
-        function easeInOutQuad(t, b, c, d) {
-            t /= d / 2;
-            if (t < 1) return c / 2 * t * t + b;
-            t--;
-            return -c / 2 * (t * (t - 2) - 1) + b;
-        }
-
-        function animation(currentTime) {
-            if (startTime === null) startTime = currentTime;
-            const timeElapsed = currentTime - startTime;
-            const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
-            window.scrollTo(0, run);
-            if (timeElapsed < duration) {
-                requestAnimationFrame(animation);
-            } else {
-                window.scrollTo(0, targetPosition); // Ensure final position is exact
-            }
-        }
-        requestAnimationFrame(animation);
-    }
-
-    // Attach custom smooth scrolling to desktop navigation links
-    document.querySelectorAll('nav ul.desktop-nav li a').forEach(anchor => { // Target desktop nav links
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            smoothScrollTo(this.getAttribute('href'));
-        });
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        // Hero text fade-in and fade-out
-        const textElement = document.getElementById('fade-text');
-        setTimeout(() => {
-            textElement.classList.add('fade-in');
-        }, 1000);
-
-        setTimeout(() => {
-            textElement.classList.remove('fade-in');
-            textElement.classList.add('fade-out');
-        }, 6000); // Start fade out at 6 seconds
-
-        // Observe elements for fade-in animations
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1 // Trigger when 10% of element is in view
-        };
-
-        const callback = (entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('in-view');
-                    observer.unobserve(entry.target); // Stop observing once animated
-                }
-            });
-        };
-
-        const generalObserver = new IntersectionObserver(callback, observerOptions);
-
-        document.querySelectorAll('.fade-in-element').forEach(element => {
-            generalObserver.observe(element);
-        });
-        document.querySelectorAll('.poster-box').forEach(element => {
-            generalObserver.observe(element);
-        });
-        document.querySelectorAll('.ClientsNew-icons .icon').forEach((icon, index) => {
-            // Apply a slight delay to each icon for a staggered effect
-            icon.style.transitionDelay = `${index * 0.1}s`;
-            generalObserver.observe(icon);
-        });
-
-        // About Heading Fade In
-        const aboutHeading = document.querySelector('.about-heading');
-        const headingObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    aboutHeading.classList.add('fade-in');
-                    headingObserver.unobserve(aboutHeading);
-                }
-            });
-        }, { threshold: 0.2 });
-        headingObserver.observe(aboutHeading);
-
-        // Collaborator Names Staggered Fade In
-        const collaboratorNamesContainer = document.querySelector(".collaborator-section");
-        const names = document.querySelectorAll(".collaborator-names .name");
-
-        const collaboratorObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    names.forEach((name, i) => {
-                        setTimeout(() => {
-                            name.classList.add("visible");
-                        }, i * 80); // Faster stagger
-                    });
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.3 });
-
-        if (collaboratorNamesContainer) collaboratorObserver.observe(collaboratorNamesContainer);
-
-
-        // Dynamic video text logic
-        const videoText = document.querySelector('.video-text');
-        const headerVideo = document.querySelector('.header-banner');
-
-        const textEvents = [
-            { time: 10, duration: 17, lines: ['EUROPA', 'dir. Jacqueline Elyse Rosenthal', ''] },
-            { time: 30, duration: 17, lines: ['COLOSSEUM', 'dir. Roel Reiné', 'As Technical Score Assistant'] },
-            { time: 49, duration: 11, lines: ['TASTE OF CHERRY', 'dir. Xinran Zou', ''] },
-            { time: 63, duration: 27, lines: ['COACHELLA 2024', 'DojaCat Livestream Outro', 'As Sound Designer'] },
-        ];
-
-        function updateVideoText(lines) {
-            const spans = videoText.querySelectorAll('span');
-            spans[0].textContent = lines[0];
-            spans[1].textContent = lines[1];
-            spans[2].textContent = lines[2];
-            spans.forEach(span => span.style.opacity = '1'); // Make visible
-        }
-
-        function clearVideoText() {
-            videoText.querySelectorAll('span').forEach(span => span.style.opacity = '0');
-        }
-
-        let currentTextEvent = null;
-
-        headerVideo.addEventListener('timeupdate', () => {
-            const currentTime = headerVideo.currentTime;
-            let foundEvent = null;
-
-            for (const event of textEvents) {
-                if (currentTime >= event.time && currentTime < event.time + event.duration) {
-                    foundEvent = event;
-                    break;
-                }
+            function easeInOutQuad(t, b, c, d) {
+                t /= d / 2;
+                if (t < 1) return c / 2 * t * t + b;
+                t--;
+                return -c / 2 * (t * (t - 2) - 1) + b;
             }
 
-            if (foundEvent && foundEvent !== currentTextEvent) {
-                updateVideoText(foundEvent.lines);
-                currentTextEvent = foundEvent;
-            } else if (!foundEvent && currentTextEvent) {
+            function animation(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                const timeElapsed = currentTime - startTime;
+                const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
+                window.scrollTo(0, run);
+                if (timeElapsed < duration) {
+                    requestAnimationFrame(animation);
+                } else {
+                    window.scrollTo(0, targetPosition);
+                }
+            }
+            requestAnimationFrame(animation);
+        }
+
+        // Attach custom smooth scrolling to desktop navigation links
+        document.querySelectorAll('nav ul.desktop-nav li a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                smoothScrollTo(this.getAttribute('href'));
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hero text fade-in and fade-out
+            const textElement = document.getElementById('fade-text');
+            setTimeout(() => {
+                textElement.classList.add('fade-in');
+            }, 1000);
+
+            setTimeout(() => {
+                textElement.classList.remove('fade-in');
+                textElement.classList.add('fade-out');
+            }, 6000);
+
+            // Observe elements for fade-in animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const callback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                        if (entry.target.classList.contains('stat-card')) {
+                            animateCounter(entry.target);
+                        }
+                        if (entry.target.classList.contains('timeline-card')) {
+                            animateGraphs(entry.target);
+                        }
+                        observer.unobserve(entry.target);
+                    }
+                });
+            };
+
+            const generalObserver = new IntersectionObserver(callback, observerOptions);
+
+            document.querySelectorAll('.fade-in-element').forEach(element => {
+                generalObserver.observe(element);
+            });
+            document.querySelectorAll('.poster-box').forEach(element => {
+                generalObserver.observe(element);
+            });
+            document.querySelectorAll('.ClientsNew-icons .icon').forEach((icon, index) => {
+                icon.style.transitionDelay = `${index * 0.1}s`;
+                generalObserver.observe(icon);
+            });
+
+            // About Heading Fade In
+            const aboutHeading = document.querySelector('.about-heading');
+            const headingObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        aboutHeading.classList.add('fade-in');
+                        headingObserver.unobserve(aboutHeading);
+                    }
+                });
+            }, {
+                threshold: 0.2
+            });
+            headingObserver.observe(aboutHeading);
+
+            // Collaborator Names Staggered Fade In
+            const collaboratorNamesContainer = document.querySelector(".collaborator-section");
+            const names = document.querySelectorAll(".collaborator-names .name");
+
+            const collaboratorObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        names.forEach((name, i) => {
+                            setTimeout(() => {
+                                name.classList.add("visible");
+                            }, i * 80);
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.3
+            });
+
+            if (collaboratorNamesContainer) collaboratorObserver.observe(collaboratorNamesContainer);
+
+
+            // Number Counter Animation with Easing
+            function animateCounter(card) {
+                const numberElement = card.querySelector('.stat-number');
+                let targetNumber = parseInt(card.dataset.targetNumber);
+                const isPlus = card.dataset.plus === 'true';
+                const isMillion = targetNumber >= 1000000;
+                let startNumber = 0;
+                const duration = 4000;
+                let startTimestamp = null;
+
+                function easeOutQuart(t) {
+                    return 1 - Math.pow(1 - t, 4);
+                }
+
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = timestamp - startTimestamp;
+                    const normalizedTime = Math.min(progress / duration, 1);
+                    const easedTime = easeOutQuart(normalizedTime);
+                    const currentNumber = Math.floor(easedTime * targetNumber);
+
+                    if (isMillion) {
+                        numberElement.textContent = Math.floor(currentNumber / 1000000) + 'M+';
+                    } else {
+                        numberElement.textContent = currentNumber + (isPlus ? '+' : '');
+                    }
+
+                    if (progress < duration) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        if (isMillion) {
+                            numberElement.textContent = '60M+';
+                        } else {
+                            numberElement.textContent = targetNumber + (isPlus ? '+' : '');
+                        }
+                    }
+                };
+
+                window.requestAnimationFrame(step);
+            }
+
+            // Timeline graph animation with sequential delay
+            function animateGraphs(card) {
+                const bars = card.querySelectorAll('.graph-bar');
+                bars.forEach(bar => {
+                    const targetWidth = bar.dataset.width;
+                    const delay = parseFloat(bar.dataset.delay);
+                    setTimeout(() => {
+                        bar.style.width = targetWidth;
+                    }, delay * 1000);
+                });
+            }
+
+
+            // Dynamic video text logic
+            const videoText = document.querySelector('.video-text');
+            const headerVideo = document.querySelector('.header-banner');
+
+            const textEvents = [
+                {
+                    time: 10,
+                    duration: 17,
+                    lines: ['EUROPA', 'dir. Jacqueline Elyse Rosenthal', '']
+                },
+                {
+                    time: 30,
+                    duration: 17,
+                    lines: ['COLOSSEUM', 'dir. Roel Reiné', 'As Technical Score Assistant']
+                },
+                {
+                    time: 49,
+                    duration: 11,
+                    lines: ['TASTE OF CHERRY', 'dir. Xinran Zou', '']
+                },
+                {
+                    time: 63,
+                    duration: 27,
+                    lines: ['COACHELLA 2024', 'DojaCat Livestream Outro', 'As Sound Designer']
+                },
+            ];
+
+            function updateVideoText(lines) {
+                const spans = videoText.querySelectorAll('span');
+                spans[0].textContent = lines[0];
+                spans[1].textContent = lines[1];
+                spans[2].textContent = lines[2];
+                spans.forEach(span => span.style.opacity = '1');
+            }
+
+            function clearVideoText() {
+                videoText.querySelectorAll('span').forEach(span => span.style.opacity = '0');
+            }
+
+            let currentTextEvent = null;
+
+            headerVideo.addEventListener('timeupdate', () => {
+                const currentTime = headerVideo.currentTime;
+                let foundEvent = null;
+
+                for (const event of textEvents) {
+                    if (currentTime >= event.time && currentTime < event.time + event.duration) {
+                        foundEvent = event;
+                        break;
+                    }
+                }
+
+                if (foundEvent && foundEvent !== currentTextEvent) {
+                    updateVideoText(foundEvent.lines);
+                    currentTextEvent = foundEvent;
+                } else if (!foundEvent && currentTextEvent) {
+                    clearVideoText();
+                    currentTextEvent = null;
+                }
+            });
+
+            headerVideo.addEventListener('ended', () => {
+                headerVideo.currentTime = 0;
+                headerVideo.play();
                 clearVideoText();
                 currentTextEvent = null;
+            });
+        });
+
+        // --- Mobile Menu Logic ---
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const mobileNavLinks = document.querySelectorAll('.mobile-menu-overlay ul li a');
+
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenuToggle.classList.toggle('active');
+            mobileMenuOverlay.classList.toggle('active');
+            document.body.classList.toggle('no-scroll');
+
+            if (mobileMenuOverlay.classList.contains('active')) {
+                mobileNavLinks.forEach((link, index) => {
+                    link.style.setProperty('--stagger-delay', `${index * 0.1 + 0.1}s`);
+                    link.style.opacity = '1';
+                    link.style.transform = 'translateY(0)';
+                });
+            } else {
+                mobileNavLinks.forEach(link => {
+                    link.style.transitionDelay = '0s';
+                    link.style.opacity = '0';
+                    link.style.transform = 'translateY(20px)';
+                });
             }
         });
 
-        headerVideo.addEventListener('ended', () => {
-            headerVideo.currentTime = 0;
-            headerVideo.play();
-            clearVideoText(); // Clear text when video loops
-            currentTextEvent = null;
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                smoothScrollTo(link.getAttribute('href'));
+                mobileMenuToggle.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+                document.body.classList.remove('no-scroll');
+            });
         });
 
-    });
-
-    // --- Mobile Menu Logic ---
-    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-    const mobileNavLinks = document.querySelectorAll('.mobile-menu-overlay ul li a'); // Select links specifically in the overlay
-
-    mobileMenuToggle.addEventListener('click', () => {
-        mobileMenuToggle.classList.toggle('active');
-        mobileMenuOverlay.classList.toggle('active');
-        document.body.classList.toggle('no-scroll'); // Toggle no-scroll class on body
-
-        // Stagger animation for links in mobile menu when opening
-        if (mobileMenuOverlay.classList.contains('active')) {
-            mobileNavLinks.forEach((link, index) => {
-                link.style.setProperty('--stagger-delay', `${index * 0.1 + 0.1}s`); // Add a base delay to start after menu opens
-                link.style.opacity = '1';
-                link.style.transform = 'translateY(0)';
-            });
-        } else {
-            // Reset state for smoother re-opening when closing
-            mobileNavLinks.forEach(link => {
-                link.style.transitionDelay = '0s'; // Reset delay
-                link.style.opacity = '0';
-                link.style.transform = 'translateY(20px)';
-            });
-        }
-    });
-
-    mobileNavLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            // Use smoothScrollTo for menu links
-            smoothScrollTo(link.getAttribute('href'));
-            
-            // Close menu after clicking a link
-            mobileMenuToggle.classList.remove('active');
-            mobileMenuOverlay.classList.remove('active');
-            document.body.classList.remove('no-scroll');
-        });
-    });
-
-    // Add CSS rule for 'no-scroll' dynamically
-    const styleSheet = document.createElement('style');
-    styleSheet.innerHTML = `
-        body.no-scroll {
-            overflow: hidden !important;
-        }
-    `;
-    document.head.appendChild(styleSheet);
-    // --- End of Mobile Menu Logic ---
-</script>
+        const styleSheet = document.createElement('style');
+        styleSheet.innerHTML = `
+            body.no-scroll {
+                overflow: hidden !important;
+            }
+        `;
+        document.head.appendChild(styleSheet);
+        // --- End of Mobile Menu Logic ---
+    </script>
 </body>
 
 </html>
