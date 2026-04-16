@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-mode">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Audiometry Pro</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #ffffff;
+            --card: #fcfcfc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #f1f5f9;
+            --border-dark: #e2e8f0;
+            --right-ear: #ef4444;
+            --left-ear: #3b82f6;
+            --setup-bg: #f8fafc;
+        }
+
+        /* Dark Mode Variables */
+        :root.dark-mode {
+            --primary: #3b82f6;
+            --bg: #121212;
+            --card: #1e1e1e;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #2d2d2d;
+            --border-dark: #404040;
+            --setup-bg: #262626;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif; background-color: var(--bg); color: var(--text); max-width: 950px; margin: 0 auto; padding: 20px; text-align: center; transition: background-color 0.3s, color 0.3s; position: relative; min-height: 90vh; }
+        
+        #theme-toggle { position: absolute; top: 20px; right: 20px; background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
+        #theme-toggle:hover { background: var(--border); color: var(--text); }
+        
+        .card { background-color: var(--card); border-radius: 12px; padding: 30px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-top: 20px; width: 100%; transition: background-color 0.3s, border-color 0.3s; position: relative; }
+        button { background-color: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s, background-color 0.2s, color 0.2s; margin: 5px; }
+        button:hover { opacity: 0.9; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .setup-group { margin: 15px 0; text-align: left; background: var(--setup-bg); padding: 20px; border-radius: 8px; border: 1px solid var(--border); transition: background-color 0.3s; }
+        .setup-group input[type="text"], .setup-group input[type="number"], .setup-group select { padding: 10px; border-radius: 4px; border: 1px solid var(--border-dark); font-size: 15px; background: var(--bg); color: var(--text); margin-top: 5px; }
+        
+        .status-text { font-size: 11px; color: var(--text-muted); margin: 20px 0; display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .big-info { font-size: 2.5rem; font-weight: bold; margin: 10px 0; color: var(--text); }
+        
+        .controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 15px; }
+        .control-block { display: flex; flex-direction: column; align-items: center; }
+        kbd { background: var(--border); border-radius: 4px; border: 1px solid var(--border-dark); padding: 3px 6px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+        
+        #slider-container { display: none; margin: 30px 0; }
+        
+        .slider-flex { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0; }
+        input[type="range"] { width: 100%; max-width: 400px; cursor: pointer; }
+        
+        .nudge-btn { background: transparent; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; opacity: 0.4; transition: all 0.2s; padding: 0 8px; line-height: 1; }
+        .nudge-btn.minor { font-size: 28px; padding: 0 12px; }
+        .nudge-btn:hover { opacity: 1; color: var(--text); }
+        
+        canvas { background: var(--card); border: 1px solid var(--border-dark); border-radius: 8px; max-width: 100%; height: auto; transition: background-color 0.3s, border-color 0.3s; margin-bottom: 15px; cursor: crosshair; }
+        
+        .table-responsive { overflow-x: auto; width: 100%; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; color: var(--text); table-layout: fixed; }
+        th, td { border: 1px solid var(--border-dark); padding: 8px; text-align: center; overflow: hidden; text-overflow: ellipsis; }
+        th { background-color: var(--setup-bg); }
+        .empty-cell { background-color: var(--bg); opacity: 0.3; }
+        
+        #test-section, #results-section { display: none; }
+        .minimal-btn { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); font-size: 10px; cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: all 0.2s; }
+        .minimal-btn:hover { color: var(--text); border-color: var(--text-muted); }
+        .mute-active { background: #fee2e2 !important; color: #ef4444 !important; border-color: #fecaca !important; }
+        
+        .checkbox-label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; margin-right: 15px; color: var(--text-muted); font-size: 13px; margin-bottom: 8px; }
+        input[type="checkbox"] { cursor: pointer; accent-color: var(--primary); }
+        
+        .link-btn { background: none; border: none; color: var(--primary); font-size: 11px; cursor: pointer; padding: 0; margin-left: 10px; opacity: 0.8; }
+        .link-btn:hover { text-decoration: underline; opacity: 1; }
+
+        .preset-btn { background: var(--border); color: var(--text); padding: 4px 10px; font-size: 11px; border-radius: 4px; border: 1px solid var(--border-dark); cursor: pointer; }
+        .preset-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .flex-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+        #graph-tooltip { position: fixed; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; padding: 6px 10px; border-radius: 6px; background: var(--card); border: 1px solid var(--border-dark); font-size: 12px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; color: var(--text); }
+
+        @media print {
+            .no-print { display: none !important; }
+            .card { border: none; box-shadow: none; background: white !important; color: black !important; padding: 0; }
+            .table-responsive { overflow-x: visible !important; margin-bottom: 20px !important; }
+            table { font-size: 11px !important; width: 100% !important; page-break-inside: avoid; }
+            th, td { padding: 5px !important; }
+            canvas { background: white !important; border: 1px solid #ccc !important; }
+            body { background: white; padding: 0; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <button id="theme-toggle" class="no-print" onclick="toggleTheme()">Light Mode</button>
+
+    <h2 class="no-print">Smart Audiometry Pro</h2>
+
+    <div id="setup-section" class="card no-print">
+        <div class="setup-group">
+            <label><strong>1. Hardware Identification</strong></label>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">Audiometric baseline is locked to your 4-year calibrated studio interface.</p>
+            <input type="text" id="custom-hw-input" placeholder="e.g. Sennheiser HD 280 Pro" style="width: 100%;" value="Sennheiser HD 280 Pro (Logic Baseline)">
+        </div>
+
+        <div class="setup-group" id="calibration-ui">
+            <label><strong>2. Studio Level Verification (1kHz @ 16.3 dB HL)</strong></label>
+            <div style="font-size: 13px; color: var(--text-muted); margin: 10px 0;">
+                The 0 dB HL baseline is hard-coded to <strong>-80.0 dBFS</strong>. <br><br>
+                <strong>Verification:</strong> Play the tone below. It outputs exactly <strong>-63.7 dBFS</strong>. Since your hearing is 0 dB HL, this tone should sound clearly audible but soft (equivalent to 16.3 dB HL).
+            </div>
+
+            <div style="text-align: center; margin-top: 15px;">
+                <button onclick="toggleReferenceTone()" id="ref-play-btn">Play Verification Tone</button>
+                <div style="font-family: monospace; font-size: 13px; margin-top: 10px; color: var(--primary);">0 dB HL Reference: -80.0 dBFS</div>
+            </div>
+        </div>
+
+        <div class="setup-group">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label><strong>3. Test Parameters</strong></label>
+                <button class="minimal-btn" onclick="toggleCustomization()">Advanced Edit</button>
+            </div>
+            
+            <div class="flex-row" style="margin-top: 15px;">
+                <label style="font-size: 13px; font-weight: 600;">Tone Type:</label>
+                <select id="tone-type-setup" style="width: auto; margin-top: 0; padding: 6px;">
+                    <option value="pulse">Pulsed</option>
+                    <option value="pure">Pure Tone (Continuous)</option>
+                </select>
+                <label style="font-size: 13px; font-weight: 600; margin-left: 10px;">Pulse Rate (BPM):</label>
+                <input type="number" id="bpm-setup" value="120" style="width: 80px; margin-top: 0; padding: 6px;">
+            </div>
+
+            <div id="custom-settings-panel" style="display: none; margin-top: 15px; border-top: 1px solid var(--border-dark); padding-top: 15px;">
+                <div style="margin-bottom: 15px;">
+                    <span style="font-size: 12px; color: var(--text); font-weight: 600; display: block; margin-bottom: 5px;">Ears to Test:</span>
+                    <label class="checkbox-label"><input type="checkbox" id="ear-right" checked> Right</label>
+                    <label class="checkbox-label"><input type="checkbox" id="ear-left" checked> Left</label>
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                        <span style="font-size: 12px; color: var(--text); font-weight: 600;">Presets:</span>
+                        <button class="preset-btn" onclick="applyPreset('standard')">Standard</button>
+                        <button class="preset-btn" onclick="applyPreset('low')">Low</button>
+                        <button class="preset-btn" onclick="applyPreset('ehf')">EHF</button>
+                        <button class="preset-btn" onclick="applyPreset('comprehensive')">Comprehensive</button>
+                        <div style="margin-left: auto; display: flex; align-items: center; gap: 5px;">
+                            <input type="number" id="custom-freq-add" placeholder="Hz" style="width: 70px; margin: 0; padding: 4px; font-size: 12px;">
+                            <button class="minimal-btn" onclick="addCustomFreq()" style="padding: 4px 8px;">+ Add Freq</button>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: baseline; margin-bottom: 8px;">
+                        <span style="font-size: 12px; color: var(--text); font-weight: 600;">Active Frequencies:</span>
+                        <button class="link-btn" onclick="toggleAllFreqs(true)">Select All</button>
+                        <button class="link-btn" onclick="toggleAllFreqs(false)">Deselect All</button>
+                    </div>
+                    <div id="freq-checkbox-container" style="display: flex; flex-wrap: wrap; gap: 8px; background: var(--bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-dark);">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="startTest()" id="start-btn" style="width: 100%; margin-top: 10px; font-size: 1.1rem; padding: 15px;">Start Calibrated Test</button>
+    </div>
+
+    <div id="test-section" class="card no-print">
+        <div id="current-ear" style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Right Ear</div>
+        <div class="big-info" id="current-freq">9000 Hz</div>
+        
+        <div id="slider-container">
+            <div class="slider-flex">
+                <button class="nudge-btn" onclick="nudgeSlider(-10)" title="-10 dB">«</button>
+                <button class="nudge-btn minor" onclick="nudgeSlider(-1)" title="-1 dB">‹</button>
+                <input type="range" id="level-slider" min="-20" max="100" step="1" value="20" oninput="updateSliderLevel(this.value)">
+                <button class="nudge-btn minor" onclick="nudgeSlider(1)" title="+1 dB">›</button>
+                <button class="nudge-btn" onclick="nudgeSlider(10)" title="+10 dB">»</button>
+            </div>
+            <div style="font-size: 10px; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">
+                <em>Tip: Use Left/Right arrows for ±1 dB. Hold <strong>Shift</strong> + Arrows for ±10 dB.</em>
+            </div>
+            <div class="controls">
+                <div class="control-block"><kbd>Enter</kbd><button onclick="saveThreshold()">Save Threshold</button></div>
+                <div class="control-block"><kbd>M</kbd><button id="mute-btn" onclick="toggleMute()" class="minimal-btn" style="padding: 10px 20px; font-size: 14px;">Mute Tone</button></div>
+                <div class="control-block"><kbd>C</kbd><button id="sham-btn" onclick="triggerSham()" class="minimal-btn" style="padding: 10px 20px; font-size: 14px;">Coin Toss (Sham)</button></div>
+                <div class="control-block"><kbd>T</kbd><button id="tone-toggle-btn" onclick="toggleToneTypeTest()" class="minimal-btn" style="padding: 10px 20px; font-size: 14px;">Switch to Pure Tone</button></div>
+                <div class="control-block"><kbd>S</kbd><button onclick="skipFrequency()" style="background: var(--text-muted);">Skip</button></div>
+            </div>
+        </div>
+
+        <div class="status-text">
+            <span id="level-display" style="font-family: monospace; font-size: 13px;"></span>
+            <button class="minimal-btn" onclick="toggleLevelVisibility()">Show Level</button>
+            <div style="border-left: 1px solid var(--border-dark); height: 12px; margin: 0 5px;"></div>
+            <button class="minimal-btn" onclick="setShamRange()">Set Sham Range</button>
+        </div>
+        
+        <button class="minimal-btn" style="position: absolute; bottom: 15px; right: 15px; border-color: transparent;" onclick="finishTestEarly()">End Test Now</button>
+    </div>
+
+    <div id="results-section">
+        <div class="card">
+            <h3 id="results-title" style="margin:0 0 10px 0; font-weight: 400;">Audiometric Results</h3>
+            <div style="text-align: left; font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">
+                Hardware: <span id="res-profile"></span> | Anchor: <span id="res-anchor"></span>
+            </div>
+            
+            <canvas id="audiogram" width="800" height="400"></canvas>
+            
+            <div class="no-print" style="margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center;">
+                <button onclick="renderTable('hl')" class="minimal-btn" style="padding: 6px 12px; font-size: 12px; color: var(--text);">View dB HL</button>
+                <button onclick="renderTable('dbfs')" class="minimal-btn" style="padding: 6px 12px; font-size: 12px; color: var(--text);">View dBFS</button>
+                
+                <div style="border-left: 1px solid var(--border-dark); margin: 0 10px; height: 20px;"></div>
+                
+                <button onclick="renderTable('ptg')" class="minimal-btn" style="padding: 6px 12px; font-size: 12px; color: var(--text);">View Offset</button>
+                <div style="display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted);">
+                    Offset: <input type="number" id="ptg-offset" value="33.7" step="0.1" style="width: 55px; padding: 4px; border: 1px solid var(--border-dark); border-radius: 4px; background: var(--bg); color: var(--text);" onchange="if(document.getElementById('table-mode').value === 'ptg') renderTable(document.getElementById('table-mode').value)">
+                </div>
+
+                <div style="border-left: 1px solid var(--border-dark); margin: 0 10px; height: 20px;"></div>
+                <button id="crop-btn" onclick="toggleAutoCrop()" class="minimal-btn" style="padding: 6px 12px; font-size: 12px; color: var(--primary); border-color: var(--primary);">Auto-Crop Graph</button>
+            </div>
+            
+            <input type="hidden" id="table-mode" value="hl">
+            <div id="table-container" style="margin-top: 25px;"></div>
+            <button class="no-print" onclick="window.print()" style="margin-top: 25px; background: #0f172a; width: 100%;">Print for Medical Record</button>
+        </div>
+    </div>
+
+    <div id="graph-tooltip"></div>
+
+<script>
+    let audioCtx;
+    
+    function initAudio() {
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    const PRESETS = {
+        standard: [250, 500, 1000, 2000, 3000, 4000, 6000, 8000],
+        low: [20, 50, 100, 150, 200, 250],
+        ehf: [9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000, 14500, 15000, 15500, 16000],
+        comprehensive: [250, 500, 1000, 2000, 3000, 4000, 6000, 8000, 9000, 9500, 10000, 10500, 11000, 12000, 14000, 16000]
+    };
+    
+    let masterFreqs = [...PRESETS.ehf];
+    let activeFreqs = [];
+    let activeEars = [];
+
+    const CLINICAL_MAP = {
+        250: -59.0, 500: -76.0, 1000: -80.0, 2000: -78.0, 3000: -82.0, 4000: -75.0, 6000: -69.0, 8000: -66.0,
+        9000: -53.7, 10000: -68.7, 11000: -63.7, 12000: -68.7, 13000: -63.7, 14000: -63.7, 15000: -58.7, 16000: -53.7
+    };
+
+    function getMapInterpolation(f) {
+        if (CLINICAL_MAP[f] !== undefined) return CLINICAL_MAP[f];
+        let keys = Object.keys(CLINICAL_MAP).map(Number).sort(function(a,b) { return a-b; });
+        if(f <= keys[0]) return CLINICAL_MAP[keys[0]];
+        if(f >= keys[keys.length-1]) return CLINICAL_MAP[keys[keys.length-1]];
+        for(let i=0; i<keys.length-1; i++) {
+            if(f >= keys[i] && f <= keys[i+1]) {
+                let logF = Math.log2(f), logF1 = Math.log2(keys[i]), logF2 = Math.log2(keys[i+1]);
+                let pct = (logF - logF1) / (logF2 - logF1);
+                return CLINICAL_MAP[keys[i]] + pct * (CLINICAL_MAP[keys[i+1]] - CLINICAL_MAP[keys[i]]);
+            }
+        }
+        return 0;
+    }
+
+    const anchor = -80.0;
+    function get0dBHLLevel(f) { return getMapInterpolation(f); }
+
+    let isMuted = false, isLevelVisible = false;
+    let refInterval = null, currentEarIdx = 0, currentFreqIdx = 0;
+    let results = { 'Right': {}, 'Left': {} };
+    let currentLevel = 20;
+    let autoCropGraph = false;
+    let renderedPoints = [];
+    
+    let shamMinDelay = 500;
+    let shamMaxDelay = 2000;
+    
+    let isPureTone = false;
+    let testBPM = 120;
+    let toneEngineInterval = null;
+    let activeContinuousOsc = null;
+    let activeContinuousGain = null;
+
+    function renderFreqCheckboxes() {
+        masterFreqs.sort(function(a,b) { return a-b; });
+        const container = document.getElementById('freq-checkbox-container');
+        container.innerHTML = '';
+        masterFreqs.forEach(function(f) {
+            const label = document.createElement('label');
+            label.className = 'checkbox-label';
+            label.innerHTML = '<input type="checkbox" value="' + f + '" checked class="freq-check"> ' + f + ' Hz';
+            container.appendChild(label);
+        });
+    }
+
+    function applyPreset(type) {
+        let presetArr = PRESETS[type];
+        if (type === 'comprehensive') masterFreqs = [...new Set([...PRESETS.standard, ...PRESETS.ehf])];
+        else masterFreqs = [...new Set([...masterFreqs, ...presetArr])];
+        renderFreqCheckboxes();
+        document.querySelectorAll('.freq-check').forEach(function(cb) {
+            cb.checked = type === 'comprehensive' ? true : presetArr.includes(parseInt(cb.value));
+        });
+    }
+
+    function addCustomFreq() {
+        let val = parseInt(document.getElementById('custom-freq-add').value);
+        if (val && val > 0 && val <= 24000) {
+            if (!masterFreqs.includes(val)) { masterFreqs.push(val); renderFreqCheckboxes(); }
+            document.getElementById('custom-freq-add').value = '';
+        }
+    }
+
+    function toggleCustomization() {
+        const panel = document.getElementById('custom-settings-panel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function toggleAllFreqs(checkStatus) { document.querySelectorAll('.freq-check').forEach(function(cb) { cb.checked = checkStatus; }); }
+
+    function toggleTheme() {
+        const root = document.documentElement;
+        root.classList.toggle('dark-mode');
+        const btn = document.getElementById('theme-toggle');
+        btn.innerText = root.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+        if (document.getElementById('results-section').style.display === 'block') drawAudiogram();
+    }
+
+    function toggleReferenceTone() {
+        initAudio();
+        if (refInterval) {
+            clearInterval(refInterval); refInterval = null;
+            document.getElementById('ref-play-btn').innerText = "Play Verification Tone";
+        } else {
+            triggerPulse(1000, -63.7, true, true);
+            refInterval = setInterval(function() { triggerPulse(1000, -63.7, true, true); }, 500);
+            document.getElementById('ref-play-btn').innerText = "Stop Tone";
+        }
+    }
+
+    function getCurrentdBFS() { return get0dBHLLevel(activeFreqs[currentFreqIdx]) + currentLevel; }
+
+    function triggerPulse(freq, dbfs, forcePlay, forceCenter = false) {
+        if (forcePlay === undefined) forcePlay = false;
+        if (isMuted && freq !== 1000 && !forcePlay) return;
+        if (dbfs > 0) dbfs = 0;
+        let gainLin = Math.pow(10, dbfs / 20);
+        const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); const pan = audioCtx.createStereoPanner();
+        osc.frequency.value = freq;
+        let isRightEar = activeEars[currentEarIdx] === 'Right';
+        
+        pan.pan.value = forceCenter ? 0 : (isRightEar ? 1 : -1);
+        
+        osc.connect(g); g.connect(pan); pan.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+        g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(gainLin, now + 0.05);
+        g.gain.setValueAtTime(gainLin, now + 0.2); g.gain.linearRampToValueAtTime(0, now + 0.25);
+        osc.start(now); osc.stop(now + 0.3);
+    }
+
+    function setContinuousTone(freq, dbfs) {
+        if (!audioCtx) return;
+        let targetGain = (isMuted || dbfs > 0) ? 0 : Math.pow(10, dbfs / 20);
+        let isRightEar = activeEars[currentEarIdx] === 'Right';
+        let panValue = isRightEar ? 1 : -1;
+        if (!activeContinuousOsc) {
+            activeContinuousOsc = audioCtx.createOscillator(); activeContinuousGain = audioCtx.createGain();
+            let pan = audioCtx.createStereoPanner();
+            activeContinuousOsc.frequency.value = freq; pan.pan.value = panValue;
+            activeContinuousGain.gain.value = 0;
+            activeContinuousOsc.connect(activeContinuousGain); activeContinuousGain.connect(pan);
+            pan.connect(audioCtx.destination);
+            activeContinuousOsc.start();
+            activeContinuousGain.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.05);
+        } else {
+            activeContinuousOsc.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.05);
+            activeContinuousGain.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.05);
+        }
+    }
+
+    function stopContinuousTone() {
+        if (activeContinuousOsc) {
+            activeContinuousGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+            setTimeout(function() {
+                if (activeContinuousOsc) { activeContinuousOsc.stop(); activeContinuousOsc.disconnect(); activeContinuousOsc = null; activeContinuousGain = null; }
+            }, 100);
+        }
+    }
+
+    function manageToneEngine() {
+        if (toneEngineInterval) { clearInterval(toneEngineInterval); toneEngineInterval = null; }
+        if (isPureTone) { setContinuousTone(activeFreqs[currentFreqIdx], getCurrentdBFS()); }
+        else {
+            stopContinuousTone();
+            let msInterval = 60000 / testBPM;
+            toneEngineInterval = setInterval(function() { triggerPulse(activeFreqs[currentFreqIdx], getCurrentdBFS()); }, msInterval);
+            triggerPulse(activeFreqs[currentFreqIdx], getCurrentdBFS());
+        }
+    }
+
+    function setShamRange() {
+        let minInput = prompt("Enter minimum sham delay in seconds (e.g., 0.5):", (shamMinDelay / 1000).toFixed(1));
+        if (minInput === null) return;
+        let maxInput = prompt("Enter maximum sham delay in seconds (e.g., 2.0):", (shamMaxDelay / 1000).toFixed(1));
+        if (maxInput === null) return;
+        
+        let min = parseFloat(minInput);
+        let max = parseFloat(maxInput);
+        
+        if (!isNaN(min) && !isNaN(max) && min >= 0 && max >= min) {
+            shamMinDelay = min * 1000;
+            shamMaxDelay = max * 1000;
+        } else {
+            alert("Invalid range entered.");
+        }
+    }
+    
+    // Resets the visual state of the sham button cleanly
+    function resetShamButton() {
+        let btn = document.getElementById('sham-btn');
+        if (btn) {
+            btn.innerText = "Coin Toss (Sham)";
+            btn.style.color = "";
+            btn.style.borderColor = "";
+            btn.disabled = false;
+        }
+    }
+
+    function triggerSham() {
+        if (!isMuted) {
+            isMuted = true;
+            document.getElementById('mute-btn').innerText = "Unmute Tone";
+            document.getElementById('mute-btn').classList.add('mute-active');
+            manageToneEngine();
+        }
+
+        let isReal = Math.random() > 0.5;
+        let delay = shamMinDelay + Math.random() * (shamMaxDelay - shamMinDelay);
+        
+        let btn = document.getElementById('sham-btn');
+        btn.innerText = "Processing...";
+        btn.style.color = "var(--primary)";
+        btn.style.borderColor = "var(--primary)";
+        btn.disabled = true;
+        
+        setTimeout(function() {
+            if(isReal) {
+                // 3-Beat Pulse implementation spaced by 500ms
+                let f = activeFreqs[currentFreqIdx];
+                let db = getCurrentdBFS();
+                triggerPulse(f, db, true);
+                setTimeout(function() { triggerPulse(f, db, true); }, 500);
+                setTimeout(function() { triggerPulse(f, db, true); }, 1000);
+                
+                btn.innerText = "Result: Tone Played";
+                let earColor = activeEars[currentEarIdx] === 'Right' ? 'var(--right-ear)' : 'var(--left-ear)';
+                btn.style.color = earColor;
+                btn.style.borderColor = earColor;
+            } else {
+                btn.innerText = "Result: Silence";
+                btn.style.color = "var(--text-muted)";
+                btn.style.borderColor = "var(--text-muted)";
+            }
+            
+            // Re-enable button after the 3-beat sequence finishes so they can test again.
+            // We intentionally do NOT reset the text/color so the result remains visible until clicked again.
+            setTimeout(function() {
+                btn.disabled = false;
+            }, 1500);
+            
+        }, delay);
+    }
+
+    function startTest() {
+        initAudio();
+        activeEars = [];
+        if (document.getElementById('ear-right').checked) activeEars.push('Right');
+        if (document.getElementById('ear-left').checked) activeEars.push('Left');
+        activeFreqs = [];
+        document.querySelectorAll('.freq-check:checked').forEach(function(cb) { activeFreqs.push(parseInt(cb.value)); });
+        activeFreqs.sort(function(a,b) { return a-b; });
+        if (activeEars.length === 0 || activeFreqs.length === 0) { alert("Select ear and frequency."); return; }
+        isPureTone = document.getElementById('tone-type-setup').value === 'pure';
+        testBPM = parseInt(document.getElementById('bpm-setup').value) || 120;
+        currentEarIdx = 0; currentFreqIdx = 0; results = { 'Right': {}, 'Left': {} };
+        if (refInterval) clearInterval(refInterval);
+        document.getElementById('setup-section').style.display = 'none';
+        document.getElementById('test-section').style.display = 'block';
+        document.getElementById('slider-container').style.display = 'block';
+        document.getElementById('tone-toggle-btn').innerText = isPureTone ? "Switch to Pulsed" : "Switch to Pure Tone";
+        document.getElementById('level-slider').value = currentLevel;
+        resetShamButton(); // Reset in case of restart
+        updateUI(); manageToneEngine();
+        document.addEventListener('keydown', handleKeyPress);
+    }
+
+    function handleKeyPress(e) {
+        if (document.getElementById('test-section').style.display !== 'block') return;
+        if (e.code === 'KeyM') toggleMute();
+        if (e.code === 'KeyC') { if (!document.getElementById('sham-btn').disabled) triggerSham(); }
+        if (e.code === 'KeyT') toggleToneTypeTest();
+        if (e.code === 'KeyS') skipFrequency();
+        if (e.code === 'Enter') saveThreshold();
+        if (e.code === 'ArrowRight' || e.code === 'ArrowUp') { e.preventDefault(); nudgeSlider(e.shiftKey ? 10 : 1); }
+        if (e.code === 'ArrowLeft' || e.code === 'ArrowDown') { e.preventDefault(); nudgeSlider(e.shiftKey ? -10 : -1); }
+    }
+
+    function toggleToneTypeTest() { isPureTone = !isPureTone; document.getElementById('tone-toggle-btn').innerText = isPureTone ? "Switch to Pulsed" : "Switch to Pure Tone"; manageToneEngine(); }
+    function nudgeSlider(amount) { const s = document.getElementById('level-slider'); let newVal = parseInt(s.value) + amount; if(newVal < parseInt(s.min)) newVal = parseInt(s.min); if(newVal > parseInt(s.max)) newVal = parseInt(s.max); s.value = newVal; updateSliderLevel(newVal); }
+    function toggleMute() { isMuted = !isMuted; document.getElementById('mute-btn').innerText = isMuted ? "Unmute Tone" : "Mute Tone"; document.getElementById('mute-btn').classList.toggle('mute-active', isMuted); if (isPureTone) manageToneEngine(); }
+    function toggleLevelVisibility() { isLevelVisible = !isLevelVisible; document.querySelector('#test-section .minimal-btn[onclick="toggleLevelVisibility()"]').innerText = isLevelVisible ? "Hide Level" : "Show Level"; updateUI(); }
+
+    function updateUI() {
+        const ear = activeEars[currentEarIdx];
+        document.getElementById('current-ear').innerText = ear + ' Ear';
+        document.getElementById('current-ear').style.color = ear === 'Right' ? 'var(--right-ear)' : 'var(--left-ear)';
+        document.getElementById('current-freq').innerText = activeFreqs[currentFreqIdx] + ' Hz';
+        if (isLevelVisible) { let dbfs = getCurrentdBFS().toFixed(1); document.getElementById('level-display').innerText = currentLevel + ' dB HL | ' + dbfs + ' dBFS'; }
+        else { document.getElementById('level-display').innerText = ""; }
+    }
+
+    function updateSliderLevel(v) { currentLevel = parseInt(v); updateUI(); manageToneEngine(); }
+    function saveThreshold() { results[activeEars[currentEarIdx]][activeFreqs[currentFreqIdx]] = currentLevel; advance(); }
+    function skipFrequency() { results[activeEars[currentEarIdx]][activeFreqs[currentFreqIdx]] = "Skip"; advance(); }
+
+    function advance() {
+        currentFreqIdx++;
+        if (currentFreqIdx >= activeFreqs.length) { currentFreqIdx = 0; currentEarIdx++; if (activeContinuousOsc) { stopContinuousTone(); } }
+        if (currentEarIdx >= activeEars.length) { finish(); }
+        else {
+            currentLevel = 20;
+            document.getElementById('level-slider').value = currentLevel;
+            resetShamButton(); // Automatically clean up the button state for the next frequency
+            updateUI();
+            manageToneEngine();
+        }
+    }
+    
+    function finishTestEarly() { finish(); }
+
+    function finish() {
+        if (toneEngineInterval) clearInterval(toneEngineInterval);
+        stopContinuousTone();
+        document.removeEventListener('keydown', handleKeyPress);
+        document.getElementById('test-section').style.display = 'none';
+        document.getElementById('results-section').style.display = 'block';
+        let minF = Math.min(...activeFreqs); let maxF = Math.max(...activeFreqs);
+        let t = document.getElementById('results-title');
+        if (minF >= 8000) t.innerText = "Extended High Frequency Audiometry";
+        else if (maxF <= 1000) t.innerText = "Low Frequency Audiometry";
+        else t.innerText = "Comprehensive Clinical Audiometry";
+        document.getElementById('res-profile').innerText = document.getElementById('custom-hw-input').value;
+        document.getElementById('res-anchor').innerText = anchor.toFixed(1) + " dBFS";
+        renderTable('hl');
+    }
+
+    function toggleAutoCrop() {
+        autoCropGraph = !autoCropGraph;
+        let btn = document.getElementById('crop-btn');
+        if(autoCropGraph) {
+            btn.innerText = "View Standard Graph";
+            btn.style.background = "var(--primary)";
+            btn.style.color = "white";
+        } else {
+            btn.innerText = "Auto-Crop Graph";
+            btn.style.background = "transparent";
+            btn.style.color = "var(--primary)";
+        }
+        drawAudiogram();
+    }
+
+    function drawAudiogram() {
+        const c = document.getElementById('audiogram'); const ctx = c.getContext('2d');
+        const pad = { L: 60, R: 40, T: 40, B: 60 }; const gW = c.width - pad.L - pad.R, gH = c.height - pad.T - pad.B;
+        ctx.clearRect(0,0,800,400);
+        renderedPoints = [];
+        
+        const isDark = document.documentElement.classList.contains('dark-mode');
+        const gridColor = isDark ? '#404040' : '#cbd5e1';
+        const textColor = isDark ? '#94a3b8' : '#64748b';
+        let displayFreqs = activeFreqs.length > 0 ? activeFreqs : masterFreqs;
+        
+        let mode = document.getElementById('table-mode').value;
+        let logicOffset = parseFloat(document.getElementById('ptg-offset').value) || 33.7;
+
+        const getGraphValue = function(hl, f) {
+            if (mode === 'dbfs') return get0dBHLLevel(f) + hl;
+            if (mode === 'ptg') return get0dBHLLevel(f) + hl + logicOffset;
+            return hl;
+        };
+
+        let minY = -20, maxY = 120;
+
+        if (!autoCropGraph) {
+            if (mode === 'dbfs') { minY = -120; maxY = 20; }
+            if (mode === 'ptg') { minY = -70; maxY = 70; }
+        } else {
+            let allVals = [];
+            ['Right', 'Left'].forEach(function(e) {
+                displayFreqs.forEach(function(f) {
+                    let hl = results[e] ? results[e][f] : undefined;
+                    if(typeof hl === 'number') allVals.push(getGraphValue(hl, f));
+                });
+            });
+            if(allVals.length > 0) {
+                minY = Math.floor(Math.min(...allVals) / 10) * 10 - 10;
+                maxY = Math.ceil(Math.max(...allVals) / 10) * 10 + 10;
+                if(maxY - minY < 40) maxY = minY + 40;
+            }
+        }
+        
+        const getY = function(val) { return pad.T + ((val - minY) / (maxY - minY)) * gH; };
+        let logMin = Math.log2(Math.min(...displayFreqs) || 20);
+        let logMax = Math.log2(Math.max(...displayFreqs) || 16000);
+        const getX = function(f) { if (logMax === logMin) return pad.L + gW / 2; return pad.L + ((Math.log2(f) - logMin) / (logMax - logMin)) * gW; };
+        
+        ctx.strokeStyle = gridColor; ctx.beginPath(); ctx.font = '12px sans-serif'; ctx.fillStyle = textColor;
+        
+        let step = autoCropGraph ? 10 : 20;
+        for(let val = minY; val <= maxY; val += step) {
+            let y = getY(val); ctx.moveTo(pad.L, y); ctx.lineTo(800-pad.R, y);
+            ctx.textAlign = "right"; ctx.textBaseline = "middle";
+            ctx.fillText(val, pad.L-15, y);
+        }
+        displayFreqs.forEach(function(f) {
+            let x = getX(f); ctx.moveTo(x, pad.T); ctx.lineTo(x, 400-pad.B);
+            let is500HzStep = f > 8000 && f % 1000 !== 0;
+            if (!(is500HzStep && displayFreqs.length > 10)) {
+                ctx.save(); ctx.translate(x, 400 - pad.B + 15); ctx.rotate(-Math.PI / 4);
+                ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.fillText(f, 0, 0); ctx.restore();
+            }
+        });
+        ctx.stroke();
+        
+        const drawEar = function(data, color, isR) {
+            ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2;
+            let first = true;
+            displayFreqs.forEach(function(f) {
+                let hl = data[f];
+                if(hl !== "Skip" && hl !== undefined) {
+                    let val = getGraphValue(hl, f);
+                    let x = getX(f), y = getY(val);
+                    if(first) {ctx.moveTo(x,y); first=false;} else ctx.lineTo(x,y);
+                }
+            });
+            ctx.stroke();
+            displayFreqs.forEach(function(f) {
+                let hl = data[f];
+                if(hl !== "Skip" && hl !== undefined) {
+                    ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2;
+                    let val = getGraphValue(hl, f);
+                    let x = getX(f); let y = getY(val);
+                    if(isR) { ctx.arc(x, y, 5, 0, 7); ctx.stroke(); }
+                    else { ctx.moveTo(x-5, y-5); ctx.lineTo(x+5, y+5); ctx.moveTo(x+5, y-5); ctx.lineTo(x-5, y+5); ctx.stroke(); }
+                    renderedPoints.push({ x: x, y: y, hl: hl, freq: f, color: color, ear: isR ? 'Right' : 'Left' });
+                }
+            });
+        }
+        if (results.Right) drawEar(results.Right, '#ef4444', true);
+        if (results.Left) drawEar(results.Left, '#3b82f6', false);
+    }
+
+    function renderTable(mode) {
+        document.getElementById('table-mode').value = mode;
+        let displayFreqs = activeFreqs.length > 0 ? activeFreqs : masterFreqs;
+        let logicOffset = parseFloat(document.getElementById('ptg-offset').value) || 33.7;
+        let h = '';
+        
+        for (let i = 0; i < displayFreqs.length; i += 10) {
+            let chunk = displayFreqs.slice(i, i + 10);
+            h += '<div class="table-responsive" style="margin-bottom: 20px;"><table><thead><tr><th style="width: 50px;">Ear</th>';
+            
+            for(let j = 0; j < 10; j++) {
+                if(j < chunk.length) h += '<th>' + chunk[j] + '</th>';
+                else h += '<th class="empty-cell"></th>';
+            }
+            h += '</tr></thead><tbody>';
+            
+            ['Right', 'Left'].forEach(function(e) {
+                if (results[e] && Object.keys(results[e]).length > 0) {
+                    h += '<tr><td><strong>' + e + '</strong></td>';
+                    
+                    for(let j = 0; j < 10; j++) {
+                        if(j < chunk.length) {
+                            let f = chunk[j];
+                            let hl = results[e][f];
+                            if (hl === "Skip" || hl === undefined) h += '<td>-</td>';
+                            else if (mode === 'hl') h += '<td>' + hl + '</td>';
+                            else if (mode === 'dbfs') { let dbfs = get0dBHLLevel(f) + hl; h += '<td>' + dbfs.toFixed(1) + '</td>'; }
+                            else if (mode === 'ptg') { let dbfs = get0dBHLLevel(f) + hl; h += '<td>' + (dbfs + logicOffset).toFixed(1) + '</td>'; }
+                        } else {
+                            h += '<td class="empty-cell"></td>';
+                        }
+                    }
+                    h += '</tr>';
+                }
+            });
+            h += '</tbody></table></div>';
+        }
+        document.getElementById('table-container').innerHTML = h;
+        
+        if(document.getElementById('results-section').style.display === 'block') {
+            drawAudiogram();
+        }
+    }
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        const tooltip = document.getElementById('graph-tooltip');
+        document.getElementById('audiogram').addEventListener('mousemove', function(e) {
+            const rect = e.target.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            let closest = null;
+            let minDist = 15;
+            
+            renderedPoints.forEach(function(p) {
+                let dist = Math.hypot(p.x - mouseX, p.y - mouseY);
+                if(dist < minDist) { minDist = dist; closest = p; }
+            });
+            
+            if (closest) {
+                let mode = document.getElementById('table-mode').value;
+                let valStr = closest.hl + ' dB HL';
+                if (mode === 'dbfs') valStr = (get0dBHLLevel(closest.freq) + closest.hl).toFixed(1) + ' dBFS';
+                if (mode === 'ptg') {
+                    let off = parseFloat(document.getElementById('ptg-offset').value) || 33.7;
+                    valStr = (get0dBHLLevel(closest.freq) + closest.hl + off).toFixed(1) + ' Offset';
+                }
+                
+                tooltip.innerHTML = closest.freq + ' Hz<br><span style="font-size:14px; font-weight:800;">' + valStr + '</span>';
+                tooltip.style.color = closest.color;
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 15) + 'px';
+                tooltip.style.opacity = 1;
+            } else {
+                tooltip.style.opacity = 0;
+            }
+        });
+        
+        document.getElementById('audiogram').addEventListener('mouseleave', function() {
+            tooltip.style.opacity = 0;
+        });
+
+        renderFreqCheckboxes();
+    });
+</script>
+</body>
+</html>
