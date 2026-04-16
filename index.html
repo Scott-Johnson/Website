@@ -989,10 +989,10 @@
     <section id="by-the-numbers">
         <h2>By The Numbers</h2>
         <div class="stats-grid">
-            <div class="stat-card fade-in-element" data-target-number="60000000">
+            <div class="stat-card fade-in-element" data-target-number="90000000">
                 <p class="stat-number">0M+</p>
                 <p class="stat-label">Audience Reach</p>
-                <p class="stat-summary">Primetime network shows such as ABC's 20/20 with 2-5 million viewers per broadcast, as well as YouTube premiere with a global audience of 15M+ viewers.</p>
+                <p class="stat-summary">Music featured across primetime network television (ABC's 20/20), global YouTube premieres (15M+ viewers), and viral social media content, including Instagram Reels with over 30 million views.</p>
             </div>
             <div class="stat-card fade-in-element" data-target-number="250" data-plus="true">
                 <p class="stat-number">0+</p>
@@ -1245,7 +1245,7 @@
                         window.requestAnimationFrame(step);
                     } else {
                         if (isMillion) {
-                            numberElement.textContent = '60M+';
+                            numberElement.textContent = Math.floor(targetNumber / 1000000) + 'M+';
                         } else {
                             numberElement.textContent = targetNumber + (isPlus ? '+' : '');
                         }
