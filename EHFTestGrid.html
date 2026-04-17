@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Precision Audiology Generator</title>
     <style>
         @keyframes bootUp {
@@ -13,12 +13,13 @@
         :root {
             --left-color: #60a5fa;
             --right-color: #f87171;
-            --track-color: #404040;
         }
 
-        html {
-            background: #050507;
-        }
+        /* Custom Sleek Scrollbar for Mobile/Desktop Scrolling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -32,12 +33,15 @@
             overflow: hidden;
             animation: bootUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             user-select: none; -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent; /* Removes blue tap flash on mobile */
         }
 
-        /* Solid Dark HUD */
+        /* Glassmorphic Top HUD */
         #topBar {
             height: 85px;
-            background: rgba(15, 15, 20, 0.8);
+            background: rgba(15, 15, 20, 0.6);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             justify-content: space-between;
@@ -48,10 +52,8 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .left-controls {
-            /* Increased width to fit the 4 buttons comfortably */
-            display: flex; align-items: center; gap: 20px; width: 450px;
-        }
+        .hud-title-container { width: 220px; }
+        .hud-title-container h1 { margin:0; font-size: 14px; color: rgba(255,255,255,0.4); font-weight: 500; letter-spacing: 1px; }
 
         .hud-display {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -60,23 +62,23 @@
 
         .hud-status {
             font-size: 11px; text-transform: uppercase; letter-spacing: 3px;
-            color: #71717a; margin-bottom: 6px; font-weight: 600;
+            color: #71717a; margin-bottom: 6px; font-weight: 600; text-align: center;
         }
 
         .hud-values {
             font-size: 28px; font-weight: 200; color: #fff;
-            text-shadow: 0 0 15px rgba(255,255,255,0.1);
+            text-shadow: 0 0 15px rgba(255,255,255,0.1); text-align: center;
         }
 
         .hud-values span.highlight { font-weight: 500; color: #e4e4e7; }
 
         /* Sleek Glass Toggle */
-        .controls-right {
+        .toggle-wrapper {
             display: flex; align-items: center; gap: 12px;
             font-size: 13px; font-weight: 500; color: #a1a1aa; width: 220px; justify-content: flex-end;
         }
 
-        .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 22px; flex-shrink: 0;}
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
             position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
@@ -90,61 +92,17 @@
         input:checked + .slider { background-color: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
         input:checked + .slider:before { transform: translateX(22px); background-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.5); }
 
-        /* Custom Subtle Volume/Trim Bar */
-        .volume-control {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.4);
-            letter-spacing: 1.5px;
-        }
-
-        .trim-readout {
-            display: inline-block; width: 38px; text-align: right;
-            color: #a1a1aa;
-        }
-
-        .volume-control input[type=range] {
-            -webkit-appearance: none; width: 80px; background: transparent;
-        }
-        .volume-control input[type=range]:focus { outline: none; }
-        .volume-control input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 3px; cursor: pointer;
-            background: var(--track-color); border-radius: 1.5px;
-        }
-        .volume-control input[type=range]::-webkit-slider-thumb {
-            height: 12px; width: 4px; border-radius: 2px;
-            background: rgba(255,255,255,0.6); cursor: pointer;
-            -webkit-appearance: none; margin-top: -4.5px;
-            transition: background 0.1s, transform 0.1s;
-        }
-        .volume-control input[type=range]::-webkit-slider-thumb:hover {
-            background: rgba(255,255,255,0.9); transform: scaleY(1.1);
-        }
-
-        .boost-btns {
-            display: flex; gap: 4px; margin-left: 4px;
-        }
-        .boost-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #a1a1aa; border-radius: 4px; font-size: 10px;
-            padding: 3px 6px; cursor: pointer; transition: all 0.15s;
-            font-weight: 600; letter-spacing: 0.5px;
-        }
-        .boost-btn:hover {
-            background: rgba(255, 255, 255, 0.15); color: #fff;
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-        .boost-btn:active { transform: scale(0.95); }
-
         /* Main Content Layout */
         #content {
             flex: 1; padding: 25px 40px; display: flex; flex-direction: column; gap: 25px;
-            overflow: hidden;
+            overflow-y: auto; /* Allows scrolling on mobile */
+            overflow-x: hidden;
         }
 
-        /* Solid Dark Ear Sections */
+        /* Frosted Glass Ear Sections */
         .ear-section {
-            background: rgba(20, 20, 25, 0.9);
+            background: rgba(20, 20, 25, 0.4);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-radius: 16px; padding: 20px 25px;
             border: 1px solid rgba(255, 255, 255, 0.06);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
@@ -171,15 +129,18 @@
         }
 
         .button-row {
-            display: flex; flex-wrap: nowrap; gap: 6px; flex-grow: 1;
+            display: flex;
+            flex-wrap: wrap; /* CRITICAL FOR MOBILE: Allows buttons to form a multi-line grid */
+            gap: 6px;
+            flex-grow: 1;
         }
 
-        /* Fixed-Size Buttons */
+        /* Fixed-Size Glass Buttons for Uniform Grid */
         .btn {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px; padding: 7px 0;
-            width: 54px;
+            width: 54px; /* Fixed width ensures strict grid alignment */
             flex-shrink: 0;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.15s cubic-bezier(0.2, 1, 0.3, 1);
@@ -191,7 +152,7 @@
             color: #fff; transform: translateY(-1px);
         }
 
-        /* Active States */
+        /* Glass Active States */
         .right-ear-btn.active {
             background: rgba(239, 68, 68, 0.2); border-color: #fca5a5; color: #fff;
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), inset 0 0 10px rgba(239, 68, 68, 0.2);
@@ -203,32 +164,59 @@
         }
 
         .btn.pulsing { animation: pulse-glass 0.5s infinite alternate; }
-        @keyframes pulse-glass {
-            from { opacity: 1; }
-            to { opacity: 0.5; }
+        @keyframes pulse-glass { from { opacity: 1; } to { opacity: 0.5; } }
+
+        .btn-db { font-size: 13px; font-weight: 500; pointer-events: none; }
+        .btn-off { font-size: 10px; opacity: 0.5; margin-top: 3px; font-weight: 400; pointer-events: none; }
+
+
+        /* =========================================
+           MOBILE RESPONSIVE MEDIA QUERIES
+           ========================================= */
+        @media (max-width: 900px) {
+            #topBar {
+                height: auto;
+                flex-direction: column;
+                padding: 15px 20px;
+                gap: 15px;
+            }
+
+            .hud-title-container { display: none; } /* Hide workspace text on mobile to save space */
+            
+            .hud-display { order: -1; width: 100%; } /* Force HUD to the very top */
+            .hud-values { font-size: 22px; } /* Slightly smaller text */
+
+            .toggle-wrapper { width: 100%; justify-content: center; }
+
+            #content { padding: 15px 15px; gap: 15px; }
+            .ear-section { padding: 15px; }
+
+            .freq-row {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px;
+            }
+
+            .freq-label {
+                width: auto;
+                text-align: left;
+                padding-right: 0;
+                padding-bottom: 8px;
+                margin-bottom: 8px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                color: #fff;
+            }
+
+            .button-row { justify-content: flex-start; }
+            .btn { width: 52px; padding: 10px 0; } /* Make buttons slightly taller for fat-finger tapping */
         }
-
-        .btn-db { font-size: 13px; font-weight: 500; }
-        .btn-off { font-size: 10px; opacity: 0.5; margin-top: 3px; font-weight: 400; }
-
     </style>
 </head>
-<body data-kmwindow="SCREEN(Main,Center,0%),SCREEN(Main,Center,10%),1730,970" data-kmwindowbuttons="none">
+<body data-kmwindow="SCREEN(Main,Center,0%),SCREEN(Main,Center,10%),1700,1000" data-kmwindowbuttons="none">
 
     <div id="topBar">
-        <div class="left-controls">
-            <h1 style="margin:0; font-size: 14px; color: rgba(255,255,255,0.4); font-weight: 500; letter-spacing: 1px;">TONE WORKSPACE</h1>
-            <div class="volume-control">
-                <span>TRIM</span>
-                <input type="range" id="volumeControl" min="-30" max="30" step="1" value="0">
-                <span class="trim-readout" id="trimReadout">0 dB</span>
-                <div class="boost-btns">
-                    <button class="boost-btn" id="btnCut5">-5 dB</button>
-                    <button class="boost-btn" id="btnCut1">-1 dB</button>
-                    <button class="boost-btn" id="btnBoost1">+1 dB</button>
-                    <button class="boost-btn" id="btnBoost5">+5 dB</button>
-                </div>
-            </div>
+        <div class="hud-title-container">
+            <h1>TONE WORKSPACE</h1>
         </div>
         
         <div class="hud-display" id="hud">
@@ -236,7 +224,7 @@
             <div class="hud-values" id="hudValues">Select a frequency node</div>
         </div>
 
-        <div class="controls-right">
+        <div class="toggle-wrapper">
             <span>Pulse Array</span>
             <label class="switch">
                 <input type="checkbox" id="pulseToggle">
@@ -286,21 +274,16 @@
         ];
 
         const pulseToggle = document.getElementById('pulseToggle');
-        const volumeControl = document.getElementById('volumeControl');
-        const trimReadout = document.getElementById('trimReadout');
-        const btnCut5 = document.getElementById('btnCut5');
-        const btnCut1 = document.getElementById('btnCut1');
-        const btnBoost1 = document.getElementById('btnBoost1');
-        const btnBoost5 = document.getElementById('btnBoost5');
         const hudStatus = document.getElementById('hudStatus');
         const hudValues = document.getElementById('hudValues');
-
-        let globalDbTrim = parseFloat(volumeControl.value);
+        const hud = document.getElementById('hud');
 
         function adjustWindowHeight() {
+            // Only force window resize if running specifically inside Keyboard Maestro on Mac.
+            // On mobile devices, this is ignored, allowing the responsive CSS to do its job.
             if (window.KeyboardMaestro) {
                 setTimeout(() => {
-                    window.KeyboardMaestro.ResizeWindow("1730,970");
+                    window.KeyboardMaestro.ResizeWindow("1700,1000");
                 }, 50);
             }
         }
@@ -329,6 +312,7 @@
                     btn.className = `btn ${section.btnClass}`;
                     btn.dataset.freq = group.freq;
                     btn.dataset.dbfs = exactDb;
+                    btn.dataset.offset = offset;
                     btn.dataset.pan = section.pan;
                     btn.dataset.ear = section.ear;
 
@@ -337,7 +321,8 @@
                         <div class="btn-off">(${offset})</div>
                     `;
 
-                    btn.onclick = () => handleTonePlay(btn);
+                    // Using pointerdown instead of click for significantly faster response time on Mobile Touchscreens
+                    btn.addEventListener('pointerdown', () => handleTonePlay(btn));
                     btnRow.appendChild(btn);
                 }
 
@@ -358,9 +343,14 @@
         let activeBtn = null;
         let currentPulseState = true;
 
+        // Needed for iOS Web Audio API: Unlocking audio context on first user interaction
         function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
         }
 
         function stopTone() {
@@ -398,31 +388,6 @@
             hudValues.innerHTML = "Select a frequency node";
         }
 
-        // Live updates the current active tone's HUD values and Gain when trim changes
-        function updateActiveToneLive() {
-            if (!activeBtn) return;
-            
-            const freq = parseFloat(activeBtn.dataset.freq);
-            const baseDbfs = parseFloat(activeBtn.dataset.dbfs);
-            
-            // Calculate new effective dBFS and Offset
-            const effectiveDbfs = parseFloat((baseDbfs + globalDbTrim).toFixed(1));
-            const effectiveOffset = Math.round(effectiveDbfs + 33.6);
-
-            hudValues.innerHTML = `
-                ${freq / 1000} kHz 
-                &nbsp;&nbsp;&nbsp; 
-                <span class="highlight">${effectiveDbfs} dBFS</span> 
-                &nbsp;&nbsp;&nbsp; 
-                OS: <span class="highlight">${effectiveOffset}</span>
-            `;
-
-            if (masterGain && audioCtx) {
-                const newGain = Math.pow(10, effectiveDbfs / 20);
-                masterGain.gain.setTargetAtTime(newGain, audioCtx.currentTime, 0.01);
-            }
-        }
-
         function handleTonePlay(btn) {
             initAudio();
 
@@ -439,24 +404,23 @@
             if (!isContinuous) btn.classList.add('pulsing');
 
             const freq = parseFloat(btn.dataset.freq);
-            const baseDbfs = parseFloat(btn.dataset.dbfs);
+            const dbfs = parseFloat(btn.dataset.dbfs);
+            const offset = parseInt(btn.dataset.offset);
             const pan = parseFloat(btn.dataset.pan);
             const ear = btn.dataset.ear;
-            
-            const effectiveDbfs = parseFloat((baseDbfs + globalDbTrim).toFixed(1));
-            const effectiveOffset = Math.round(effectiveDbfs + 33.6);
 
+            // Formatted HUD specifically designed to stack nicely on mobile
             hudStatus.innerText = `TRANSMITTING — ${ear}`;
             hudStatus.style.color = pan === 1 ? "#fca5a5" : "#93c5fd";
             hudValues.innerHTML = `
                 ${freq / 1000} kHz 
-                &nbsp;&nbsp;&nbsp; 
-                <span class="highlight">${effectiveDbfs} dBFS</span> 
-                &nbsp;&nbsp;&nbsp; 
-                OS: <span class="highlight">${effectiveOffset}</span>
+                <span style="opacity: 0.3; margin: 0 5px;">|</span> 
+                <span class="highlight">${dbfs}</span> <span style="font-size: 16px;">dBFS</span>
+                <span style="opacity: 0.3; margin: 0 5px;">|</span> 
+                <span style="font-size: 16px;">OS:</span> <span class="highlight">${offset}</span>
             `;
 
-            const targetGain = Math.pow(10, effectiveDbfs / 20);
+            const targetGain = Math.pow(10, dbfs / 20);
 
             activeOsc = audioCtx.createOscillator();
             activeOsc.type = 'sine';
@@ -487,30 +451,6 @@
                 }, 250);
             }
         }
-
-        // Global Trim Handling
-        function setTrim(value) {
-            globalDbTrim = value;
-            volumeControl.value = globalDbTrim;
-            trimReadout.innerText = (globalDbTrim > 0 ? '+' : '') + globalDbTrim + ' dB';
-            updateActiveToneLive();
-        }
-
-        volumeControl.addEventListener('input', (e) => {
-            setTrim(parseFloat(e.target.value));
-        });
-
-        function applyBoost(amount) {
-            let newVal = parseFloat(volumeControl.value) + amount;
-            if (newVal > parseFloat(volumeControl.max)) newVal = parseFloat(volumeControl.max);
-            if (newVal < parseFloat(volumeControl.min)) newVal = parseFloat(volumeControl.min);
-            setTrim(newVal);
-        }
-
-        btnCut5.addEventListener('click', () => applyBoost(-5));
-        btnCut1.addEventListener('click', () => applyBoost(-1));
-        btnBoost1.addEventListener('click', () => applyBoost(1));
-        btnBoost5.addEventListener('click', () => applyBoost(5));
 
         pulseToggle.addEventListener('change', () => {
             if (activeBtn) {
