@@ -15,8 +15,8 @@
             --right-color: #f87171;
         }
 
-        /* Custom Sleek Scrollbar for Mobile/Desktop Scrolling */
-        ::-webkit-scrollbar { width: 6px; }
+        /* Custom Sleek Scrollbar for Main Window */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
@@ -33,7 +33,7 @@
             overflow: hidden;
             animation: bootUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             user-select: none; -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent; /* Removes blue tap flash on mobile */
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* Glassmorphic Top HUD */
@@ -95,7 +95,7 @@
         /* Main Content Layout */
         #content {
             flex: 1; padding: 25px 40px; display: flex; flex-direction: column; gap: 25px;
-            overflow-y: auto; /* Allows scrolling on mobile */
+            overflow-y: auto;
             overflow-x: hidden;
         }
 
@@ -118,7 +118,7 @@
         .left-title { color: var(--left-color); text-shadow: 0 0 10px rgba(96, 165, 250, 0.3); }
 
         .freq-row {
-            display: flex; align-items: center;
+            display: flex; align-items: stretch;
             background: rgba(0,0,0,0.15); border-radius: 10px; padding: 6px;
             border: 1px solid rgba(255,255,255,0.02);
         }
@@ -126,14 +126,23 @@
         .freq-label {
             width: 80px; flex-shrink: 0; font-size: 14px; font-weight: 500;
             color: rgba(255,255,255,0.7); text-align: right; padding-right: 18px;
+            display: flex; align-items: center; justify-content: flex-end;
         }
 
         .button-row {
             display: flex;
-            flex-wrap: wrap; /* CRITICAL FOR MOBILE: Allows buttons to form a multi-line grid */
+            flex-wrap: nowrap; /* Forces one line for desktop */
             gap: 6px;
             flex-grow: 1;
+            overflow-x: auto; /* Allows trackpad horizontal scrolling if window isn't wide enough */
+            padding-bottom: 4px; /* Space for the thin scrollbar */
         }
+
+        /* Subtle scrollbar for the individual button rows */
+        .button-row::-webkit-scrollbar { height: 4px; }
+        .button-row::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+        .button-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .button-row::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
         /* Fixed-Size Glass Buttons for Uniform Grid */
         .btn {
@@ -175,44 +184,29 @@
            ========================================= */
         @media (max-width: 900px) {
             #topBar {
-                height: auto;
-                flex-direction: column;
-                padding: 15px 20px;
-                gap: 15px;
+                height: auto; flex-direction: column; padding: 15px 20px; gap: 15px;
             }
-
-            .hud-title-container { display: none; } /* Hide workspace text on mobile to save space */
-            
-            .hud-display { order: -1; width: 100%; } /* Force HUD to the very top */
-            .hud-values { font-size: 22px; } /* Slightly smaller text */
-
+            .hud-title-container { display: none; }
+            .hud-display { order: -1; width: 100%; }
+            .hud-values { font-size: 22px; }
             .toggle-wrapper { width: 100%; justify-content: center; }
-
             #content { padding: 15px 15px; gap: 15px; }
             .ear-section { padding: 15px; }
-
-            .freq-row {
-                flex-direction: column;
-                align-items: stretch;
-                padding: 12px;
-            }
-
+            .freq-row { flex-direction: column; align-items: stretch; padding: 12px; }
             .freq-label {
-                width: auto;
-                text-align: left;
-                padding-right: 0;
-                padding-bottom: 8px;
-                margin-bottom: 8px;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                color: #fff;
+                width: auto; text-align: left; padding-right: 0; padding-bottom: 8px;
+                margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                color: #fff; justify-content: flex-start;
             }
-
-            .button-row { justify-content: flex-start; }
-            .btn { width: 52px; padding: 10px 0; } /* Make buttons slightly taller for fat-finger tapping */
+            .button-row {
+                flex-wrap: wrap; /* On mobile, let them naturally wrap into multiple lines */
+                justify-content: flex-start; overflow-x: visible;
+            }
+            .btn { width: 52px; padding: 10px 0; }
         }
     </style>
 </head>
-<body data-kmwindow="SCREEN(Main,Center,0%),SCREEN(Main,Center,10%),1700,1000" data-kmwindowbuttons="none">
+<body data-kmwindow="SCREEN(Main,Center,0%),SCREEN(Main,Center,10%),1900,1000" data-kmwindowbuttons="none">
 
     <div id="topBar">
         <div class="hud-title-container">
@@ -245,6 +239,7 @@
     </div>
 
     <script>
+        // Data Config - All >= 13kHz end at -33.6 (Offset 0)
         const config = [
             {
                 ear: 'RIGHT EAR',
@@ -252,10 +247,10 @@
                 pan: 1,
                 btnClass: 'right-ear-btn',
                 groups: [
-                    { freq: 14500, start: -56.6, end: -35.6 },
-                    { freq: 14000, start: -65.6, end: -40.6 },
-                    { freq: 13500, start: -65.6, end: -40.6 },
-                    { freq: 13000, start: -65.6, end: -40.6 }
+                    { freq: 14500, start: -56.6, end: -33.6 },
+                    { freq: 14000, start: -65.6, end: -33.6 },
+                    { freq: 13500, start: -65.6, end: -33.6 },
+                    { freq: 13000, start: -65.6, end: -33.6 }
                 ]
             },
             {
@@ -264,11 +259,11 @@
                 pan: -1,
                 btnClass: 'left-ear-btn',
                 groups: [
-                    { freq: 14000, start: -42.6, end: -32.6 },
-                    { freq: 13500, start: -49.6, end: -39.6 },
-                    { freq: 13000, start: -65.6, end: -43.6 },
-                    { freq: 12500, start: -73.6, end: -53.6 },
-                    { freq: 12000, start: -73.6, end: -53.6 }
+                    { freq: 14000, start: -42.6, end: -33.6 },
+                    { freq: 13500, start: -49.6, end: -33.6 },
+                    { freq: 13000, start: -65.6, end: -33.6 },
+                    { freq: 12500, start: -73.6, end: -53.6 }, // Unchanged (< 13k)
+                    { freq: 12000, start: -73.6, end: -53.6 }  // Unchanged (< 13k)
                 ]
             }
         ];
@@ -279,11 +274,10 @@
         const hud = document.getElementById('hud');
 
         function adjustWindowHeight() {
-            // Only force window resize if running specifically inside Keyboard Maestro on Mac.
-            // On mobile devices, this is ignored, allowing the responsive CSS to do its job.
             if (window.KeyboardMaestro) {
                 setTimeout(() => {
-                    window.KeyboardMaestro.ResizeWindow("1700,1000");
+                    // Force a nice, wide 1900px window for KM on Mac
+                    window.KeyboardMaestro.ResizeWindow("1900,1000");
                 }, 50);
             }
         }
@@ -304,6 +298,10 @@
                 const btnRow = document.createElement('div');
                 btnRow.className = 'button-row';
 
+                // Add small invisible padding at end of scroll row so rightmost button doesn't hug edge perfectly
+                const padEnd = document.createElement('div');
+                padEnd.style.width = '2px'; padEnd.style.flexShrink = '0';
+
                 for (let db = group.start; db <= group.end + 0.1; db += 1) {
                     const exactDb = parseFloat(db.toFixed(1));
                     const offset = Math.round(exactDb + 33.6);
@@ -321,11 +319,11 @@
                         <div class="btn-off">(${offset})</div>
                     `;
 
-                    // Using pointerdown instead of click for significantly faster response time on Mobile Touchscreens
                     btn.addEventListener('pointerdown', () => handleTonePlay(btn));
                     btnRow.appendChild(btn);
                 }
 
+                btnRow.appendChild(padEnd);
                 row.appendChild(btnRow);
                 container.appendChild(row);
             });
@@ -343,7 +341,6 @@
         let activeBtn = null;
         let currentPulseState = true;
 
-        // Needed for iOS Web Audio API: Unlocking audio context on first user interaction
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -409,7 +406,6 @@
             const pan = parseFloat(btn.dataset.pan);
             const ear = btn.dataset.ear;
 
-            // Formatted HUD specifically designed to stack nicely on mobile
             hudStatus.innerText = `TRANSMITTING — ${ear}`;
             hudStatus.style.color = pan === 1 ? "#fca5a5" : "#93c5fd";
             hudValues.innerHTML = `
