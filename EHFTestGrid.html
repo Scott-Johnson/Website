@@ -49,7 +49,6 @@
         }
 
         .left-controls {
-            /* Increased width to fit the 4 buttons comfortably */
             display: flex; align-items: center; gap: 20px; width: 450px;
         }
 
@@ -66,6 +65,7 @@
         .hud-values {
             font-size: 28px; font-weight: 200; color: #fff;
             text-shadow: 0 0 15px rgba(255,255,255,0.1);
+            text-align: center;
         }
 
         .hud-values span.highlight { font-weight: 500; color: #e4e4e7; }
@@ -139,7 +139,7 @@
         /* Main Content Layout */
         #content {
             flex: 1; padding: 25px 40px; display: flex; flex-direction: column; gap: 25px;
-            overflow: hidden;
+            overflow-y: auto; overflow-x: hidden; /* Allowed vertical scrolling */
         }
 
         /* Solid Dark Ear Sections */
@@ -210,6 +210,74 @@
 
         .btn-db { font-size: 13px; font-weight: 500; }
         .btn-off { font-size: 10px; opacity: 0.5; margin-top: 3px; font-weight: 400; }
+
+        /* =========================================
+           MOBILE RESPONSIVE ADJUSTMENTS
+           ========================================= */
+        @media (max-width: 850px) {
+            #topBar {
+                height: auto;
+                flex-direction: column;
+                padding: 15px 20px;
+                gap: 20px;
+            }
+
+            .left-controls {
+                width: 100%;
+                flex-direction: column;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .hud-display {
+                width: 100%;
+                text-align: center;
+            }
+
+            .hud-values {
+                font-size: 22px; /* Slightly smaller for mobile */
+            }
+
+            .controls-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .volume-control {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            #content {
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .ear-section {
+                padding: 15px;
+            }
+
+            .freq-row {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 12px;
+            }
+
+            .freq-label {
+                width: 100%;
+                text-align: left;
+                padding-right: 0;
+                padding-bottom: 10px;
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+                margin-bottom: 10px;
+            }
+
+            .button-row {
+                flex-wrap: wrap; /* Allows buttons to drop to the next line */
+                justify-content: center;
+                width: 100%;
+            }
+        }
 
     </style>
 </head>
