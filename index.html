@@ -263,8 +263,8 @@
         /* Projects Section */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(5, 1fr); /* Forced 5 columns regardless of screen size */
+            gap: 10px; /* Reduced gap so they fit better on mobile */
             max-width: 1200px;
             margin: 0 auto;
         }
@@ -366,13 +366,13 @@
             line-height: 1.6;
         }
 
-        /* Clients Section (Updated to circular) */
+        /* Clients Section */
         .clients-grid {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
             gap: 40px;
-            max-width: 1300px; /* Changed from 1200px */
+            max-width: 1300px;
             margin: 0 auto;
         }
         .clients-grid img {
@@ -466,7 +466,10 @@
 
         /* Mobile Adjustments */
         @media (max-width: 768px) {
-            .about-content { grid-template-columns: 1fr; }
+            .about-content {
+                grid-template-columns: 1.5fr 1fr; /* Image stays on right, text gets more room */
+                gap: 20px;
+            }
             nav ul { display: none; }
             .mobile-menu-toggle { display: flex; }
             .video-text { right: 20px; bottom: 30px; }
