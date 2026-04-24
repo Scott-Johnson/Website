@@ -4,22 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scott Johnson Composer</title>
+    <title>Scott Johnson | Film Composer</title>
     <meta property="og:title" content="Scott Johnson">
     <meta property="og:description" content="Website for Film Composer Scott Johnson.">
     <meta property="og:image" content="/preview-image.jpg">
     <meta property="og:url" content="https://www.scottjohnsoncomposer.net">
     <meta property="og:type" content="website">
-    <link rel="stylesheet" href="fonts/stylesheet.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@200;400;600;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-dark: #151518;
-            --text-light: #fff;
-            --accent-red: #b22222;
-            --nav-bg: rgba(21, 21, 24, 0.9);
-            --glow-color: #b22222;
-            --transition-speed: 0.3s;
-            --section-padding: 80px 20px;
+            --bg-dark: #0b0b0e;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --text-light: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --accent-red: #e63946;
+            --nav-bg: rgba(11, 11, 14, 0.7);
+            --transition-speed: 0.4s;
+            --section-padding: 100px 20px;
         }
 
         body {
@@ -27,13 +32,19 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
             overflow-x: hidden;
         }
 
+        /* Native Smooth Scrolling */
         html {
-            scroll-behavior: auto;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, .composer {
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
         }
 
         #bg-video {
@@ -45,855 +56,422 @@
             object-fit: cover;
             z-index: -1;
             pointer-events: none;
-            filter: brightness(0.4) saturate(0.9);
-            opacity: 0.7;
-            transition: opacity 1s ease-in-out;
+            filter: brightness(0.3) contrast(1.1);
         }
 
-        /* Navigation */
+        /* Modern Glass Navigation */
         nav {
             background-color: var(--nav-bg);
-            padding: 20px;
-            text-align: center;
-            position: sticky;
+            padding: 20px 40px;
+            position: fixed;
+            width: 100%;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             justify-content: center;
             align-items: center;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
         }
 
         nav ul {
-            list-style-type: none;
+            list-style: none;
             padding: 0;
             margin: 0;
             display: flex;
-            justify-content: center;
-            gap: 40px;
+            gap: 50px;
         }
 
         nav ul li a {
             color: var(--text-light);
             text-decoration: none;
-            font-size: 1.1em;
+            font-size: 0.9em;
             font-weight: 500;
-            padding: 5px 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             position: relative;
+            padding-bottom: 5px;
+            transition: color var(--transition-speed);
         }
 
-        .glow-hover {
-            transition: color var(--transition-speed) ease, text-shadow var(--transition-speed) ease;
-        }
-
-        .glow-hover:hover {
-            color: var(--glow-color);
-            text-shadow: 0 0 10px var(--glow-color), 0 0 2px var(--glow-color);
-        }
-
-        .glow-hover::after {
+        nav ul li a::after {
             content: '';
             position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 100%;
+            width: 0;
             height: 2px;
-            background-color: var(--glow-color);
-            transform: scaleX(0);
-            transition: transform var(--transition-speed) ease-out;
+            bottom: 0;
+            left: 50%;
+            background-color: var(--accent-red);
+            transition: all var(--transition-speed) ease;
+            transform: translateX(-50%);
         }
 
-        .glow-hover:hover::after {
-            transform: scaleX(1);
+        nav ul li a:hover {
+            color: var(--accent-red);
         }
 
-        /* Mobile Navigation Toggle (Hamburger) */
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        /* Mobile Menu Toggle */
         .mobile-menu-toggle {
             display: none;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 1001;
-            width: 30px;
-            height: 25px;
-            cursor: pointer;
             flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1001;
+            position: absolute;
+            right: 30px;
         }
 
         .mobile-menu-toggle span {
-            display: block;
-            height: 3px;
-            width: 100%;
+            width: 30px;
+            height: 2px;
             background-color: var(--text-light);
-            border-radius: 2px;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
 
-        .mobile-menu-toggle.active span:nth-child(1) {
-            transform: translateY(11px) rotate(45deg);
-        }
-
-        .mobile-menu-toggle.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .mobile-menu-toggle.active span:nth-child(3) {
-            transform: translateY(-11px) rotate(-45deg);
-        }
-
-        /* Mobile Menu Overlay */
-        .mobile-menu-overlay {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(21, 21, 24, 0.98);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 999;
-            transform: translateX(100%);
-            opacity: 0;
-            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-        }
-
-        .mobile-menu-overlay.active {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        .mobile-menu-overlay ul {
-            list-style-type: none;
-            padding: 80px 0 40px;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-            align-items: center;
-        }
-
-        .mobile-menu-overlay ul li a {
-            color: var(--text-light);
-            text-decoration: none;
-            font-size: clamp(1.1em, 5vw, 1.6em);
-            font-weight: 500;
-            padding: 10px 20px;
-            display: block;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
-            transition-delay: var(--stagger-delay, 0s);
-        }
-
-        .mobile-menu-overlay.active ul li a {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .mobile-menu-overlay ul li a:hover {
-            color: var(--glow-color);
-            text-shadow: 0 0 10px var(--glow-color), 0 0 2px var(--glow-color);
-        }
-
-        /* Hero Section (Video Container) */
+        /* Hero Section */
         .video-container {
             position: relative;
             width: 100%;
-            height: 70vh;
-            overflow: hidden;
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
             text-align: center;
-        }
-
-        .video-container::before,
-        .video-container::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            width: 100%;
-            height: 120px;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .video-container::before {
-            top: 0;
-            background: linear-gradient(to bottom, var(--bg-dark) 0%, transparent 100%);
-        }
-
-        .video-container::after {
-            bottom: 0;
-            background: linear-gradient(to top, var(--bg-dark) 0%, transparent 100%);
         }
 
         .header-banner {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.6);
-            transition: filter 0.5s ease-out;
+            filter: brightness(0.5);
+            z-index: 1;
         }
 
-        .fade-text {
+        .video-container::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30vh;
+            background: linear-gradient(to top, var(--bg-dark), transparent);
+            z-index: 2;
+        }
+
+        .hero-content {
             position: relative;
             z-index: 3;
-            font-size: clamp(3rem, 10vw, 7rem);
-            font-family: 'Ailerons', sans-serif;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 1.5s ease-out, transform 1.5s ease-out;
-            color: var(--text-light);
-            letter-spacing: 0.1em;
-            text-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+            animation: fadeIn 2s ease-out forwards;
         }
 
-        .fade-in {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .fade-out {
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 1s ease-in, transform 1s ease-in;
+        .hero-content h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 200;
+            letter-spacing: 12px;
+            margin: 0;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
         .composer {
             color: var(--accent-red);
+            font-size: clamp(0.8rem, 2vw, 1.2rem);
+            letter-spacing: 8px;
             display: block;
-            font-size: 0.5em;
-            letter-spacing: 0.2em;
-            margin-top: -10px;
+            margin-top: 10px;
+            font-weight: 600;
         }
 
         .video-text {
             position: absolute;
-            bottom: 35px;
-            right: 20px;
+            bottom: 50px;
+            right: 40px;
             text-align: right;
-            color: var(--text-light);
             z-index: 3;
             font-size: 0.9em;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
-        }
-
-        .video-text span {
-            display: block;
-            opacity: 0;
-            transition: opacity 0.8s ease-in-out;
+            color: var(--text-muted);
         }
 
         .video-text .bold {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: var(--accent-red);
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 1.2em;
+            display: block;
+            letter-spacing: 1px;
         }
 
-        .video-text .italic {
-            font-style: italic;
-        }
-
-        /* General Section Styles */
+        /* Sections General */
         section {
             padding: var(--section-padding);
-            text-align: center;
             position: relative;
-            overflow: hidden;
-            background-color: var(--bg-dark);
+            z-index: 10;
         }
 
         section h2 {
-            font-family: 'Ailerons', sans-serif;
-            color: var(--accent-red);
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            margin-bottom: 50px;
-            position: relative;
-            display: inline-block;
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 400;
+            letter-spacing: 4px;
+            margin-bottom: 60px;
+            text-align: center;
         }
 
-        section h2::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 3px;
-            background-color: var(--accent-red);
-            border-radius: 5px;
+        section h2 span {
+            color: var(--accent-red);
+            font-weight: 700;
         }
 
         /* About Section */
-        #about {
-            padding-top: 100px;
-            z-index: 1;
-        }
-
         .about-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
             max-width: 1100px;
             margin: 0 auto;
-            gap: 40px;
-            text-align: left;
+            align-items: center;
         }
 
-        @media (min-width: 768px) {
-            .about-content {
-                flex-direction: row;
-                text-align: left;
-            }
-        }
-
-        .about-content .text {
-            flex: 1;
-            padding: 0 20px;
-            max-width: 600px;
-        }
-
-        .about-content .text p {
+        .about-text p {
+            color: var(--text-muted);
+            font-size: 1.05em;
             margin-bottom: 20px;
-            font-size: 1.1em;
-            color: rgba(255, 255, 255, 0.9);
         }
 
-        .about-content .image {
-            flex: 1;
-            text-align: center;
-            padding: 0 20px;
-        }
-
-        .about-content .image img {
-            width: 100%;
-            max-width: 350px;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            filter: brightness(0.9);
-            transition: all var(--transition-speed) ease-in-out;
-        }
-
-        .about-content .image img:hover {
-            filter: brightness(1);
-            transform: scale(1.02);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
-        }
-
-        .dark-red {
-            color: var(--accent-red);
-        }
-
-        .white {
+        .about-text strong {
             color: var(--text-light);
+            font-weight: 600;
         }
 
-        .fade-in-element {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 1s ease-out, transform 1s ease-out;
+        .about-image img {
+            width: 100%;
+            border-radius: 4px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: transform var(--transition-speed);
         }
 
-        .fade-in-element.in-view {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .about-heading {
-            opacity: 0;
-            transform: translateX(-30px);
-            transition: opacity 1.5s ease-out, transform 1.5s ease-out;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .about-heading.fade-in {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        /* About Section Glow Accents */
-        #about::before,
-        #about::after {
-            content: "";
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle at center, var(--accent-red) 0%, transparent 70%);
-            opacity: 0.1;
-            filter: blur(100px);
-            animation: glowPulse 6s ease-in-out infinite, floatUpDown 10s ease-in-out infinite;
-            transform-origin: center;
-            z-index: -1;
-        }
-
-        #about::before {
-            top: 10%;
-            left: -150px;
-        }
-
-        #about::after {
-            bottom: 10%;
-            right: -150px;
-            animation-delay: 2s;
-        }
-
-        @keyframes floatUpDown {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(50px);
-            }
-        }
-
-        @keyframes glowPulse {
-            0%, 100% {
-                opacity: 0.1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.25;
-                transform: scale(1.05);
-            }
+        .about-image img:hover {
+            transform: translateY(-10px);
         }
 
         /* Projects Section */
-        #projects {
-            background-color: #1a1a1e;
-            padding-top: var(--section-padding);
-        }
-
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
+            gap: 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
         .poster-box {
-            width: 100%;
-            padding-top: 150%;
-            background-color: #333;
+            display: block;
+            aspect-ratio: 2 / 3;
             background-size: cover;
             background-position: center;
+            border-radius: 6px;
             position: relative;
-            border-radius: 8px;
             overflow: hidden;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out, transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
         }
 
-        .poster-box.in-view {
-            opacity: 1;
-            transform: translateY(0);
+        .poster-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.2);
+            transition: background var(--transition-speed);
         }
 
         .poster-box:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(230, 57, 70, 0.15);
         }
 
-        .poster-box img {
-            display: none;
+        .poster-box:hover::before {
+            background: rgba(0,0,0,0);
         }
 
         #imdb-button {
-            margin-top: 50px;
+            text-align: center;
+            margin-top: 60px;
         }
 
         #imdb-button img {
-            width: 60px;
-            height: auto;
-            border-radius: 50%;
-            transition: transform var(--transition-speed) ease, filter var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 70px;
+            border-radius: 4px;
+            transition: transform var(--transition-speed);
         }
 
         #imdb-button img:hover {
-            transform: scale(1.15);
-            filter: brightness(1.1);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            transform: scale(1.1);
         }
 
-        /* By The Numbers Section */
+        /* Stats Section */
         #by-the-numbers {
-            background-color: #1a1a1e;
-            padding: 40px 20px;
+            background: linear-gradient(to bottom, var(--bg-dark), #101014);
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
         .stat-card {
-            background-color: #222;
-            padding: 25px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .stat-card.in-view {
-            opacity: 1;
-            transform: translateY(0);
+            padding: 40px 25px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform var(--transition-speed), background var(--transition-speed);
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(230, 57, 70, 0.3);
         }
 
         .stat-number {
-            font-family: 'Ailerons', sans-serif;
-            font-size: clamp(2rem, 8vw, 3.5rem);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5rem;
             color: var(--accent-red);
-            font-weight: bold;
-            margin: 0;
+            font-weight: 700;
             line-height: 1;
-            padding-bottom: 5px;
+            margin-bottom: 10px;
         }
 
         .stat-label {
-            font-size: 1.1em;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-light);
             font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-size: 0.85em;
         }
 
         .stat-summary {
-            font-size: 0.8em;
-            color: rgba(255, 255, 255, 0.5);
-            margin-top: 10px;
-            min-height: 40px;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            line-height: 1.6;
         }
 
-        .timeline-card {
-            grid-column: 1 / -1;
-            background-color: #222;
-            padding: 30px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 1s ease-out, transform 1s ease-out;
-        }
-
-        .timeline-card.in-view {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .timeline-visuals {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .graph-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            width: 100%;
-            max-width: 500px;
-            text-align: left;
-            position: relative;
-        }
-
-        .graph-label {
-            font-size: 0.9em;
-            color: var(--text-light);
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .graph-bar-container {
-            width: 100%;
-            height: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .graph-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #b22222, #e63946);
-            width: 0%;
-            transition: width 2s ease-out;
-            position: relative;
-        }
-
-        .graph-bar-text {
-            font-size: 0.8em;
-            font-weight: bold;
-            color: var(--text-light);
-            position: absolute;
-            top: 50%;
-            left: 10px;
-            transform: translateY(-50%);
-            white-space: nowrap; /* Fixes the text wrapping issue */
-        }
-
-
-        /* Clients & Collaborators Section */
-        #ClientsNew {
-            background-color: var(--bg-dark);
-            padding-top: var(--section-padding);
-        }
-
-        .ClientsNew-icons {
+        /* Clients Section (Updated to circular) */
+        .clients-grid {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
             gap: 40px;
-            max-width: 1200px;
+            max-width: 1300px; /* Changed from 1200px */
             margin: 0 auto;
         }
-
-        .ClientsNew-icons .icon {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
+        .clients-grid img {
+            height: 90px;
+            width: 90px;
             object-fit: contain;
-            background-color: #222;
-            padding: 10px;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow var(--transition-speed) ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            filter: grayscale(80%) brightness(0.8);
+            border-radius: 50%;
+            padding: 15px;
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-sizing: border-box;
+            filter: grayscale(100%) opacity(0.6);
+            transition: filter var(--transition-speed), transform var(--transition-speed), background-color var(--transition-speed);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .ClientsNew-icons .icon.in-view {
-            opacity: 1;
-            transform: scale(1);
-            filter: grayscale(0%) brightness(1);
+        .clients-grid img:hover {
+            filter: grayscale(0%) opacity(1);
+            transform: scale(1.08);
+            background-color: rgba(255,255,255,0.1);
         }
 
-        .ClientsNew-icons .icon:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-            filter: grayscale(0%) brightness(1.1);
-        }
-
-        /* Removed the collaborator-section completely as requested */
-
-        /* Music Section */
-        #music {
-            background-color: var(--bg-dark);
-            padding-top: var(--section-padding);
-        }
-
+        /* Music Embed */
         .music-player {
             max-width: 900px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #222;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            margin-top: 50px;
-        }
-
-        .music-player iframe {
             border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
 
-        /* Connect Section */
+        /* Connect / Footer */
         #connect {
-            background-color: #1a1a1e;
-            padding-top: var(--section-padding);
-            padding-bottom: 100px;
-        }
-
-        #connect .email {
-            margin-bottom: 40px;
-            font-size: 1.2em;
+            text-align: center;
         }
 
         .email-link {
+            font-size: 1.5rem;
             color: var(--text-light);
             text-decoration: none;
-            transition: color var(--transition-speed) ease;
+            transition: color var(--transition-speed);
+            display: inline-block;
+            margin-bottom: 40px;
         }
 
         .email-link:hover {
             color: var(--accent-red);
-            text-decoration: underline;
         }
 
         .social-icons {
             display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 30px;
+            gap: 25px;
         }
 
         .social-icons img {
-            width: 50px;
-            height: auto;
-            border-radius: 50%;
-            transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease, filter var(--transition-speed) ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            filter: brightness(0.8);
+            width: 40px;
+            opacity: 0.7;
+            transition: all var(--transition-speed);
         }
 
-        .social-icons a:hover img {
-            transform: scale(1.2);
-            filter: brightness(1.1);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        .social-icons img:hover {
+            opacity: 1;
+            transform: translateY(-5px);
         }
 
-        /* Footer */
         footer {
-            background-color: rgba(0, 0, 0, 0.9);
-            padding: 30px 20px;
             text-align: center;
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.7);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* Responsive Adjustments */
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile Adjustments */
         @media (max-width: 768px) {
-            nav ul.desktop-nav {
-                display: none;
-            }
-
-            .mobile-menu-toggle {
-                display: flex;
-            }
-
-            nav {
-                justify-content: flex-end;
-                padding-right: 20px;
-                padding-left: 20px;
-            }
-
-            .video-container {
-                height: 60vh;
-            }
-
-            .fade-text {
-                font-size: clamp(2.5rem, 12vw, 5rem);
-            }
-
-            .composer {
-                font-size: 0.6em;
-            }
-
-            .video-text {
-                bottom: 20px;
-                right: 10px;
-                font-size: 0.8em;
-            }
-
-            section {
-                padding: 60px 15px;
-            }
-
-            section h2 {
-                font-size: clamp(1.8rem, 7vw, 3rem);
-                margin-bottom: 40px;
-            }
-
-            .about-content {
-                flex-direction: column;
-                padding: 0 15px;
-                gap: 30px;
-            }
-
-            .about-content .text {
-                padding: 0;
-                text-align: center;
-            }
-
-            .about-content .text p {
-                font-size: 1em;
-            }
-
-            .about-content .image img {
-                max-width: 80%;
-            }
-
-            .ClientsNew-icons {
-                gap: 25px;
-            }
-
-            .ClientsNew-icons .icon {
-                width: 80px;
-                height: 80px;
-            }
-
-            .music-player {
-                padding: 15px;
-            }
-
-            #imdb-button img {
-                width: 50px;
-            }
-
-            .social-icons img {
-                width: 40px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .grid-container {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 20px;
-            }
-
-            .ClientsNew-icons {
-                gap: 20px;
-            }
-
-            .ClientsNew-icons .icon {
-                width: 70px;
-                height: 70px;
-            }
-
-            .mobile-menu-overlay ul li a {
-                font-size: clamp(1.0em, 4.5vw, 1.4em);
-            }
-        }
-
-        body.no-scroll {
-            overflow: hidden !important;
+            .about-content { grid-template-columns: 1fr; }
+            nav ul { display: none; }
+            .mobile-menu-toggle { display: flex; }
+            .video-text { right: 20px; bottom: 30px; }
+            .stat-number { font-size: 2.5rem; }
+            .clients-grid img { width: 75px; height: 75px; padding: 12px; }
         }
     </style>
 </head>
@@ -901,85 +479,65 @@
 <body>
     <video autoplay muted loop playsinline id="bg-video">
         <source src="backgroundvideo.mp4" type="video/mp4">
-        Your browser does not support the video tag.
     </video>
 
     <nav>
-        <div class="mobile-menu-toggle" id="mobile-menu-toggle">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-
         <ul class="desktop-nav">
-            <li><a href="#about" class="glow-hover">About</a></li>
-            <li><a href="#music" class="glow-hover">Music</a></li>
-            <li><a href="#projects" class="glow-hover">Projects</a></li>
-            <li><a href="#connect" class="glow-hover">Connect</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#music">Music</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#connect">Connect</a></li>
         </ul>
-
-        <div class="mobile-menu-overlay" id="mobile-menu-overlay">
-            <ul>
-                <li><a href="#about" class="glow-hover mobile-nav-link">About</a></li>
-                <li><a href="#music" class="glow-hover mobile-nav-link">Music</a></li>
-                <li><a href="#projects" class="glow-hover mobile-nav-link">Projects</a></li>
-                <li><a href="#connect" class="glow-hover mobile-nav-link">Connect</a></li>
-            </ul>
+        <div class="mobile-menu-toggle">
+            <span></span><span></span><span></span>
         </div>
     </nav>
 
     <div class="video-container">
         <video class="header-banner" autoplay muted playsinline loop>
             <source src="header.mp4" type="video/mp4">
-            Your browser does not support the video tag.
         </video>
-        <div id="fade-text" class="fade-text">
-            Scott Johnson <span class="composer">Composer</span>
+        <div class="hero-content">
+            <h1>Scott Johnson</h1>
+            <span class="composer">Film Composer</span>
         </div>
         <div class="video-text">
-            <span class="bold">EUROPA</span>
-            <span>dir. Jacqueline Elyse Rosenthal</span>
-            <span class="italic"></span>
+            <span class="bold" id="video-title">EUROPA</span>
+            <span id="video-director">dir. Jacqueline Elyse Rosenthal</span>
         </div>
     </div>
 
     <section id="about">
-        <h2 class="about-heading"><span class="white">ABOUT</span> <span class="dark-red">SCOTT</span></h2>
+        <h2 class="reveal">About <span>Scott</span></h2>
         <div class="about-content">
-            <div class="text">
-                <p class="fade-in-element">Scott pursued his undergraduate education at the esteemed <strong>USC School of Cinematic Arts</strong>, specializing in Film & Television Production—widely regarded as the world's leading academic program in the film & entertainment field.</p>
-
-                <p class="fade-in-element">While at USC, Scott made history scoring <strong>over 100 USC thesis films</strong> and earned the reputation of being a “secret weapon” within the program for his work ethic and collaborative spirit. His contributions have been instrumental in numerous projects that achieved critical acclaim, including those that have garnered awards at the <strong>Cannes Film Festival</strong> and the <strong>Student Academy Awards</strong>.</p>
-
-                <p class="fade-in-element">In 2020, Scott's work was showcased on a global stage when he scored a “Shot on iPhone” short for <strong>Apple Inc</strong>.</p>
-
-                <p class="fade-in-element">Prior to graduating film school, Scott was invited to join <strong>Hans Zimmer’s Bleeding Fingers Music</strong>.</p>
-
-                <p class="fade-in-element">Scott's career trajectory has seen him collaborate with industry luminaries such as Roeban Katz and <strong>Alexandre Desplat</strong>. He has also worked with major networks like ABC, where he contributed to special editions of ABC 20/20’s <strong><em>“Black Panther: In Search of Wakanda”</em></strong> and <strong><em>“Disney 100: A Century of Dreams”</em></strong>.</p>
-
-                <p class="fade-in-element">Scott's versatility extends beyond scoring, having been commissioned to sound design segments for <strong>Coachella</strong>.</p>
+            <div class="about-text reveal">
+                <p>Scott pursued his undergraduate education at the esteemed <strong>USC School of Cinematic Arts</strong>, specializing in Film & Television Production—widely regarded as the world's leading academic program in the film & entertainment field.</p>
+                <p>Known as USC's "secret weapon," Scott made history scoring <strong>over 100 thesis films</strong>, including <strong>Cannes</strong> and <strong>Student Academy Award</strong>-recognized projects.</p>
+                <p>In 2020, Scott's work was showcased on a global stage when he scored a “Shot on iPhone” short for <strong>Apple Inc</strong>. Prior to graduating film school, Scott was invited to join <strong>Hans Zimmer’s Bleeding Fingers Music</strong>.</p>
+                <p>Scott's career trajectory has seen him collaborate with industry luminaries such as Roeban Katz and <strong>Alexandre Desplat</strong>. He has also worked with major networks like ABC, where he contributed to special editions of ABC 20/20’s <strong><em>“Black Panther: In Search of Wakanda”</em></strong> and <strong><em>“Disney 100: A Century of Dreams”</em></strong>.</p>
+                <p>Beyond film, Scott has sound-designed segments for <strong>Coachella</strong> and partnered with top-tier digital creators. His research-backed cochlear implant audio simulation for advocate <strong>Chrissy Marshall</strong> reached 2M+ viewers, and his editing and original scoring for <strong>Chelsea Sik</strong> helped drive a channel network of 674M+ views, including a viral reel topping 30 million views.</p>
             </div>
-            <div class="image">
-                <img class="fade-in-element" src="about.jpg" alt="Scott Johnson">
+            <div class="about-image reveal">
+                <img src="about.jpg" alt="Scott Johnson Composer">
             </div>
         </div>
     </section>
 
     <section id="projects">
-        <h2>Projects & Placements</h2>
+        <h2 class="reveal">Projects & <span>Placements</span></h2>
         <div class="grid-container">
-            <a href="https://www.emmys.com" target="_blank" class="poster-box" style="background-image: url('poster01.jpg');"></a>
-            <a href="https://www.disneyplus.com/movies/disney-100-a-century-of-dreams-a-special-edition-of-20-20/1sd7Rkcq23oD" target="_blank" class="poster-box" style="background-image: url('poster02.jpg');"></a>
-            <a href="https://www.history.com/shows/colosseum" target="_blank" class="poster-box" style="background-image: url('poster03.jpg');"></a>
-            <a href="https://www.bravotv.com/top-chef/watch" target="_blank" class="poster-box" style="background-image: url('poster04.jpg');"></a>
-            <a href="https://abc.com/show/316bd540-412e-4480-b801-1b59dda0ec99" target="_blank" class="poster-box" style="background-image: url('poster05.jpg');"></a>
-            <a href="https://m.imdb.com/title/tt30319894/?ref_=mv_desc" target="_blank" class="poster-box" style="background-image: url('poster06.jpg');"></a>
-            <a href="https://www.imdb.com/title/tt32142182/" target="_blank" class="poster-box" style="background-image: url('poster07.jpg');"></a>
-            <a href="https://www.wmm.com/catalog/film/neurodivergent/" target="_blank" class="poster-box" style="background-image: url('poster08.jpg');"></a>
-            <a href="https://www.oscars.org/news/meet-2022-student-academy-awards-finalists" target="_blank" class="poster-box" style="background-image: url('poster09.jpg');"></a>
-            <a href="https://mubi.com/en/us/films/taste-of-cherry-2022" target="_blank" class="poster-box" style="background-image: url('poster10.jpg');"></a>
+            <a href="https://www.emmys.com" target="_blank" class="poster-box reveal" style="background-image: url('poster01.jpg');"></a>
+            <a href="https://www.disneyplus.com/movies/disney-100-a-century-of-dreams-a-special-edition-of-20-20/1sd7Rkcq23oD" target="_blank" class="poster-box reveal" style="background-image: url('poster02.jpg');"></a>
+            <a href="https://www.history.com/shows/colosseum" target="_blank" class="poster-box reveal" style="background-image: url('poster03.jpg');"></a>
+            <a href="https://www.bravotv.com/top-chef/watch" target="_blank" class="poster-box reveal" style="background-image: url('poster04.jpg');"></a>
+            <a href="https://abc.com/show/316bd540-412e-4480-b801-1b59dda0ec99" target="_blank" class="poster-box reveal" style="background-image: url('poster05.jpg');"></a>
+            <a href="https://m.imdb.com/title/tt30319894/?ref_=mv_desc" target="_blank" class="poster-box reveal" style="background-image: url('poster06.jpg');"></a>
+            <a href="https://www.imdb.com/title/tt32142182/" target="_blank" class="poster-box reveal" style="background-image: url('poster07.jpg');"></a>
+            <a href="https://www.wmm.com/catalog/film/neurodivergent/" target="_blank" class="poster-box reveal" style="background-image: url('poster08.jpg');"></a>
+            <a href="https://www.oscars.org/news/meet-2022-student-academy-awards-finalists" target="_blank" class="poster-box reveal" style="background-image: url('poster09.jpg');"></a>
+            <a href="https://mubi.com/en/us/films/taste-of-cherry-2022" target="_blank" class="poster-box reveal" style="background-image: url('poster10.jpg');"></a>
         </div>
-        <div id="imdb-button">
+        <div id="imdb-button" class="reveal">
             <a href="https://www.imdb.com/name/nm10841602/?ref_=ttfc_fc_cr16" target="_blank">
                 <img src="IMDb.jpg" alt="IMDb Profile">
             </a>
@@ -987,98 +545,58 @@
     </section>
 
     <section id="by-the-numbers">
-        <h2>By The Numbers</h2>
+        <h2 class="reveal">By The <span>Numbers</span></h2>
         <div class="stats-grid">
-            <div class="stat-card fade-in-element" data-target-number="90000000">
-                <p class="stat-number">0M+</p>
-                <p class="stat-label">Audience Reach</p>
-                <p class="stat-summary">Music featured across primetime network television (ABC's 20/20), global YouTube premieres (15M+ viewers), and viral social media content, including Instagram Reels with over 30 million views.</p>
+            <div class="stat-card reveal">
+                <div class="stat-number" data-target="700" data-suffix="M+">0M+</div>
+                <div class="stat-label">Audience Reach</div>
+                <div class="stat-summary">Featured on primetime television, global YouTube premieres, and massive creator channels.</div>
             </div>
-            <div class="stat-card fade-in-element" data-target-number="250" data-plus="true">
-                <p class="stat-number">0+</p>
-                <p class="stat-label">Scores Delivered</p>
-                <p class="stat-summary">Full scores and stems delivered for feature films, short films, video games, and other media.</p>
+            <div class="stat-card reveal">
+                <div class="stat-number" data-target="250" data-suffix="+">0+</div>
+                <div class="stat-label">Scores Delivered</div>
+                <div class="stat-summary">Full scores and stems delivered for feature films, shorts, and video games.</div>
             </div>
-            <div class="stat-card fade-in-element" data-target-number="150" data-plus="true">
-                <p class="stat-number">0+</p>
-                <p class="stat-label">Major Network Placements</p>
-                <p class="stat-summary">Prime-Time placements on ABC, CBS, NBC, other placements on Netflix, Disney+, HBO Max, Hulu.</p>
+            <div class="stat-card reveal">
+                <div class="stat-number" data-target="150" data-suffix="+">0+</div>
+                <div class="stat-label">Network Placements</div>
+                <div class="stat-summary">Prime-Time placements on ABC, CBS, NBC, Netflix, Disney+, and HBO Max.</div>
             </div>
-            <div class="stat-card fade-in-element" data-target-number="50" data-plus="true">
-                <p class="stat-number">0+</p>
-                <p class="stat-label">Ongoing Partnerships</p>
-                <p class="stat-summary">Collaborations from USC, NYU, and various film networks, teams, and music publishers.</p>
-            </div>
-            <div class="stat-card fade-in-element" data-target-number="10" data-plus="true">
-                <p class="stat-number">0+</p>
-                <p class="stat-label">Awards / Nominations</p>
-                <p class="stat-summary">For best original score and best original song, as well as awards for producing and project management roles.</p>
-            </div>
-            <div class="timeline-card fade-in-element">
-                <h3 class="stat-label">Timeline & Efficiency</h3>
-                <div class="timeline-visuals">
-                    <div class="graph-item">
-                        <span class="graph-label">Creative Turnaround</span>
-                        <div class="graph-bar-container">
-                            <div class="graph-bar" data-width="100%" data-delay="0s">
-                                <span class="graph-bar-text">Full Short Film Score: 3 Weeks</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="graph-item">
-                        <span class="graph-label">Project Delivery</span>
-                        <div class="graph-bar-container">
-                            <div class="graph-bar" data-width="100%" data-delay="0.5s">
-                                <span class="graph-bar-text">100% On-Time or Ahead of Schedule</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="graph-item">
-                        <span class="graph-label">Annual Music Output</span>
-                        <div class="graph-bar-container">
-                            <div class="graph-bar" data-width="100%" data-delay="1s">
-                                <span class="graph-bar-text">35+ Hours</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="stat-summary">
-                    <p>My ability to work quickly and with precision is a top priority. I am able to accommodate urgent projects with timelines as short as 48 hours.</p>
-                </div>
+            <div class="stat-card reveal">
+                <div class="stat-number" data-target="10" data-suffix="+">0+</div>
+                <div class="stat-label">Awards</div>
+                <div class="stat-summary">Recognized for best original score, best original song, and project management.</div>
             </div>
         </div>
     </section>
 
-    <section id="ClientsNew">
-        <h2>Clients & Collaborators</h2>
-        <div class="ClientsNew-icons">
-            <img src="client01.jpg" class="icon" alt="Apple Logo">
-            <img src="client02.jpg" class="icon" alt="Bleeding Fingers Music Logo">
-            <img src="client03.jpg" class="icon" alt="ABC Logo">
-            <img src="client04.jpg" class="icon" alt="Disney Logo">
-            <img src="client05.jpg" class="icon" alt="USC Logo">
-            <img src="client06.jpg" class="icon" alt="ITG Logo">
-            <img src="client07.jpg" class="icon" alt="Cenima Logo">
-            <img src="client08.jpg" class="icon" alt="Extreme Music Logo">
-            <img src="client09.jpg" class="icon" alt="Droid Mafia Logo">
-            <img src="client10.jpg" class="icon" alt="Lanport Productions Logo">
+    <section id="clients">
+        <h2 class="reveal">Clients & <span>Collaborators</span></h2>
+        <div class="clients-grid reveal">
+            <img src="client01.jpg" alt="Apple Logo">
+            <img src="client02.jpg" alt="Bleeding Fingers Music Logo">
+            <img src="client03.jpg" alt="ABC Logo">
+            <img src="client04.jpg" alt="Disney Logo">
+            <img src="client05.jpg" alt="USC Logo">
+            <img src="client06.jpg" alt="ITG Logo">
+            <img src="client07.jpg" alt="Cenima Logo">
+            <img src="client08.jpg" alt="Extreme Music Logo">
+            <img src="client09.jpg" alt="Droid Mafia Logo">
+            <img src="client10.jpg" alt="Lanport Productions Logo">
         </div>
     </section>
-
-    <section class="collaborator-section">
-      </section>
 
     <section id="music">
-        <h2>Listen</h2>
-        <div class="music-player">
+        <h2 class="reveal">Listen</h2>
+        <div class="music-player reveal">
             <iframe width="100%" height="600" scrolling="no" frameborder="no" src="https://play.reelcrafter.com/embed/89cfc08c-faf9-449a-9c25-e6e0d646bb9f"></iframe>
         </div>
     </section>
 
     <section id="connect">
-        <h2>Connect</h2>
-        <p class="email"> <a href="mailto:scottjohnsoncomposer@gmail.com" class="email-link glow-hover">scottjohnsoncomposer@gmail.com</a></p>
-        <div class="social-icons">
+        <h2 class="reveal">Let's <span>Connect</span></h2>
+        <a href="mailto:scottjohnsoncomposer@gmail.com" class="email-link reveal">scottjohnsoncomposer@gmail.com</a>
+        <div class="social-icons reveal">
             <a href="https://www.instagram.com/scottjohnsoncomposer/" target="_blank"><img src="connect-instagram.jpg" alt="Instagram"></a>
             <a href="https://www.facebook.com/ScottJohnsonComposer" target="_blank"><img src="connect-facebook.jpg" alt="Facebook"></a>
             <a href="https://www.youtube.com/channel/UC-FoZLRa8sQVt_Zz0evumbA" target="_blank"><img src="connect-youtube.jpg" alt="YouTube"></a>
@@ -1091,295 +609,87 @@
     </footer>
 
     <script>
-        // Custom Smooth Scrolling Function
-        function smoothScrollTo(targetId) {
-            const targetElement = document.querySelector(targetId);
-            if (!targetElement) return;
-
-            const startPosition = window.pageYOffset;
-            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-            const distance = targetPosition - startPosition;
-            const duration = 1200;
-            let startTime = null;
-
-            function easeInOutQuad(t, b, c, d) {
-                t /= d / 2;
-                if (t < 1) return c / 2 * t * t + b;
-                t--;
-                return -c / 2 * (t * (t - 2) - 1) + b;
-            }
-
-            function animation(currentTime) {
-                if (startTime === null) startTime = currentTime;
-                const timeElapsed = currentTime - startTime;
-                const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
-                window.scrollTo(0, run);
-                if (timeElapsed < duration) {
-                    requestAnimationFrame(animation);
-                } else {
-                    window.scrollTo(0, targetPosition);
-                }
-            }
-            requestAnimationFrame(animation);
-        }
-
-        // Attach custom smooth scrolling to desktop navigation links
-        document.querySelectorAll('nav ul.desktop-nav li a').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                smoothScrollTo(this.getAttribute('href'));
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hero text fade-in and fade-out
-            const textElement = document.getElementById('fade-text');
-            setTimeout(() => {
-                textElement.classList.add('fade-in');
-            }, 1000);
-
-            setTimeout(() => {
-                textElement.classList.remove('fade-in');
-                textElement.classList.add('fade-out');
-            }, 6000);
-
-            // Observe elements for fade-in animations
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.1
-            };
-
-            const callback = (entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('in-view');
-                        if (entry.target.classList.contains('stat-card')) {
-                            animateCounter(entry.target);
-                        }
-                        if (entry.target.classList.contains('timeline-card')) {
-                            animateGraphs(entry.target);
-                        }
-                        observer.unobserve(entry.target);
-                    }
-                });
-            };
-
-            const generalObserver = new IntersectionObserver(callback, observerOptions);
-
-            document.querySelectorAll('.fade-in-element').forEach(element => {
-                generalObserver.observe(element);
-            });
-            document.querySelectorAll('.poster-box').forEach(element => {
-                generalObserver.observe(element);
-            });
-            document.querySelectorAll('.ClientsNew-icons .icon').forEach((icon, index) => {
-                icon.style.transitionDelay = `${index * 0.1}s`;
-                generalObserver.observe(icon);
-            });
-
-            // About Heading Fade In
-            const aboutHeading = document.querySelector('.about-heading');
-            const headingObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        aboutHeading.classList.add('fade-in');
-                        headingObserver.unobserve(aboutHeading);
-                    }
-                });
-            }, {
-                threshold: 0.2
-            });
-            headingObserver.observe(aboutHeading);
-
-            // Collaborator Names Staggered Fade In
-            const collaboratorNamesContainer = document.querySelector(".collaborator-section");
-            const names = document.querySelectorAll(".collaborator-names .name");
-
-            const collaboratorObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        names.forEach((name, i) => {
-                            setTimeout(() => {
-                                name.classList.add("visible");
-                            }, i * 80);
-                        });
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, {
-                threshold: 0.3
-            });
-
-            if (collaboratorNamesContainer) collaboratorObserver.observe(collaboratorNamesContainer);
-
-
-            // Number Counter Animation with Easing
-            function animateCounter(card) {
-                const numberElement = card.querySelector('.stat-number');
-                let targetNumber = parseInt(card.dataset.targetNumber);
-                const isPlus = card.dataset.plus === 'true';
-                const isMillion = targetNumber >= 1000000;
-                let startNumber = 0;
-                const duration = 4000;
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to handle the rapid number counting animation
+            function animateCounter(el) {
+                const target = parseInt(el.getAttribute('data-target'));
+                const suffix = el.getAttribute('data-suffix');
+                const duration = 1200; // 1.2 seconds for a fast count
                 let startTimestamp = null;
-
-                function easeOutQuart(t) {
-                    return 1 - Math.pow(1 - t, 4);
-                }
 
                 const step = (timestamp) => {
                     if (!startTimestamp) startTimestamp = timestamp;
                     const progress = timestamp - startTimestamp;
-                    const normalizedTime = Math.min(progress / duration, 1);
-                    const easedTime = easeOutQuart(normalizedTime);
-                    const currentNumber = Math.floor(easedTime * targetNumber);
-
-                    if (isMillion) {
-                        numberElement.textContent = Math.floor(currentNumber / 1000000) + 'M+';
-                    } else {
-                        numberElement.textContent = currentNumber + (isPlus ? '+' : '');
-                    }
-
+                    const percent = Math.min(progress / duration, 1);
+                    
+                    // easeOutQuart for smooth deceleration
+                    const ease = 1 - Math.pow(1 - percent, 4);
+                    const current = Math.floor(ease * target);
+                    
+                    el.innerText = current + suffix;
+                    
                     if (progress < duration) {
                         window.requestAnimationFrame(step);
                     } else {
-                        if (isMillion) {
-                            numberElement.textContent = Math.floor(targetNumber / 1000000) + 'M+';
-                        } else {
-                            numberElement.textContent = targetNumber + (isPlus ? '+' : '');
-                        }
+                        el.innerText = target + suffix; // Ensure it ends exactly on target
                     }
                 };
-
                 window.requestAnimationFrame(step);
             }
 
-            // Timeline graph animation with sequential delay
-            function animateGraphs(card) {
-                const bars = card.querySelectorAll('.graph-bar');
-                bars.forEach(bar => {
-                    const targetWidth = bar.dataset.width;
-                    const delay = parseFloat(bar.dataset.delay);
-                    setTimeout(() => {
-                        bar.style.width = targetWidth;
-                    }, delay * 1000);
-                });
-            }
+            // Intersection Observer for scroll animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15
+            };
 
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        
+                        // Check if the revealed element is a stat card to trigger counting
+                        if(entry.target.classList.contains('stat-card')) {
+                            const numberElement = entry.target.querySelector('.stat-number');
+                            if(numberElement) animateCounter(numberElement);
+                        }
+                        
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal').forEach((el) => {
+                observer.observe(el);
+            });
 
             // Dynamic video text logic
-            const videoText = document.querySelector('.video-text');
             const headerVideo = document.querySelector('.header-banner');
-
+            const titleEl = document.getElementById('video-title');
+            const dirEl = document.getElementById('video-director');
+            
             const textEvents = [
-                {
-                    time: 10,
-                    duration: 17,
-                    lines: ['EUROPA', 'dir. Jacqueline Elyse Rosenthal', '']
-                },
-                {
-                    time: 30,
-                    duration: 17,
-                    lines: ['COLOSSEUM', 'dir. Roel Reiné', 'As Technical Score Assistant']
-                },
-                {
-                    time: 49,
-                    duration: 11,
-                    lines: ['TASTE OF CHERRY', 'dir. Xinran Zou', '']
-                },
-                {
-                    time: 63,
-                    duration: 27,
-                    lines: ['COACHELLA 2024', 'DojaCat Livestream Outro', 'As Sound Designer']
-                },
+                { time: 10, duration: 17, title: 'EUROPA', dir: 'dir. Jacqueline Elyse Rosenthal' },
+                { time: 30, duration: 17, title: 'COLOSSEUM', dir: 'dir. Roel Reiné' },
+                { time: 49, duration: 11, title: 'TASTE OF CHERRY', dir: 'dir. Xinran Zou' }
             ];
 
-            function updateVideoText(lines) {
-                const spans = videoText.querySelectorAll('span');
-                spans[0].textContent = lines[0];
-                spans[1].textContent = lines[1];
-                spans[2].textContent = lines[2];
-                spans.forEach(span => span.style.opacity = '1');
-            }
-
-            function clearVideoText() {
-                videoText.querySelectorAll('span').forEach(span => span.style.opacity = '0');
-            }
-
-            let currentTextEvent = null;
-
-            headerVideo.addEventListener('timeupdate', () => {
-                const currentTime = headerVideo.currentTime;
-                let foundEvent = null;
-
-                for (const event of textEvents) {
-                    if (currentTime >= event.time && currentTime < event.time + event.duration) {
-                        foundEvent = event;
-                        break;
+            if(headerVideo) {
+                headerVideo.addEventListener('timeupdate', () => {
+                    const time = headerVideo.currentTime;
+                    const event = textEvents.find(e => time >= e.time && time < e.time + e.duration);
+                    
+                    if(event) {
+                        titleEl.textContent = event.title;
+                        dirEl.textContent = event.dir;
+                        titleEl.parentElement.style.opacity = '1';
+                    } else {
+                        titleEl.parentElement.style.opacity = '0';
                     }
-                }
-
-                if (foundEvent && foundEvent !== currentTextEvent) {
-                    updateVideoText(foundEvent.lines);
-                    currentTextEvent = foundEvent;
-                } else if (!foundEvent && currentTextEvent) {
-                    clearVideoText();
-                    currentTextEvent = null;
-                }
-            });
-
-            headerVideo.addEventListener('ended', () => {
-                headerVideo.currentTime = 0;
-                headerVideo.play();
-                clearVideoText();
-                currentTextEvent = null;
-            });
-        });
-
-        // --- Mobile Menu Logic ---
-        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-        const mobileNavLinks = document.querySelectorAll('.mobile-menu-overlay ul li a');
-
-        mobileMenuToggle.addEventListener('click', () => {
-            mobileMenuToggle.classList.toggle('active');
-            mobileMenuOverlay.classList.toggle('active');
-            document.body.classList.toggle('no-scroll');
-
-            if (mobileMenuOverlay.classList.contains('active')) {
-                mobileNavLinks.forEach((link, index) => {
-                    link.style.setProperty('--stagger-delay', `${index * 0.1 + 0.1}s`);
-                    link.style.opacity = '1';
-                    link.style.transform = 'translateY(0)';
-                });
-            } else {
-                mobileNavLinks.forEach(link => {
-                    link.style.transitionDelay = '0s';
-                    link.style.opacity = '0';
-                    link.style.transform = 'translateY(20px)';
                 });
             }
         });
-
-        mobileNavLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                smoothScrollTo(link.getAttribute('href'));
-                mobileMenuToggle.classList.remove('active');
-                mobileMenuOverlay.classList.remove('active');
-                document.body.classList.remove('no-scroll');
-            });
-        });
-
-        const styleSheet = document.createElement('style');
-        styleSheet.innerHTML = `
-            body.no-scroll {
-                overflow: hidden !important;
-            }
-        `;
-        document.head.appendChild(styleSheet);
-        // --- End of Mobile Menu Logic ---
     </script>
 </body>
-
 </html>
