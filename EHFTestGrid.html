@@ -70,13 +70,31 @@
 
         .hud-values span.highlight { font-weight: 500; color: #e4e4e7; }
 
-        /* Sleek Glass Toggle */
+        /* Sleek Glass Toggle & Pulse Controls */
         .controls-right {
-            display: flex; align-items: center; gap: 12px;
-            font-size: 13px; font-weight: 500; color: #a1a1aa; width: 220px; justify-content: flex-end;
+            display: flex; align-items: center; gap: 15px;
+            font-size: 13px; font-weight: 500; color: #a1a1aa; width: 480px; justify-content: flex-end;
         }
 
-        .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+        .pulse-sliders {
+            display: flex; gap: 12px; align-items: center; background: rgba(255,255,255,0.02);
+            padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+            transition: opacity 0.2s;
+        }
+
+        .pulse-sliders.disabled {
+            opacity: 0.2; pointer-events: none;
+        }
+
+        .pulse-param {
+            display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.4);
+        }
+
+        .pulse-param span.val-readout {
+            width: 38px; color: #a1a1aa; text-align: left; font-weight: normal; display: inline-block;
+        }
+
+        .switch { position: relative; display: inline-block; width: 44px; height: 22px; flex-shrink: 0; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
             position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
@@ -90,8 +108,8 @@
         input:checked + .slider { background-color: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
         input:checked + .slider:before { transform: translateX(22px); background-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.5); }
 
-        /* Custom Subtle Volume/Trim Bar */
-        .volume-control {
+        /* Custom Subtle Volume/Trim/Pulse Bar */
+        .volume-control, .pulse-param {
             display: flex; align-items: center; gap: 8px;
             font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.4);
             letter-spacing: 1.5px;
@@ -102,21 +120,24 @@
             color: #a1a1aa;
         }
 
-        .volume-control input[type=range] {
-            -webkit-appearance: none; width: 80px; background: transparent;
+        input[type=range] {
+            -webkit-appearance: none; background: transparent;
         }
-        .volume-control input[type=range]:focus { outline: none; }
-        .volume-control input[type=range]::-webkit-slider-runnable-track {
+        .volume-control input[type=range] { width: 80px; }
+        .pulse-param input[type=range] { width: 60px; }
+
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
             width: 100%; height: 3px; cursor: pointer;
             background: var(--track-color); border-radius: 1.5px;
         }
-        .volume-control input[type=range]::-webkit-slider-thumb {
+        input[type=range]::-webkit-slider-thumb {
             height: 12px; width: 4px; border-radius: 2px;
             background: rgba(255,255,255,0.6); cursor: pointer;
             -webkit-appearance: none; margin-top: -4.5px;
             transition: background 0.1s, transform 0.1s;
         }
-        .volume-control input[type=range]::-webkit-slider-thumb:hover {
+        input[type=range]::-webkit-slider-thumb:hover {
             background: rgba(255,255,255,0.9); transform: scaleY(1.1);
         }
 
@@ -139,7 +160,7 @@
         /* Main Content Layout */
         #content {
             flex: 1; padding: 25px 40px; display: flex; flex-direction: column; gap: 25px;
-            overflow-y: auto; overflow-x: hidden; /* Allowed vertical scrolling */
+            overflow-y: auto; overflow-x: hidden;
         }
 
         /* Solid Dark Ear Sections */
@@ -211,74 +232,19 @@
         .btn-db { font-size: 13px; font-weight: 500; }
         .btn-off { font-size: 10px; opacity: 0.5; margin-top: 3px; font-weight: 400; }
 
-        /* =========================================
-           MOBILE RESPONSIVE ADJUSTMENTS
-           ========================================= */
         @media (max-width: 850px) {
-            #topBar {
-                height: auto;
-                flex-direction: column;
-                padding: 15px 20px;
-                gap: 20px;
-            }
-
-            .left-controls {
-                width: 100%;
-                flex-direction: column;
-                justify-content: center;
-                gap: 15px;
-            }
-
-            .hud-display {
-                width: 100%;
-                text-align: center;
-            }
-
-            .hud-values {
-                font-size: 22px; /* Slightly smaller for mobile */
-            }
-
-            .controls-right {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .volume-control {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            #content {
-                padding: 15px;
-                gap: 15px;
-            }
-
-            .ear-section {
-                padding: 15px;
-            }
-
-            .freq-row {
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 12px;
-            }
-
-            .freq-label {
-                width: 100%;
-                text-align: left;
-                padding-right: 0;
-                padding-bottom: 10px;
-                border-bottom: 1px solid rgba(255,255,255,0.05);
-                margin-bottom: 10px;
-            }
-
-            .button-row {
-                flex-wrap: wrap; /* Allows buttons to drop to the next line */
-                justify-content: center;
-                width: 100%;
-            }
+            #topBar { height: auto; flex-direction: column; padding: 15px 20px; gap: 20px; }
+            .left-controls { width: 100%; flex-direction: column; justify-content: center; gap: 15px; }
+            .hud-display { width: 100%; text-align: center; }
+            .hud-values { font-size: 22px; }
+            .controls-right { width: 100%; justify-content: center; flex-wrap: wrap; }
+            .volume-control { flex-wrap: wrap; justify-content: center; }
+            #content { padding: 15px; gap: 15px; }
+            .ear-section { padding: 15px; }
+            .freq-row { flex-direction: column; align-items: flex-start; padding: 12px; }
+            .freq-label { width: 100%; text-align: left; padding-right: 0; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; }
+            .button-row { flex-wrap: wrap; justify-content: center; width: 100%; }
         }
-
     </style>
 </head>
 <body data-kmwindow="SCREEN(Main,Center,0%),SCREEN(Main,Center,10%),1730,970" data-kmwindowbuttons="none">
@@ -305,6 +271,18 @@
         </div>
 
         <div class="controls-right">
+            <div class="pulse-sliders" id="pulseSliders">
+                <div class="pulse-param">
+                    <span>BPM</span>
+                    <input type="range" id="pulseBpm" min="40" max="240" step="1" value="120">
+                    <span class="val-readout" id="bpmReadout">120</span>
+                </div>
+                <div class="pulse-param">
+                    <span>DUTY</span>
+                    <input type="range" id="pulseDuty" min="10" max="90" step="5" value="50">
+                    <span class="val-readout" id="dutyReadout">50/50</span>
+                </div>
+            </div>
             <span>Pulse Array</span>
             <label class="switch">
                 <input type="checkbox" id="pulseToggle">
@@ -332,7 +310,7 @@
                 pan: 1,
                 btnClass: 'right-ear-btn',
                 groups: [
-                    { freq: 14500, start: -56.6, end: -35.6 },
+                    { freq: 14500, start: -55.6, end: -30.6 },
                     { freq: 14000, start: -65.6, end: -40.6 },
                     { freq: 13500, start: -65.6, end: -40.6 },
                     { freq: 13000, start: -65.6, end: -40.6 }
@@ -354,6 +332,12 @@
         ];
 
         const pulseToggle = document.getElementById('pulseToggle');
+        const pulseSliders = document.getElementById('pulseSliders');
+        const pulseBpm = document.getElementById('pulseBpm');
+        const pulseDuty = document.getElementById('pulseDuty');
+        const bpmReadout = document.getElementById('bpmReadout');
+        const dutyReadout = document.getElementById('dutyReadout');
+        
         const volumeControl = document.getElementById('volumeControl');
         const trimReadout = document.getElementById('trimReadout');
         const btnCut5 = document.getElementById('btnCut5');
@@ -367,13 +351,11 @@
 
         function adjustWindowHeight() {
             if (window.KeyboardMaestro) {
-                setTimeout(() => {
-                    window.KeyboardMaestro.ResizeWindow("1730,970");
-                }, 50);
+                setTimeout(() => { window.KeyboardMaestro.ResizeWindow("1730,970"); }, 50);
             }
         }
 
-        // Build UI
+        // Build UI Grid Engine
         config.forEach(section => {
             const container = document.getElementById(section.containerId);
             
@@ -391,7 +373,10 @@
 
                 for (let db = group.start; db <= group.end + 0.1; db += 1) {
                     const exactDb = parseFloat(db.toFixed(1));
-                    const offset = Math.round(exactDb + 33.6);
+                    
+                    // Unified offset scaling engine to dynamically calculate exact targets requested
+                    const formulaConst = 33.6;
+                    const offset = Math.round(exactDb + formulaConst);
 
                     const btn = document.createElement('div');
                     btn.className = `btn ${section.btnClass}`;
@@ -399,6 +384,7 @@
                     btn.dataset.dbfs = exactDb;
                     btn.dataset.pan = section.pan;
                     btn.dataset.ear = section.ear;
+                    btn.dataset.fconst = formulaConst;
 
                     btn.innerHTML = `
                         <div class="btn-db">${exactDb}</div>
@@ -416,13 +402,13 @@
 
         window.onload = adjustWindowHeight;
 
-        // Audio Engine Logic
+        // Dynamic Audio Engines
         let audioCtx = null;
         let activeOsc = null;
         let activePanner = null;
         let masterGain = null;
         let pulseGain = null;
-        let pulseInterval = null;
+        let pulseTimeout = null;
         let activeBtn = null;
         let currentPulseState = true;
 
@@ -452,9 +438,9 @@
             pulseGain = null;
             activePanner = null;
 
-            if (pulseInterval) {
-                clearInterval(pulseInterval);
-                pulseInterval = null;
+            if (pulseTimeout) {
+                clearTimeout(pulseTimeout);
+                pulseTimeout = null;
             }
             if (activeBtn) {
                 activeBtn.classList.remove('active', 'pulsing');
@@ -466,16 +452,15 @@
             hudValues.innerHTML = "Select a frequency node";
         }
 
-        // Live updates the current active tone's HUD values and Gain when trim changes
         function updateActiveToneLive() {
             if (!activeBtn) return;
             
             const freq = parseFloat(activeBtn.dataset.freq);
             const baseDbfs = parseFloat(activeBtn.dataset.dbfs);
+            const fConst = parseFloat(activeBtn.dataset.fconst);
             
-            // Calculate new effective dBFS and Offset
             const effectiveDbfs = parseFloat((baseDbfs + globalDbTrim).toFixed(1));
-            const effectiveOffset = Math.round(effectiveDbfs + 33.6);
+            const effectiveOffset = Math.round(effectiveDbfs + fConst);
 
             hudValues.innerHTML = `
                 ${freq / 1000} kHz 
@@ -491,6 +476,34 @@
             }
         }
 
+        // Pulse Engine Orchestrator
+        function runPulseCycle() {
+            if (!activeBtn || pulseToggle.checked) return;
+
+            const bpm = parseInt(pulseBpm.value);
+            const duty = parseInt(pulseDuty.value);
+            
+            const totalCycleMs = (60 / bpm) * 1000;
+            const onDuration = totalCycleMs * (duty / 100);
+            const offDuration = totalCycleMs * ((100 - duty) / 100);
+
+            if (currentPulseState) {
+                pulseGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.008);
+                if(activeBtn) activeBtn.classList.add('pulsing');
+                pulseTimeout = setTimeout(() => {
+                    currentPulseState = false;
+                    runPulseCycle();
+                }, onDuration);
+            } else {
+                pulseGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.008);
+                if(activeBtn) activeBtn.classList.remove('pulsing');
+                pulseTimeout = setTimeout(() => {
+                    currentPulseState = true;
+                    runPulseCycle();
+                }, offDuration);
+            }
+        }
+
         function handleTonePlay(btn) {
             initAudio();
 
@@ -502,17 +515,17 @@
             stopTone();
             activeBtn = btn;
             
-            const isContinuous = pulseToggle.checked;
+            const isPureTone = pulseToggle.checked;
             btn.classList.add('active');
-            if (!isContinuous) btn.classList.add('pulsing');
 
             const freq = parseFloat(btn.dataset.freq);
             const baseDbfs = parseFloat(btn.dataset.dbfs);
             const pan = parseFloat(btn.dataset.pan);
             const ear = btn.dataset.ear;
+            const fConst = parseFloat(btn.dataset.fconst);
             
             const effectiveDbfs = parseFloat((baseDbfs + globalDbTrim).toFixed(1));
-            const effectiveOffset = Math.round(effectiveDbfs + 33.6);
+            const effectiveOffset = Math.round(effectiveDbfs + fConst);
 
             hudStatus.innerText = `TRANSMITTING — ${ear}`;
             hudStatus.style.color = pan === 1 ? "#fca5a5" : "#93c5fd";
@@ -547,16 +560,13 @@
 
             activeOsc.start();
 
-            if (!isContinuous) {
+            if (!isPureTone) {
                 currentPulseState = true;
-                pulseInterval = setInterval(() => {
-                    currentPulseState = !currentPulseState;
-                    pulseGain.gain.setTargetAtTime(currentPulseState ? 1 : 0, audioCtx.currentTime, 0.01);
-                }, 250);
+                runPulseCycle();
             }
         }
 
-        // Global Trim Handling
+        // Global Controllers
         function setTrim(value) {
             globalDbTrim = value;
             volumeControl.value = globalDbTrim;
@@ -580,13 +590,43 @@
         btnBoost1.addEventListener('click', () => applyBoost(1));
         btnBoost5.addEventListener('click', () => applyBoost(5));
 
+        // Pulse Arrays Handlers
+        pulseBpm.addEventListener('input', (e) => {
+            bpmReadout.innerText = e.target.value;
+            if (activeBtn && !pulseToggle.checked) {
+                clearTimeout(pulseTimeout);
+                runPulseCycle();
+            }
+        });
+
+        pulseDuty.addEventListener('input', (e) => {
+            const val = e.target.value;
+            dutyReadout.innerText = `${val}/${100 - val}`;
+            if (activeBtn && !pulseToggle.checked) {
+                clearTimeout(pulseTimeout);
+                runPulseCycle();
+            }
+        });
+
+        function updatePulseSlidersState() {
+            if(pulseToggle.checked) {
+                pulseSliders.classList.add('disabled');
+            } else {
+                pulseSliders.classList.remove('disabled');
+            }
+        }
+
         pulseToggle.addEventListener('change', () => {
+            updatePulseSlidersState();
             if (activeBtn) {
                 const currentBtn = activeBtn;
                 stopTone();
                 setTimeout(() => handleTonePlay(currentBtn), 60);
             }
         });
+
+        // Initialize Slider State Check
+        updatePulseSlidersState();
 
         document.addEventListener('keydown', (e) => {
             if (e.key === "Escape" && window.KeyboardMaestro) {

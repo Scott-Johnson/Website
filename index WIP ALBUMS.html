@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scott Johnson | Film Composer</title>
+    <meta property="og:title" content="Scott Johnson">
+    <meta property="og:description" content="Website for Film Composer Scott Johnson.">
+    <meta property="og:image" content="/preview-image.jpg">
+    <meta property="og:url" content="https://www.scottjohnsoncomposer.net">
+    <meta property="og:type" content="website">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@200;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0b0b0e;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --text-light: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --accent-red: #e63946;
+            --nav-bg: rgba(11, 11, 14, 0.7);
+            --transition-speed: 0.4s;
+            --section-padding: 100px 20px;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Native Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, .composer {
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+        }
+
+        #bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+            pointer-events: none;
+            filter: brightness(0.3) contrast(1.1);
+        }
+
+        /* Modern Glass Navigation */
+        nav {
+            background-color: var(--nav-bg);
+            padding: 20px 40px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 50px;
+        }
+
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.9em;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            padding-bottom: 5px;
+            transition: color var(--transition-speed);
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: var(--accent-red);
+            transition: all var(--transition-speed) ease;
+            transform: translateX(-50%);
+        }
+
+        nav ul li a:hover {
+            color: var(--accent-red);
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1001;
+            position: absolute;
+            right: 30px;
+        }
+
+        .mobile-menu-toggle span {
+            width: 30px;
+            height: 2px;
+            background-color: var(--text-light);
+            transition: 0.3s;
+        }
+
+        /* Hero Section */
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .header-banner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.5);
+            z-index: 1;
+        }
+
+        .video-container::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30vh;
+            background: linear-gradient(to top, var(--bg-dark), transparent);
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            animation: fadeIn 2s ease-out forwards;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 200;
+            letter-spacing: 12px;
+            margin: 0;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .composer {
+            color: var(--accent-red);
+            font-size: clamp(0.8rem, 2vw, 1.2rem);
+            letter-spacing: 8px;
+            display: block;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .video-text {
+            position: absolute;
+            bottom: 50px;
+            right: 40px;
+            text-align: right;
+            z-index: 3;
+            font-size: 0.9em;
+            color: var(--text-muted);
+        }
+
+        .video-text .bold {
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 1.2em;
+            display: block;
+            letter-spacing: 1px;
+        }
+
+        /* Sections General */
+        section {
+            padding: var(--section-padding);
+            position: relative;
+            z-index: 10;
+        }
+
+        section h2 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 400;
+            letter-spacing: 4px;
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
+        section h2 span {
+            color: var(--accent-red);
+            font-weight: 700;
+        }
+
+        /* About Section */
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            max-width: 1100px;
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .about-text p {
+            color: var(--text-muted);
+            font-size: 1.05em;
+            margin-bottom: 20px;
+        }
+
+        .about-text strong {
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .about-image img {
+            width: 100%;
+            border-radius: 4px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: transform var(--transition-speed);
+        }
+
+        .about-image img:hover {
+            transform: translateY(-10px);
+        }
+
+        /* Projects Section */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .poster-box {
+            display: block;
+            aspect-ratio: 2 / 3;
+            background-size: cover;
+            background-position: center;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .poster-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.2);
+            transition: background var(--transition-speed);
+        }
+
+        .poster-box:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(230, 57, 70, 0.15);
+        }
+
+        .poster-box:hover::before {
+            background: rgba(0,0,0,0);
+        }
+
+        #imdb-button {
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        #imdb-button img {
+            width: 70px;
+            border-radius: 4px;
+            transition: transform var(--transition-speed);
+        }
+
+        #imdb-button img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Stats Section */
+        #by-the-numbers {
+            background: linear-gradient(to bottom, var(--bg-dark), #101014);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 40px 25px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform var(--transition-speed), background var(--transition-speed);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(230, 57, 70, 0.3);
+        }
+
+        .stat-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5rem;
+            color: var(--accent-red);
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-size: 0.85em;
+        }
+
+        .stat-summary {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Clients Section */
+        .clients-grid {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .clients-grid img {
+            height: 90px;
+            width: 90px;
+            object-fit: contain;
+            border-radius: 50%;
+            padding: 15px;
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-sizing: border-box;
+            filter: grayscale(100%) opacity(0.6);
+            transition: filter var(--transition-speed), transform var(--transition-speed), background-color var(--transition-speed);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .clients-grid img:hover {
+            filter: grayscale(0%) opacity(1);
+            transform: scale(1.08);
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        /* Music Embed (ReelCrafter) */
+        .music-player {
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+
+        /* Custom Audio Player */
+        .audio-player-container {
+            display: flex;
+            flex-direction: row;
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+
+        .player-left {
+            width: 45%;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(230,57,70,0.08), transparent);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .player-left img {
+            width: 100%;
+            max-width: 260px;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            margin-bottom: 25px;
+            transition: transform var(--transition-speed);
+        }
+
+        .player-left h3 {
+            margin: 0;
+            font-size: 1.4rem;
+            text-align: center;
+            color: var(--text-light);
+            letter-spacing: 1px;
+        }
+
+        .player-left p {
+            color: var(--accent-red);
+            margin: 5px 0 30px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            height: 6px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: var(--accent-red);
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: -4px;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .progress-container:hover .progress-bar::after {
+            opacity: 1;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .btn-control {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .btn-control:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-control svg {
+            fill: var(--text-muted);
+            transition: fill var(--transition-speed);
+        }
+
+        .btn-control:hover svg {
+            fill: var(--text-light);
+        }
+
+        .btn-play svg {
+            fill: var(--text-light);
+            width: 48px;
+            height: 48px;
+        }
+
+        .btn-play:hover svg {
+            fill: var(--accent-red);
+        }
+
+        .player-right {
+            width: 55%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        /* Custom scrollbar for playlist */
+        .player-right::-webkit-scrollbar {
+            width: 6px;
+        }
+        .player-right::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .player-right::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .album-group {
+            margin-bottom: 30px;
+        }
+
+        .album-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .track-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .track-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-items: center;
+            border: 1px solid transparent;
+        }
+
+        .track-item:hover {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .track-item.active {
+            background: rgba(230, 57, 70, 0.08);
+            border: 1px solid rgba(230, 57, 70, 0.2);
+            border-left: 3px solid var(--accent-red);
+        }
+
+        .track-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .track-number {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-family: 'Montserrat', sans-serif;
+            width: 20px;
+        }
+
+        .active .track-number {
+            color: var(--accent-red);
+        }
+
+        .track-name {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .track-duration {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Connect / Footer */
+        #connect {
+            text-align: center;
+        }
+
+        .email-link {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color var(--transition-speed);
+            display: inline-block;
+            margin-bottom: 40px;
+        }
+
+        .email-link:hover {
+            color: var(--accent-red);
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .social-icons img {
+            width: 40px;
+            opacity: 0.7;
+            transition: all var(--transition-speed);
+        }
+
+        .social-icons img:hover {
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .about-content { grid-template-columns: 1fr; }
+            nav ul { display: none; }
+            .mobile-menu-toggle { display: flex; }
+            .video-text { right: 20px; bottom: 30px; }
+            .stat-number { font-size: 2.5rem; }
+            .clients-grid img { width: 75px; height: 75px; padding: 12px; }
+            
+            .audio-player-container { flex-direction: column; }
+            .player-left { width: 100%; padding: 40px 20px; border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+            .player-right { width: 100%; padding: 25px 15px; max-height: 450px; }
+        }
+    </style>
+</head>
+
+<body>
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="backgroundvideo.mp4" type="video/mp4">
+    </video>
+
+    <nav>
+        <ul class="desktop-nav">
+            <li><a href="#about">About</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#music">Music</a></li>
+            <li><a href="#connect">Connect</a></li>
+        </ul>
+        <div class="mobile-menu-toggle">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+
+    <div class="video-container">
+        <video class="header-banner" autoplay muted playsinline loop>
+            <source src="header.mp4" type="video/mp4">
+        </video>
+        <div class="hero-content">
+            <h1>Scott Johnson</h1>
+            <span class="composer">Film Composer</span>
+        </div>
+        <div class="video-text">
+            <span class="bold" id="video-title">EUROPA</span>
+            <span id="video-director">dir. Jacqueline Elyse Rosenthal</span>
+        </div>
+    </div>
+
+    <section id="about">
+        <h2 class="reveal">About <span>Scott</span></h2>
+        <div class="about-content">
+            <div class="about-text reveal">
+                <p>Scott pursued his undergraduate education at the esteemed <strong>USC School of Cinematic Arts</strong>, specializing in Film & Television Production—widely regarded as the world's leading academic program in the film & entertainment field.</p>
+                <p>Known as USC's "secret weapon," Scott made history scoring <strong>over 100 thesis films</strong>, including <strong>Cannes</strong> and <strong>Student Academy Award</strong>-recognized projects.</p>
+                <p>In 2020, Scott's work was showcased on a global stage when he scored a “Shot on iPhone” short for <strong>Apple Inc</strong>. Prior to graduating film school, Scott was invited to join <strong>Hans Zimmer’s Bleeding Fingers Music</strong>.</p>
+                <p>Scott's career trajectory has seen him collaborate with industry luminaries such as Roeban Katz and <strong>Alexandre Desplat</strong>. He has also worked with major networks like ABC, where he contributed to special editions of ABC 20/20’s <strong><em>“Black Panther: In Search of Wakanda”</em></strong> and <strong><em>“Disney 100: A Century of Dreams”</em></strong>.</p>
+                <p>Beyond film, Scott has sound-designed segments for <strong>Coachella</strong> and partnered with top-tier digital creators. His research-backed cochlear implant audio simulation for advocate <strong>Chrissy Marshall</strong> reached 2M+ viewers, and his editing and original scoring for <strong>Chelsea Sik</strong> helped drive a channel network of 674M+ views, including a viral reel topping 30 million views.</p>
+            </div>
+            <div class="about-image reveal">
+                <img src="about.jpg" alt="Scott Johnson Composer">
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <h2 class="reveal">Projects & <span>Placements</span></h2>
+        <div class="grid-container">
+            <a href="https://www.emmys.com" target="_blank" class="poster-box reveal" style="background-image: url('poster01.jpg');"></a>
+            <a href="https://www.disneyplus.com/movies/disney-100-a-century-of-dreams-a-special-edition-of-20-20/1sd7Rkcq23oD" target="_blank" class="poster-box reveal" style="background-image: url('poster02.jpg');"></a>
+            <a href="https://www.history.com/shows/colosseum" target="_blank" class="poster-box reveal" style="background-image: url('poster03.jpg');"></a>
+            <a href="https://www.bravotv.com/top-chef/watch" target="_blank" class="poster-box reveal" style="background-image: url('poster04.jpg');"></a>
+            <a href="https://abc.com/show/316bd540-412e-4480-b801-1b59dda0ec99" target="_blank" class="poster-box reveal" style="background-image: url('poster05.jpg');"></a>
+            <a href="https://m.imdb.com/title/tt30319894/?ref_=mv_desc" target="_blank" class="poster-box reveal" style="background-image: url('poster06.jpg');"></a>
+            <a href="https://www.imdb.com/title/tt32142182/" target="_blank" class="poster-box reveal" style="background-image: url('poster07.jpg');"></a>
+            <a href="https://www.wmm.com/catalog/film/neurodivergent/" target="_blank" class="poster-box reveal" style="background-image: url('poster08.jpg');"></a>
+            <a href="https://www.oscars.org/news/meet-2022-student-academy-awards-finalists" target="_blank" class="poster-box reveal" style="background-image: url('poster09.jpg');"></a>
+            <a href="https://mubi.com/en/us/films/taste-of-cherry-2022" target="_blank" class="poster-box reveal" style="background-image: url('poster10.jpg');"></a>
+        </div>
+        <div id="imdb-button" class="reveal">
+            <a href="https://www.imdb.com/name/nm10841602/?ref_=ttfc_fc_cr16" target="_blank">
+                <img src="IMDb.jpg" alt="IMDb Profile">
+            </a>
+        </div>
+    </section>
+
+    <section id="by-the-numbers">
+        <h2 class="reveal">By The <span>Numbers</span></h2>
+        <div class="stats-grid">
+            <div class="stat-card reveal">
+                <div class="stat-number" data-target="700" data-suffix="M+">0M+</div>
+                <div class="stat-label">Audience Reach</div>
+                <div class="stat-summary">Featured on primetime television, global YouTube premieres, and massive creator channels.</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-number" data-target="250" data-suffix="+">0+</div>
+                <div class="stat-label">Scores Delivered</div>
+                <div class="stat-summary">Full scores and stems delivered for feature films, shorts, and video games.</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-number" data-target="150" data-suffix="+">0+</div>
+                <div class="stat-label">Network Placements</div>
+                <div class="stat-summary">Prime-Time placements on ABC, CBS, NBC, Netflix, Disney+, and HBO Max.</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-number" data-target="10" data-suffix="+">0+</div>
+                <div class="stat-label">Awards</div>
+                <div class="stat-summary">Recognized for best original score, best original song, and project management.</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="clients">
+        <h2 class="reveal">Clients & <span>Collaborators</span></h2>
+        <div class="clients-grid reveal">
+            <img src="client01.jpg" alt="Apple Logo">
+            <img src="client02.jpg" alt="Bleeding Fingers Music Logo">
+            <img src="client03.jpg" alt="ABC Logo">
+            <img src="client04.jpg" alt="Disney Logo">
+            <img src="client05.jpg" alt="USC Logo">
+            <img src="client06.jpg" alt="ITG Logo">
+            <img src="client07.jpg" alt="Cenima Logo">
+            <img src="client08.jpg" alt="Extreme Music Logo">
+            <img src="client09.jpg" alt="Droid Mafia Logo">
+            <img src="client10.jpg" alt="Lanport Productions Logo">
+        </div>
+    </section>
+
+    <section id="music">
+        <h2 class="reveal">Music</h2>
+        <div class="music-player reveal">
+            <iframe width="100%" height="600" scrolling="no" frameborder="no" src="https://play.reelcrafter.com/embed/89cfc08c-faf9-449a-9c25-e6e0d646bb9f"></iframe>
+        </div>
+
+        <h2 class="reveal" style="margin-top: 100px;">Listen To <span>Scores</span></h2>
+        <div class="audio-player-container reveal">
+            
+            <div class="player-left">
+                <img id="track-cover" src="" alt="Album Cover">
+                <h3 id="track-title">Loading...</h3>
+                <p id="track-album">Loading...</p>
+                
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                
+                <div class="time-display">
+                    <span id="current-time">0:00</span>
+                    <span id="duration-time">0:00</span>
+                </div>
+
+                <div class="controls">
+                    <button class="btn-control" id="prev-btn">
+                        <svg viewBox="0 0 24 24" width="28" height="28"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                    </button>
+                    <button class="btn-control btn-play" id="play-btn">
+                        <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <svg id="pause-icon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
+                    <button class="btn-control" id="next-btn">
+                        <svg viewBox="0 0 24 24" width="28" height="28"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                    </button>
+                </div>
+                <audio id="audio-element"></audio>
+            </div>
+            
+            <div class="player-right" id="playlist-container">
+                
+            </div>
+
+        </div>
+    </section>
+
+    <section id="connect">
+        <h2 class="reveal">Let's <span>Connect</span></h2>
+        <a href="mailto:scottjohnsoncomposer@gmail.com" class="email-link reveal">scottjohnsoncomposer@gmail.com</a>
+        <div class="social-icons reveal">
+            <a href="https://www.instagram.com/scottjohnsoncomposer/" target="_blank"><img src="connect-instagram.jpg" alt="Instagram"></a>
+            <a href="https://www.facebook.com/ScottJohnsonComposer" target="_blank"><img src="connect-facebook.jpg" alt="Facebook"></a>
+            <a href="https://www.youtube.com/channel/UC-FoZLRa8sQVt_Zz0evumbA" target="_blank"><img src="connect-youtube.jpg" alt="YouTube"></a>
+            <a href="https://www.linkedin.com/in/scottjohnsoncomposer/?trk=hp-identity-edit-profile" target="_blank"><img src="connect-linkedin.jpg" alt="LinkedIn"></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 Scott Johnson Composer. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // ==========================================
+            // 🎶 YOUR EASY-EDIT MUSIC LIBRARY 🎶
+            // ==========================================
+            // Simply copy an entire block { ... } to add a new album.
+            
+            const libraryData = [
+                {
+                    albumName: "Europa (Original Motion Picture Soundtrack)",
+                    coverImage: "album01.jpg",
+                    tracks: [
+                        { title: "Main Theme", src: "track1.mp3", duration: "3:45" },
+                        { title: "The Journey Begins", src: "track2.mp3", duration: "2:30" },
+                        { title: "Discovery", src: "track3.mp3", duration: "4:10" }
+                    ]
+                },
+                {
+                    albumName: "Colosseum (Original Series Score)",
+                    coverImage: "album02.jpg",
+                    tracks: [
+                        { title: "Gladiator's Resolve", src: "track4.mp3", duration: "4:12" },
+                        { title: "Empire's Fall", src: "track5.mp3", duration: "5:01" }
+                    ]
+                },
+                 {
+                     albumName: "Legally Brown (Original Soundtrack)",
+                     coverImage: "album03.jpg",
+                     tracks: [
+                         { title: "Break a Leg (Literally)", src: "Break a Leg (Literally).mp3", duration: "0:19" },
+                         { title: "Enter Valerie (Stage Right)", src: "Enter Valerie (Stage Right).mp3", duration: "0:30" },
+                         { title: "Type 1 Diabetes & Other Excuses", src: "Type 1 Diabetes & Other Excuses.mp3", duration: "0:52" }
+                     ]
+                 }
+                // WANT TO ADD ANOTHER ALBUM?
+                // Add a comma after the } above, and paste a new block here!
+            ];
+
+            // ==========================================
+            // Do not edit below this line for the music player!
+            // ==========================================
+
+            const playlistContainer = document.getElementById('playlist-container');
+            const flatTracks = [];
+            let globalTrackIndex = 0;
+
+            // 1. Automatically generate the HTML from your library
+            libraryData.forEach((album) => {
+                
+                // Create Album Wrapper
+                const albumDiv = document.createElement('div');
+                albumDiv.classList.add('album-group');
+
+                // Create Album Title
+                const titleDiv = document.createElement('div');
+                titleDiv.classList.add('album-title');
+                titleDiv.innerText = album.albumName;
+                albumDiv.appendChild(titleDiv);
+
+                // Create UL for Tracks
+                const ul = document.createElement('ul');
+                ul.classList.add('track-list');
+
+                // Loop through tracks in this album
+                album.tracks.forEach((track, localIndex) => {
+                    
+                    // Add this track to our hidden flat array so the player knows how to skip next/prev
+                    flatTracks.push({
+                        title: track.title,
+                        album: album.albumName,
+                        cover: album.coverImage,
+                        src: track.src,
+                        durationStr: track.duration
+                    });
+
+                    // Lock in the current global index for this specific track item
+                    const thisTrackIndex = globalTrackIndex;
+
+                    // Build the physical list item (LI)
+                    const li = document.createElement('li');
+                    li.classList.add('track-item');
+                    li.dataset.index = thisTrackIndex;
+                    li.innerHTML = `
+                        <div class="track-info">
+                            <span class="track-number">${localIndex + 1}.</span>
+                            <span class="track-name">${track.title}</span>
+                        </div>
+                        <span class="track-duration">${track.duration}</span>
+                    `;
+
+                    // Make it clickable
+                    li.addEventListener('click', () => {
+                        loadTrack(thisTrackIndex);
+                        playTrack();
+                    });
+
+                    ul.appendChild(li);
+                    globalTrackIndex++; // move to next global number
+                });
+
+                albumDiv.appendChild(ul);
+                playlistContainer.appendChild(albumDiv);
+            });
+
+
+            // 2. Audio Player Logic
+            const audio = document.getElementById('audio-element');
+            const playBtn = document.getElementById('play-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+            
+            const trackTitle = document.getElementById('track-title');
+            const trackAlbum = document.getElementById('track-album');
+            const trackCover = document.getElementById('track-cover');
+            
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const currentTimeEl = document.getElementById('current-time');
+            const durationEl = document.getElementById('duration-time');
+
+            let currentTrackPointer = 0;
+            let isPlaying = false;
+
+            function loadTrack(index) {
+                currentTrackPointer = index;
+                const trackData = flatTracks[currentTrackPointer];
+                
+                trackTitle.innerText = trackData.title;
+                trackAlbum.innerText = trackData.album;
+                trackCover.src = trackData.cover;
+                audio.src = trackData.src;
+                durationEl.innerText = trackData.durationStr;
+                
+                // Highlight active track
+                document.querySelectorAll('.track-item').forEach(el => el.classList.remove('active'));
+                const activeItem = document.querySelector(`.track-item[data-index="${index}"]`);
+                if(activeItem) activeItem.classList.add('active');
+            }
+
+            function playTrack() {
+                try { audio.play(); } catch(e) {}
+                isPlaying = true;
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+            }
+
+            function pauseTrack() {
+                audio.pause();
+                isPlaying = false;
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+            }
+
+            playBtn.addEventListener('click', () => {
+                isPlaying ? pauseTrack() : playTrack();
+            });
+
+            function prevTrack() {
+                currentTrackPointer--;
+                if(currentTrackPointer < 0) currentTrackPointer = flatTracks.length - 1;
+                loadTrack(currentTrackPointer);
+                if(isPlaying) playTrack();
+            }
+
+            function nextTrack() {
+                currentTrackPointer++;
+                if(currentTrackPointer > flatTracks.length - 1) currentTrackPointer = 0;
+                loadTrack(currentTrackPointer);
+                if(isPlaying) playTrack();
+            }
+
+            prevBtn.addEventListener('click', prevTrack);
+            nextBtn.addEventListener('click', nextTrack);
+            audio.addEventListener('ended', nextTrack);
+
+            function updateProgress(e) {
+                const { duration, currentTime } = e.srcElement;
+                if(isNaN(duration)) return;
+                
+                const progressPercent = (currentTime / duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+
+                let currentMinutes = Math.floor(currentTime / 60);
+                let currentSeconds = Math.floor(currentTime % 60);
+                if(currentSeconds < 10) currentSeconds = `0${currentSeconds}`;
+                currentTimeEl.innerText = `${currentMinutes}:${currentSeconds}`;
+                
+                let durationMinutes = Math.floor(duration / 60);
+                let durationSeconds = Math.floor(duration % 60);
+                if(durationSeconds < 10) durationSeconds = `0${durationSeconds}`;
+                if(durationMinutes) {
+                    durationEl.innerText = `${durationMinutes}:${durationSeconds}`;
+                }
+            }
+
+            function setProgress(e) {
+                const width = this.clientWidth;
+                const clickX = e.offsetX;
+                const duration = audio.duration;
+                if(!isNaN(duration)) {
+                    audio.currentTime = (clickX / width) * duration;
+                }
+            }
+
+            audio.addEventListener('timeupdate', updateProgress);
+            progressContainer.addEventListener('click', setProgress);
+
+            // Init first track on load if there are tracks
+            if(flatTracks.length > 0) {
+                loadTrack(0);
+            }
+
+
+            // --- General Website Animations & Logic ---
+            function animateCounter(el) {
+                const target = parseInt(el.getAttribute('data-target'));
+                const suffix = el.getAttribute('data-suffix');
+                const duration = 1200;
+                let startTimestamp = null;
+
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = timestamp - startTimestamp;
+                    const percent = Math.min(progress / duration, 1);
+                    
+                    const ease = 1 - Math.pow(1 - percent, 4);
+                    const current = Math.floor(ease * target);
+                    
+                    el.innerText = current + suffix;
+                    
+                    if (progress < duration) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        el.innerText = target + suffix;
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        
+                        if(entry.target.classList.contains('stat-card')) {
+                            const numberElement = entry.target.querySelector('.stat-number');
+                            if(numberElement) animateCounter(numberElement);
+                        }
+                        
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal').forEach((el) => {
+                observer.observe(el);
+            });
+
+            // Dynamic video text logic
+            const headerVideo = document.querySelector('.header-banner');
+            const titleEl = document.getElementById('video-title');
+            const dirEl = document.getElementById('video-director');
+            
+            const textEvents = [
+                { time: 10, duration: 17, title: 'EUROPA', dir: 'dir. Jacqueline Elyse Rosenthal' },
+                { time: 30, duration: 17, title: 'COLOSSEUM', dir: 'dir. Roel Reiné' },
+                { time: 49, duration: 11, title: 'TASTE OF CHERRY', dir: 'dir. Xinran Zou' }
+            ];
+
+            if(headerVideo) {
+                headerVideo.addEventListener('timeupdate', () => {
+                    const time = headerVideo.currentTime;
+                    const event = textEvents.find(e => time >= e.time && time < e.time + e.duration);
+                    
+                    if(event) {
+                        titleEl.textContent = event.title;
+                        dirEl.textContent = event.dir;
+                        titleEl.parentElement.style.opacity = '1';
+                    } else {
+                        titleEl.parentElement.style.opacity = '0';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

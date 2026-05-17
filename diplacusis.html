@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Diplacusis Mapper v3.2</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --active: #2ecc71;
+            --bg: #f8f9fa;
+            --text: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 { color: var(--primary); }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.2s, transform 0.1s;
+        }
+        button:hover { background-color: #2980b9; }
+        button:active { transform: scale(0.98); }
+        button.danger { background-color: #e74c3c; }
+        button.danger:hover { background-color: #c0392b; }
+        
+        .toggle-group {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin: 20px 0;
+        }
+        .toggle-group button {
+            margin: 0;
+            border-radius: 0;
+            background-color: #bdc3c7;
+            color: #2c3e50;
+            width: 50%;
+            font-weight: bold;
+            border: 1px solid #95a5a6;
+        }
+        .toggle-group button:first-child { border-radius: 5px 0 0 5px; border-right: none; }
+        .toggle-group button:last-child { border-radius: 0 5px 5px 0; }
+        .toggle-group button.active {
+            background-color: var(--active);
+            color: white;
+            border-color: #27ae60;
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.2);
+        }
+
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            text-align: left;
+        }
+        select, input[type="number"] {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #bdc3c7;
+        }
+
+        input[type=range] { width: 100%; margin: 15px 0; cursor: pointer; }
+        .hidden { display: none; }
+        #slider-value, #display-base-hz {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        #display-base-hz { color: var(--active); }
+        .disclaimer { font-size: 12px; color: #7f8c8d; margin-top: 30px; }
+        .vol-container { font-size: 14px; background: #dfe6e9; padding: 10px; border-radius: 5px; margin-bottom: 20px; }
+        
+        .slider-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .bound-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .bound-input label {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .bound-input input {
+            width: 70px;
+            padding: 6px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        @media print {
+            body { background: white; max-width: 100%; padding: 0; }
+            .no-print { display: none !important; }
+            .card { box-shadow: none; padding: 0; }
+            canvas { max-width: 100%; height: auto !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="no-print">Clinical Diplacusis Mapper</h1>
+    
+    <div id="setup-view" class="card no-print">
+        <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: left; border: 1px solid #ffeeba;">
+            <strong>⚠️ Preparation Note:</strong> Please ensure you are wearing standard stereo headphones and that the L and R indicators on the headphones are on the correct ears.
+        </div>
+
+        <h2>Test Parameters</h2>
+        
+        <div class="settings-row">
+            <label for="start-freq-value"><strong>Starting Frequency (Hz):</strong></label>
+            <input type="number" id="start-freq-value" value="150" min="20" max="20000">
+        </div>
+
+        <div class="settings-row">
+            <label for="step-type"><strong>Progression Type:</strong></label>
+            <select id="step-type" onchange="updateStepLabel()">
+                <option value="logarithmic">Logarithmic (Pitch/Semitones)</option>
+                <option value="linear">Linear (Flat Hz)</option>
+            </select>
+        </div>
+        
+        <div class="settings-row">
+            <label id="step-label" for="step-value"><strong>Step Size (Semitones):</strong><br><small style='font-weight:normal'>12 semitones = 1 octave</small></label>
+            <input type="number" id="step-value" value="2" min="1" max="100">
+        </div>
+
+        <div class="vol-container">
+            <label><strong>Master Volume: <span class="vol-val">20</span>/100</strong></label>
+            <input type="range" class="vol-slider" min="0" max="100" value="20" oninput="updateVolume(this.value)">
+        </div>
+
+        <hr style="border: 0; height: 1px; background: #ecf0f1; margin: 30px 0;">
+
+        <h2>Which is the affected ear?</h2>
+        <button onclick="startTest('left')">Left Ear</button>
+        <button onclick="startTest('right')">Right Ear</button>
+    </div>
+
+    <div id="test-view" class="card hidden no-print">
+        <h2>Testing Reference: <span id="display-base-hz">150</span> Hz</h2>
+        
+        <div class="vol-container">
+            <label><strong>Master Volume: <span class="vol-val">20</span>/100</strong></label>
+            <input type="range" class="vol-slider" min="0" max="100" value="20" oninput="updateVolume(this.value)">
+        </div>
+
+        <button id="play-pause-btn" onclick="togglePlay()" style="background-color: #8e44ad; width: 100%;">▶ Start Audio</button>
+
+        <p>Use the toggle to instantly switch the sound between your left and right ear.</p>
+        
+        <div class="toggle-group">
+            <button id="btn-left" onclick="setListeningSide('left')">Left Ear</button>
+            <button id="btn-right" onclick="setListeningSide('right')">Right Ear</button>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0;">
+            <p style="margin-top:0;">Slider controls the pitch in your <strong>affected ear</strong> only.</p>
+            <div id="slider-value">150.0 Hz</div>
+            
+            <div class="slider-controls">
+                <div class="bound-input">
+                    <label for="slider-min">Min Hz</label>
+                    <input type="number" id="slider-min" onchange="updateSliderBounds()">
+                </div>
+                
+                <input type="range" id="freq-slider" step="0.1" oninput="updateMatchFrequency(this.value)">
+                
+                <div class="bound-input">
+                    <label for="slider-max">Max Hz</label>
+                    <input type="number" id="slider-max" onchange="updateSliderBounds()">
+                </div>
+            </div>
+        </div>
+        
+        <br>
+        <button onclick="saveAndNext()" style="font-weight: bold; font-size: 18px;">Save & Next Interval</button>
+        <br><br>
+        <hr style="border: 0; height: 1px; background: #ecf0f1; margin: 20px 0;">
+        <p style="font-size: 14px; color: #7f8c8d; margin-bottom: 5px;">If you have reached a frequency where both ears sound equal (your diplacusis region has passed), end the test to view your chart.</p>
+        <button class="danger" onclick="finishTest()">End Test (Normal Hearing Reached)</button>
+    </div>
+
+    <div id="results-view" class="card hidden">
+        <h1>Diplacusis Assessment Report</h1>
+        <p><strong>Affected Ear:</strong> <span id="res-ear"></span></p>
+        <p><strong>Testing Range:</strong> <span id="res-min-hz"></span>Hz to <span id="res-max-hz"></span>Hz</p>
+        
+        <div style="width: 100%; max-width: 700px; margin: 0 auto;">
+            <canvas id="resultsChart"></canvas>
+        </div>
+
+        <div id="equation-output" style="margin-top: 20px; padding: 15px; background: #e8f4f8; border-radius: 8px; text-align: left;"></div>
+
+        <button class="no-print" onclick="window.print()" style="margin-top: 30px;">Print Report</button>
+    </div>
+
+    <script>
+        let audioCtx, mainOsc, lfo, lfoGain, tremoloGain, volGain, panner;
+        let isAudioSetup = false;
+        
+        // State
+        let affectedEar = '', unaffectedEar = '';
+        let stepType = 'logarithmic';
+        let stepValue = 2;
+        let currentBaselineHz = 150;
+        let currentMatchHz = 150;
+        let isPlaying = false;
+        let listeningSide = ''; // 'left' or 'right'
+        let masterVol = 20; 
+        let testData = []; 
+
+        function updateStepLabel() {
+            const type = document.getElementById('step-type').value;
+            const label = document.getElementById('step-label');
+            const input = document.getElementById('step-value');
+            if (type === 'logarithmic') {
+                label.innerHTML = "<strong>Step Size (Semitones):</strong><br><small style='font-weight:normal'>12 semitones = 1 octave</small>";
+                input.value = 2; 
+            } else {
+                label.innerHTML = "<strong>Step Size (Hz):</strong>";
+                input.value = 25; 
+            }
+        }
+
+        function updateVolume(val) {
+            masterVol = parseInt(val);
+            document.querySelectorAll('.vol-val').forEach(el => el.innerText = masterVol);
+            document.querySelectorAll('.vol-slider').forEach(el => el.value = masterVol);
+            
+            if (isPlaying && volGain && audioCtx) {
+                volGain.gain.setTargetAtTime((masterVol / 100) * 0.5, audioCtx.currentTime, 0.05);
+            }
+        }
+
+        function initAudio() {
+            if (isAudioSetup) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            mainOsc = audioCtx.createOscillator();
+            mainOsc.type = 'sine';
+            
+            lfo = audioCtx.createOscillator();
+            lfo.type = 'sine';
+            lfo.frequency.value = 2; 
+            
+            lfoGain = audioCtx.createGain();
+            lfoGain.gain.value = 0.5; 
+            
+            tremoloGain = audioCtx.createGain();
+            tremoloGain.gain.value = 0.5; 
+            
+            volGain = audioCtx.createGain();
+            volGain.gain.value = 0; 
+            
+            panner = audioCtx.createStereoPanner();
+            
+            lfo.connect(lfoGain);
+            lfoGain.connect(tremoloGain.gain);
+            
+            mainOsc.connect(tremoloGain);
+            tremoloGain.connect(volGain);
+            volGain.connect(panner);
+            panner.connect(audioCtx.destination);
+            
+            mainOsc.start();
+            lfo.start();
+            isAudioSetup = true;
+        }
+
+        function togglePlay() {
+            if (!isAudioSetup) initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const btn = document.getElementById('play-pause-btn');
+            if (!isPlaying) {
+                volGain.gain.setTargetAtTime((masterVol / 100) * 0.5, audioCtx.currentTime, 0.05);
+                btn.innerHTML = "⏸ Stop Audio";
+                btn.style.backgroundColor = "#e67e22";
+                isPlaying = true;
+                applyAudioState(); 
+            } else {
+                volGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+                btn.innerHTML = "▶ Start Audio";
+                btn.style.backgroundColor = "#8e44ad";
+                isPlaying = false;
+            }
+        }
+
+        function startTest(ear) {
+            // Fetch parameters
+            currentBaselineHz = parseFloat(document.getElementById('start-freq-value').value) || 150;
+            currentMatchHz = currentBaselineHz;
+            stepType = document.getElementById('step-type').value;
+            stepValue = parseFloat(document.getElementById('step-value').value);
+            
+            affectedEar = ear;
+            unaffectedEar = (ear === 'left') ? 'right' : 'left';
+            
+            document.getElementById('btn-left').innerHTML = `Left Ear ${ear === 'right' ? '<br><small>(Baseline)</small>' : '<br><small>(Adjust Match)</small>'}`;
+            document.getElementById('btn-right').innerHTML = `Right Ear ${ear === 'left' ? '<br><small>(Baseline)</small>' : '<br><small>(Adjust Match)</small>'}`;
+            
+            document.getElementById('setup-view').classList.add('hidden');
+            document.getElementById('test-view').classList.remove('hidden');
+            
+            setupRound();
+        }
+
+        function setupRound() {
+            document.getElementById('display-base-hz').innerText = currentBaselineHz.toFixed(1);
+            
+            const slider = document.getElementById('freq-slider');
+            const minInput = document.getElementById('slider-min');
+            const maxInput = document.getElementById('slider-max');
+
+            // Default to +/- 20% for fine-tuning
+            let defaultMin = (currentBaselineHz * 0.8).toFixed(1);
+            let defaultMax = (currentBaselineHz * 1.2).toFixed(1);
+            
+            slider.min = defaultMin;
+            slider.max = defaultMax;
+            slider.value = currentMatchHz.toFixed(1);
+            
+            // Populate the inputs with the default bounds
+            minInput.value = defaultMin;
+            maxInput.value = defaultMax;
+            
+            updateMatchFrequency(slider.value);
+            setListeningSide(unaffectedEar);
+        }
+
+        // NEW FUNCTION: Updates slider bounds based on manual input
+        function updateSliderBounds() {
+            const slider = document.getElementById('freq-slider');
+            const minInput = document.getElementById('slider-min');
+            const maxInput = document.getElementById('slider-max');
+            
+            let newMin = parseFloat(minInput.value);
+            let newMax = parseFloat(maxInput.value);
+            
+            // Validation to ensure min is not greater than or equal to max
+            if (newMin >= newMax) {
+                alert("The minimum frequency must be less than the maximum frequency.");
+                // Revert to current slider bounds on error
+                minInput.value = slider.min;
+                maxInput.value = slider.max;
+                return;
+            }
+            
+            slider.min = newMin;
+            slider.max = newMax;
+        }
+
+        function setListeningSide(side) {
+            listeningSide = side; 
+            document.getElementById('btn-left').classList.toggle('active', side === 'left');
+            document.getElementById('btn-right').classList.toggle('active', side === 'right');
+            
+            if (isPlaying) applyAudioState();
+        }
+
+        function applyAudioState() {
+            if (!isAudioSetup) return;
+            
+            let panTarget = (listeningSide === 'left') ? -1 : 1;
+            let freqTarget = (listeningSide === unaffectedEar) ? currentBaselineHz : currentMatchHz;
+            
+            panner.pan.setTargetAtTime(panTarget, audioCtx.currentTime, 0.05);
+            mainOsc.frequency.setTargetAtTime(freqTarget, audioCtx.currentTime, 0.05);
+        }
+
+        function updateMatchFrequency(val) {
+            currentMatchHz = parseFloat(val);
+            document.getElementById('slider-value').innerText = currentMatchHz.toFixed(1) + " Hz";
+            
+            if (isPlaying && listeningSide === affectedEar) {
+                mainOsc.frequency.setTargetAtTime(currentMatchHz, audioCtx.currentTime, 0.05);
+            }
+        }
+
+        function saveAndNext() {
+            let cents = 1200 * Math.log2(currentMatchHz / currentBaselineHz);
+            
+            testData.push({
+                base: currentBaselineHz,
+                matched: currentMatchHz,
+                cents: cents
+            });
+
+            if (stepType === 'linear') {
+                currentBaselineHz += stepValue;
+            } else {
+                currentBaselineHz = currentBaselineHz * Math.pow(2, stepValue / 12);
+            }
+            
+            currentMatchHz = currentBaselineHz; 
+            setupRound();
+        }
+
+        function finishTest() {
+            if (isPlaying) togglePlay(); 
+            
+            testData.push({
+                base: currentBaselineHz,
+                matched: currentBaselineHz,
+                cents: 0
+            });
+
+            document.getElementById('test-view').classList.add('hidden');
+            document.getElementById('results-view').classList.remove('hidden');
+            
+            generateReport();
+        }
+
+        function generateReport() {
+            document.getElementById('res-ear').innerText = affectedEar.toUpperCase();
+            
+            if (testData.length > 0) {
+                document.getElementById('res-min-hz').innerText = testData[0].base.toFixed(1);
+            }
+            document.getElementById('res-max-hz').innerText = currentBaselineHz.toFixed(1);
+
+            const labels = testData.map(d => d.base.toFixed(1) + 'Hz');
+            const matchedData = testData.map(d => d.matched);
+            const baselineData = testData.map(d => d.base);
+            const centsData = testData.map(d => d.cents);
+
+            const avgCents = centsData.reduce((a, b) => a + b, 0) / centsData.length;
+            const direction = avgCents > 0 ? "higher" : "lower";
+            
+            let eqHTML = `
+                <h3 style="margin-top:0;">Objective Assessment</h3>
+                <p><strong>Logarithmic Shift Formula Applied:</strong> C = 1200 &times; log<sub>2</sub>(f<sub>affected</sub> / f<sub>unaffected</sub>)</p>
+                <p><strong>Findings:</strong> Across the tested range, the affected ear perceived frequencies an average of <strong>${Math.abs(avgCents).toFixed(2)} cents ${direction}</strong> than the unaffected ear.</p>
+            `;
+            document.getElementById('equation-output').innerHTML = eqHTML;
+
+            const ctx = document.getElementById('resultsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Patient Matched Frequency (Affected Ear)',
+                            data: matchedData,
+                            borderColor: '#e74c3c',
+                            backgroundColor: '#e74c3c',
+                            borderWidth: 3,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Normal Hearing Baseline',
+                            data: baselineData,
+                            borderColor: '#2ecc71',
+                            backgroundColor: '#2ecc71',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { title: { display: true, text: 'Perceived Pitch (Hz)' } },
+                        x: { title: { display: true, text: 'Actual Frequency Input (Hz)' } }
+                    },
+                    plugins: { title: { display: true, text: 'Binaural Pitch Discrepancy Curve' } }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
