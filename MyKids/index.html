@@ -10,15 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* CSS Variables for Theme */
         :root {
             --bg-color: #050505;
             --text-color: #f0f0f0;
-            --accent-color: #8b0000; /* Deep Blood Red */
+            --accent-color: #8b0000;
             --accent-glow: rgba(139, 0, 0, 0.4);
         }
 
-        /* Reset & Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -33,12 +31,10 @@
             scroll-behavior: smooth;
         }
 
-        /* Custom Cursor */
         body {
             cursor: crosshair;
         }
 
-        /* Background Ambient Glow */
         .ambient-glow {
             position: fixed;
             top: 50%;
@@ -58,7 +54,6 @@
             100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.4; }
         }
 
-        /* Typography */
         h1, h2, h3, h4 {
             font-family: 'Cinzel', serif;
             font-weight: 400;
@@ -66,7 +61,6 @@
             letter-spacing: 0.2em;
         }
 
-        /* Hero Section with Video Background */
         .hero {
             height: 100vh;
             width: 100vw;
@@ -77,7 +71,6 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-            /* Establish a stacking context so children don't fall behind the body */
             z-index: 1;
         }
 
@@ -88,10 +81,9 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            z-index: 1; /* Sits on the very bottom of the hero section */
+            z-index: 1;
         }
 
-        /* Dark overlay to make text readable over the video */
         .hero-overlay {
             position: absolute;
             top: 0;
@@ -99,13 +91,12 @@
             width: 100%;
             height: 100%;
             background: radial-gradient(circle, rgba(0,0,0,0.3) 0%, rgba(5,5,5,0.8) 100%);
-            z-index: 2; /* Sits directly above the video */
+            z-index: 2;
         }
 
         .hero-content {
             position: relative;
-            z-index: 3; /* Sits above the overlay */
-            /* Fades the entire title block out after 7 seconds */
+            z-index: 3;
             animation: fadeOutText 3s forwards 7s ease-in-out;
         }
 
@@ -137,7 +128,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Minimalist Sound Toggle Button */
         .sound-toggle {
             position: absolute;
             bottom: 40px;
@@ -164,7 +154,6 @@
             background: rgba(0, 0, 0, 0.6);
         }
 
-        /* Scroll Down Indicator */
         .scroll-indicator {
             position: absolute;
             bottom: 40px;
@@ -183,7 +172,6 @@
             100% { transform: translate(-50%, 100%); opacity: 0; }
         }
 
-        /* Content Sections */
         .section {
             padding: 80px 20px;
             max-width: 1000px;
@@ -193,8 +181,8 @@
             flex-direction: column;
             justify-content: center;
             position: relative;
-            z-index: 2; /* Ensures it sits above any glowing backgrounds */
-            background-color: var(--bg-color); /* Prevents video bleeding into content */
+            z-index: 2;
+            background-color: var(--bg-color);
         }
 
         .teaser-text {
@@ -227,7 +215,6 @@
             text-align: justify;
         }
 
-        /* Image Placeholders */
         .image-placeholder {
             width: 100%;
             height: 450px;
@@ -262,7 +249,6 @@
             }
         }
 
-        /* Call to Action Button */
         .cta-container {
             margin-top: 50px;
             text-align: center;
@@ -305,7 +291,6 @@
             left: 0;
         }
 
-        /* Fade In On Scroll Classes */
         .fade-up {
             opacity: 0;
             transform: translateY(40px);
@@ -317,7 +302,6 @@
             transform: translateY(0);
         }
 
-        /* Footer */
         footer {
             padding: 60px 20px;
             text-align: center;
@@ -436,19 +420,18 @@
         <h2 class="fade-up">Bring the Film to Life</h2>
         <p class="fade-up" style="margin: 20px 0; color: #999; font-size: 1.2rem;">Join us in bringing this uncompromising vision to the screen.</p>
         <div class="cta-container fade-up">
-            <a href="#" class="btn">Invest in My Kids</a>
+            <a href="https://www.paypal.com/donate/?hosted_button_id=ZAPR4MV9TNLSJ" target="_blank" rel="noopener noreferrer" class="btn">Invest in My Kids</a>
         </div>
     </section>
 
     <footer>
         <p>Written & Directed by Luke Harris</p>
-        <p>Contact: <a href="mailto:Luckylukefilms@gmail.com">Luckylukefilms@gmail.com</a></p>
-        <p>&copy; 2026 Lucky Luke Films. All Rights Reserved. <span style="color: #444; font-size: 0.85em; margin-left: 8px;">| Site Design by Scott Johnson</span></p>
+        <p>Contact: <a href="mailto:mykidsthemovie@gmail.com">mykidsthemovie@gmail.com</a></p>
+        <p>&copy; 2026 Lucky Luke Films. All Rights Reserved. <span style="margin-left: 8px;">| Site Design by Scott Johnson</span></p>
     </footer>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // Fade-up animation logic
             const faders = document.querySelectorAll('.fade-up');
             const appearOptions = {
                 threshold: 0.15,
@@ -470,7 +453,6 @@
                 appearOnScroll.observe(fader);
             });
 
-            // Video Sound Toggle Logic
             const heroVideo = document.getElementById('hero-video');
             const soundToggleBtn = document.getElementById('sound-toggle');
 
