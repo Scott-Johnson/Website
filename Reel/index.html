@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scott Johnson | Composer Portfolio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- MODERN CSS STYLING --- */
+        :root {
+            color-scheme: dark;
+            --bg-color: #050505;
+            --surface-color: rgba(255, 255, 255, 0.03);
+            --surface-hover: rgba(255, 255, 255, 0.06);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --accent: #ffffff;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #050505 70%);
+            background-attachment: fixed;
+        }
+
+        /* Header Section */
+        header {
+            text-align: center;
+            padding: 8rem 2rem 5rem;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 4rem;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            font-weight: 500;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .pitch-note {
+            max-width: 650px;
+            margin: 3rem auto 0;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            text-align: center;
+            font-weight: 300;
+        }
+
+        /* Project Layout */
+        main {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2rem 2rem 6rem;
+        }
+
+        .project {
+            margin-bottom: 8rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .project-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .project-title::before {
+            content: "";
+            display: block;
+            width: 40px;
+            height: 2px;
+            background-color: var(--accent);
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        /* Video Player */
+        .video-container {
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: var(--transition);
+        }
+
+        .video-container:hover {
+            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+            transform: translateY(-4px);
+        }
+
+        .video-container video {
+            width: 100%;
+            display: block;
+            border-radius: 16px;
+        }
+
+        /* Soundtrack Album Player */
+        .album-container {
+            background-color: var(--surface-color);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-height: 650px;
+            overflow-y: auto;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .album-container:hover {
+            background-color: var(--surface-hover);
+        }
+
+        /* Custom Scrollbar for tracklist */
+        .album-container::-webkit-scrollbar { width: 6px; }
+        .album-container::-webkit-scrollbar-track { background: transparent; }
+        .album-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        .album-container::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+        .album-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: sticky;
+            top: -2rem;
+            margin: -2rem -2rem 2.5rem -2rem;
+            padding: 2rem 2rem 1.5rem 2rem;
+            background: rgba(15, 15, 15, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 10;
+            border-bottom: 1px solid var(--surface-border);
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+        }
+
+        .album-art {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .album-art:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+
+        .album-info h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.4rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+        }
+
+        .album-info p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Audio Tracks */
+        .tracklist {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .track {
+            padding: 1rem;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid transparent;
+            transition: var(--transition);
+        }
+
+        .track:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: var(--surface-border);
+            transform: translateX(4px);
+        }
+
+        .track-title {
+            display: block;
+            font-size: 0.95rem;
+            margin-bottom: 0.8rem;
+            font-weight: 400;
+            color: var(--text-main);
+        }
+
+        .track-title span {
+            color: var(--text-muted);
+            margin-right: 12px;
+            font-size: 0.8rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        audio {
+            width: 100%;
+            height: 32px;
+            border-radius: 6px;
+            outline: none;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        audio:hover {
+            opacity: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1000px) {
+            .project-grid { grid-template-columns: 1fr; }
+            
+            /* Shrink the giant desktop header spacing for phones */
+            header { padding: 4rem 1.5rem 2.5rem; }
+            h1 { font-size: 2.5rem; }
+            
+            /* Adjust the sticky album header to fit perfectly on small screens */
+            .album-header {
+                flex-direction: row;
+                text-align: left;
+                padding: 1.5rem;
+                margin: -2rem -2rem 1.5rem -2rem;
+            }
+            .album-art { width: 80px; height: 80px; margin-bottom: 0; margin-right: 1.2rem; }
+            .album-info h3 { font-size: 1.2rem; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Scott Johnson</h1>
+        <div class="subtitle">Composer</div>
+        <div class="pitch-note">
+            A curated selection of percussion-driven scores. Below are the short films paired with their respective interactive soundtrack albums, showcasing how rhythm and instrumentation drive the narrative.
+        </div>
+    </header>
+
+    <main>
+
+        <article class="project">
+            <h2 class="project-title">Milk Bleb</h2>
+            <div class="project-grid">
+                <div class="video-container">
+                    <video controls poster="Milk Bleb (Original Soundtrack).png">
+                        <source src="Milk Bleb.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="album-container">
+                    <div class="album-header">
+                        <img src="Milk Bleb (Original Soundtrack).png" alt="Milk Bleb Album Art" class="album-art">
+                        <div class="album-info">
+                            <h3>Milk Bleb</h3>
+                            <p>Original Score</p>
+                        </div>
+                    </div>
+                    <div class="tracklist">
+                        <div class="track"><label class="track-title"><span>01</span> He Wouldn't Even Touch The Garlic Rice</label><audio controls><source src="01 He Wouldn't Even Touch The Garlic Rice.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>02</span> Pregnant With A Human Baby Child</label><audio controls><source src="02 Pregnant With A Human Baby Child.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>03</span> Therapy</label><audio controls><source src="03 Therapy.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>04</span> Ma Ma Montage</label><audio controls><source src="04 Ma Ma Montage.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>05</span> Don't Slam The Door</label><audio controls><source src="05 Don't Slam The Door.m4a" type="audio/mp4"></audio></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="project">
+            <h2 class="project-title">The Wrangler</h2>
+            <div class="project-grid">
+                <div class="video-container">
+                    <video controls poster="The Wrangler (Original Soundtrack).jpg">
+                        <source src="The Wrangler.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="album-container">
+                    <div class="album-header">
+                        <img src="The Wrangler (Original Soundtrack).jpg" alt="The Wrangler Album Art" class="album-art">
+                        <div class="album-info">
+                            <h3>The Wrangler</h3>
+                            <p>Original Score</p>
+                        </div>
+                    </div>
+                    <div class="tracklist">
+                        <div class="track"><label class="track-title"><span>01</span> The Box</label><audio controls><source src="01 The Box.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>02</span> Don't Touch the Hammer</label><audio controls><source src="02 Don't Touch the Hammer.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>03</span> Jamie's House</label><audio controls><source src="03 Jamie's House.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>04</span> Street Chase</label><audio controls><source src="04 Street Chase.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>05</span> The Wrangler</label><audio controls><source src="05 The Wrangler.m4a" type="audio/mp4"></audio></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="project">
+            <h2 class="project-title">Legally Brown</h2>
+            <div class="project-grid">
+                <div class="video-container">
+                    <video controls poster="Legally Brown (Original Short Film Soundtrack).jpg">
+                        <source src="Legally Brown.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="album-container">
+                    <div class="album-header">
+                        <img src="Legally Brown (Original Short Film Soundtrack).jpg" alt="Legally Brown Album Art" class="album-art">
+                        <div class="album-info">
+                            <h3>Legally Brown</h3>
+                            <p>Original Score</p>
+                        </div>
+                    </div>
+                    <div class="tracklist">
+                        <div class="track"><label class="track-title"><span>01</span> Break a Leg (Literally)</label><audio controls><source src="Break a Leg (Literally).wav" type="audio/wav"></audio></div>
+                        <div class="track"><label class="track-title"><span>02</span> Enter Valerie (Stage Right)</label><audio controls><source src="Enter Valerie (Stage Right).wav" type="audio/wav"></audio></div>
+                        <div class="track"><label class="track-title"><span>03</span> Kind of a Dream of Mine</label><audio controls><source src="Kind of a Dream of Mine.wav" type="audio/wav"></audio></div>
+                        <div class="track"><label class="track-title"><span>04</span> Type 1 Diabetes & Other Excuses</label><audio controls><source src="Type 1 Diabetes & Other Excuses.wav" type="audio/wav"></audio></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="project">
+            <h2 class="project-title">Neurodivergent</h2>
+            <div class="project-grid">
+                <div class="video-container">
+                    <video controls poster="Neurodivergent (Original Soundtrack).jpg">
+                        <source src="Neurodivergent.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="album-container">
+                    <div class="album-header">
+                        <img src="Neurodivergent (Original Soundtrack).jpg" alt="Neurodivergent Album Art" class="album-art">
+                        <div class="album-info">
+                            <h3>Neurodivergent</h3>
+                            <p>Original Score</p>
+                        </div>
+                    </div>
+                    <div class="tracklist">
+                        <div class="track"><label class="track-title"><span>01</span> About Your ADHD</label><audio controls><source src="01 About Your ADHD.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>02</span> Onto The Trampoline</label><audio controls><source src="02 Onto The Trampoline.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>03</span> What Your Brain Feels Like</label><audio controls><source src="03 What Your Brain Feels Like.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>04</span> Afton's Parents</label><audio controls><source src="04 Afton's Parents.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>05</span> Sari</label><audio controls><source src="05 Sari.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>06</span> A Lack of Communication</label><audio controls><source src="06 A Lack of Communication Between Things With Fancy Names.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>07</span> Musical Entropy</label><audio controls><source src="07 Musical Entropy.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>08</span> Adderall</label><audio controls><source src="08 Adderall.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>09</span> I'm Fixed!</label><audio controls><source src="09 I'm Fixed!.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>10</span> Afton Loses Control</label><audio controls><source src="10 Afton Loses Control.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>11</span> My Brain Was Broken</label><audio controls><source src="11 My Brain Was Broken.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>12</span> Dripping Cloud</label><audio controls><source src="12 Dripping Cloud.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>13</span> Treasure</label><audio controls><source src="13 Treasure.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>14</span> It's Something Good</label><audio controls><source src="14 It's Something Good.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>15</span> Neurodivergent</label><audio controls><source src="15 Neurodivergent.m4a" type="audio/mp4"></audio></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="project">
+            <h2 class="project-title">Thin Air</h2>
+            <div class="project-grid">
+                <div class="video-container">
+                    <video controls poster="Thin Air (Original Soundtrack).png">
+                        <source src="Thin Air.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="album-container">
+                    <div class="album-header">
+                        <img src="Thin Air (Original Soundtrack).png" alt="Thin Air Album Art" class="album-art">
+                        <div class="album-info">
+                            <h3>Thin Air</h3>
+                            <p>Original Score</p>
+                        </div>
+                    </div>
+                    <div class="tracklist">
+                        <div class="track"><label class="track-title"><span>01</span> Breaking Point</label><audio controls><source src="Breaking Point.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>02</span> Dad's Watch</label><audio controls><source src="Dad's Watch.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>03</span> The Board</label><audio controls><source src="The Board.m4a" type="audio/mp4"></audio></div>
+                        <div class="track"><label class="track-title"><span>04</span> The Only Person</label><audio controls><source src="The Only Person.m4a" type="audio/mp4"></audio></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="project">
+            <h2 class="project-title">Session Three</h2>
+            <div class="project-grid">
+                <div class="video-container">
+                    <video controls poster="Session Three (Original Soundtrack).png">
+                        <source src="Session Three.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="album-container">
+                    <div class="album-header">
+                        <img src="Session Three (Original Soundtrack).png" alt="Session Three Album Art" class="album-art">
+                        <div class="album-info">
+                            <h3>Session Three</h3>
+                            <p>Original Score</p>
+                        </div>
+                    </div>
+                    <div class="tracklist">
+                        <div class="track"><label class="track-title"><span>01</span> Session Three</label><audio controls><source src="Session Three.wav" type="audio/wav"></audio></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="project">
+            <h2 class="project-title">Neander Valley</h2>
+            <div class="project-grid">
+                <div class="video-container">
+                    <video controls poster="Neander Valley (Original Soundtrack).jpg">
+                        <source src="Neander Valley.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="album-container">
+                    <div class="album-header">
+                        <img src="Neander Valley (Original Soundtrack).jpg" alt="Neander Valley Album Art" class="album-art">
+                        <div class="album-info">
+                            <h3>Neander Valley</h3>
+                            <p>Original Score</p>
+                        </div>
+                    </div>
+                    <div class="tracklist">
+                        <div class="track"><label class="track-title"><span>01</span> Ctrl+Alt+Beat</label><audio controls><source src="Ctrl+Alt+Beat.m4a" type="audio/mp4"></audio></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+    </main>
+
+    <script>
+        document.addEventListener('play', function(e){
+            var audios = document.getElementsByTagName('audio');
+            for(var i = 0, len = audios.length; i < len;i++){
+                if(audios[i] != e.target){
+                    audios[i].pause();
+                }
+            }
+        }, true);
+    </script>
+
+</body>
+</html>
