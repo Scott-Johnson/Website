@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ol' Jack's Apartment Search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#141A19;--soft:#6F7877;--line:#E6E7E5;--blue:#1F5F8B;--bluepale:#EAF2F7;
+        --grn:#25664A;--grnpale:#E7F3EC;--vio:#5B4A8A;--viopale:#EFEBF7;--grey:#F5F6F4}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--ink);font-family:"Archivo",system-ui,sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:980px;margin:0 auto;padding:28px 18px 70px}
+  a{color:var(--blue)}
+  .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;justify-content:space-between;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+  h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-.02em}
+  .count{font-size:14px;color:var(--soft)}
+  .tools{display:flex;flex-wrap:wrap;gap:7px;padding:14px 0;border-bottom:1px solid var(--line);align-items:center}
+  .lbl{font-size:12px;font-weight:600;color:var(--soft);margin-right:2px}
+  button{font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;background:#fff;border:1px solid var(--line);color:var(--ink);padding:6px 12px;border-radius:20px}
+  button:hover{border-color:var(--blue)}
+  button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .div{width:1px;height:20px;background:var(--line);margin:0 5px}
+  .head,.row{display:grid;grid-template-columns:1fr 214px 96px 108px 66px;gap:15px}
+  .head{padding:14px 0 8px;font-size:12px;font-weight:600;color:var(--soft);border-bottom:1px solid var(--line)}
+  .head .rt{text-align:right}
+  .row{align-items:center;padding:15px 0;border-bottom:1px solid var(--line)}
+  .row:hover{background:var(--grey)}
+  .nm{font-weight:600;font-size:15.5px;margin:0}
+  .nm a{text-decoration:none}.nm a:hover{text-decoration:underline}
+  .loc{font-size:13px;color:var(--soft);margin:1px 0 0}
+  .amen{font-size:13.5px;color:var(--soft)}
+  .price{text-align:right;font-weight:700;font-size:15.5px}
+  .price small{display:block;font-weight:400;font-size:12px;color:var(--soft);margin-top:1px}
+  .mi{font-size:14px;color:var(--soft);text-align:right}
+  .tag{font-size:12px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;display:inline-block}
+  .t-walk{background:var(--viopale);color:var(--vio)}
+  .t-flex{background:var(--grnpale);color:var(--grn)}
+  .t-lease{background:var(--bluepale);color:var(--blue)}
+  .chk{color:var(--grn);font-weight:700}
+
+  .foot{margin-top:30px;padding-top:22px;border-top:1px solid var(--line);
+        display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+  .foot-text{flex:1 1 420px;font-size:13px;color:var(--soft)}
+  .foot-text p{margin:0 0 8px}
+  .foot img{width:260px;max-width:100%;border-radius:3px;display:block}
+  .foot figure{margin:0;flex:0 0 auto}
+  .foot figcaption{font-size:12px;color:var(--soft);margin-top:6px}
+
+  @media(max-width:820px){
+    .head{display:none}
+    .row{grid-template-columns:1fr auto;gap:5px 12px;padding:15px 0}
+    .row>.amen{grid-column:1/-1;font-size:13px}
+    .row>.price{grid-row:1;grid-column:2;font-size:15px}
+    .row>.mi{grid-column:2;text-align:right}
+    .row>.tagwrap{grid-column:1/-1;margin-top:2px}
+    .nm{font-size:15px}
+    .foot{gap:20px}
+    .foot img{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="top">
+  <h1>Ol' Jack's Apartment Search</h1>
+  <span class="count" id="count"></span>
+</div>
+
+<div class="tools">
+  <span class="lbl">Show</span>
+  <button data-f="all" aria-pressed="true">All</button>
+  <button data-f="walk" aria-pressed="false">Walk to work</button>
+  <button data-f="budget" aria-pressed="false">In budget</button>
+  <button data-f="2bd" aria-pressed="false">2+ bedrooms</button>
+  <button data-f="flex" aria-pressed="false">Furnished · 30-day terms</button>
+  <button data-f="ver" aria-pressed="false">Listed now</button>
+  <span class="div"></span>
+  <span class="lbl">Sort</span>
+  <button data-s="dist" aria-pressed="true">Distance</button>
+  <button data-s="price" aria-pressed="false">Price</button>
+</div>
+
+<div class="head"><div>Address</div><div>Size</div><div class="rt">Price</div><div></div><div class="rt">Office</div></div>
+<div id="list"></div>
+
+<div class="foot">
+  <div class="foot-text">
+    <p><span class="chk">✓</span> means a specific unit with its own live listing page. Click through and it will be there.</p>
+    <p>Everything without a tick is a building rather than a unit, so it needs a call. The furnished operators quote by enquiry.</p>
+    <p>Blueground would suit the short-term version of this perfectly: furnished, 30-day terms, no broker fee, bookable from Seattle. The problem is timing. Most of their westside units are not free until 2027, with only one Beverly Grove one-bedroom opening 19 September and one Sawtelle unit on 1 November.</p>
+    <p>Distances are approximate, to Avenue of the Stars. Price is asking rent; parking and utilities extra. Century City stock is mostly condo rentals inside the towers, so units move quickly.</p>
+    <p>Send me anything and I'll add it!</p>
+  </div>
+  <figure>
+    <img src="team.JPEG" alt="Scott, Jack and Jane at the graduation dinner">
+    <figcaption>The team.</figcaption>
+  </figure>
+</div>
+</div>
+
+<script>
+const D=[
+ {n:"2170 Century Park East #2003",u:"https://www.compass.com/homedetails/2170-Century-Park-E-Unit-2003-Los-Angeles-CA-90067/1J3F4U_pid/",l:"Century City, 90067",
+  a:"1 bed · 1 bath · 815 sq ft",p:3600,pl:"$3,600",mi:0.3,t:"walk",ver:1,f:["walk","budget","ver"]},
+
+ {n:"2220 Avenue of the Stars #204",u:"https://www.compass.com/homedetails/2220-Avenue-Of-The-Stars-Unit-204-Los-Angeles-CA-90067/1I5DFM_pid/",l:"Century Towers, 90067",
+  a:"1 bed · 1 bath · 827 sq ft",p:5000,pl:"$5,000",mi:0.2,t:"walk",ver:1,f:["walk","budget","ver"]},
+
+ {n:"2122 Century Park Lane #210",u:"https://www.compass.com/homedetails/2122-Century-Park-Ln-Unit-210-Los-Angeles-CA-90067/1JR7ME_pid/",l:"Century City, 90067",
+  a:"2 bed · 3 bath · 1,727 sq ft",p:5500,pl:"$5,500",mi:0.4,t:"walk",ver:1,f:["walk","budget","2bd","ver"]},
+
+ {n:"2160 Century Park #1511",u:"https://www.compass.com/homedetails/2160-Century-Park-Unit-1511-Los-Angeles-CA-90067/2FSA06_pid/",l:"Century City, 90067",
+  a:"2 bed · 2 bath · 1,212 sq ft",p:6200,pl:"$6,200",mi:0.3,t:"walk",ver:1,f:["walk","2bd","ver"]},
+
+ {n:"2170 Century Park East #406",u:"https://www.compass.com/homedetails/2170-Century-Park-E-Unit-406-Los-Angeles-CA-90067/1ICI8N_pid/",l:"Century City, 90067",
+  a:"2 bed · 2 bath · 1,416 sq ft",p:6500,pl:"$6,500",mi:0.3,t:"walk",ver:1,f:["walk","2bd","ver"]},
+
+ {n:"2112 Century Park Lane #301",u:"https://www.compass.com/homedetails/2112-Century-Park-Ln-Unit-301-Los-Angeles-CA-90067/1INYGI_pid/",l:"Century City, 90067",
+  a:"2 bed · 2 bath · 1,330 sq ft",p:7000,pl:"$7,000",mi:0.4,t:"walk",ver:1,f:["walk","2bd","ver"]},
+
+ {n:"The Century",u:"https://www.apartments.com/the-century-los-angeles-ca/gxxc2cy/",l:"10 W Century Dr, 90067",
+  a:"Full-service tower · availability to check",p:null,pl:"Ask",mi:0.4,t:"walk",f:["walk"]},
+
+ {n:"Argon Wilshire",u:"https://www.apartments.com/10636-wilshire-luxury-doorman-building-los-angeles-ca/m512ckh/",l:"10636 Wilshire Blvd, Westwood",
+  a:"Doormen, gym, jacuzzi, gated parking, key-fob access",p:null,pl:"Ask",mi:1.3,t:"lease",f:[]},
+
+ {n:"The Legacy (via Bedford)",u:"https://bedfordhousing.com/locations/westwood-wilshire-corridor/the-legacy-2-bedroom-lw509/",l:"Wilshire Corridor, Westwood",
+  a:"Furnished 2 bed · 24/7 concierge, valet, two spaces",p:null,pl:"Ask",mi:1.5,t:"flex",f:["flex","2bd"]},
+
+ {n:"2324 S Beverly Glen Blvd #305",u:"https://www.compass.com/homedetails/2324-S-Beverly-Glen-Blvd-Unit-305-Los-Angeles-CA-90064/1IL4I3_pid/",l:"90064",
+  a:"2 bed · 3 bath · 1,663 sq ft",p:5500,pl:"$5,500",mi:1.7,t:"lease",ver:1,f:["budget","2bd","ver"]},
+
+ {n:"2332 S Beverly Glen Blvd #5",u:"https://www.compass.com/homedetails/2332-S-Beverly-Glen-Blvd-Unit-5-Los-Angeles-CA-90064/1L1XI9_pid/",l:"90064",
+  a:"3 bed · 2 bath · 1,400 sq ft",p:4195,pl:"$4,195",mi:1.7,t:"lease",ver:1,f:["budget","2bd","ver"]},
+
+ {n:"2332 S Beverly Glen Blvd #3",u:"https://www.compass.com/homedetails/2332-S-Beverly-Glen-Blvd-Unit-3-Los-Angeles-CA-90064/1J7ORK_pid/",l:"90064",
+  a:"3 bed · 2 bath · 1,400 sq ft",p:4195,pl:"$4,195",mi:1.7,t:"lease",ver:1,f:["budget","2bd","ver"]},
+
+ {n:"10432 Eastborne Ave",u:"https://www.apartments.com/10432-eastborne-ave-los-angeles-ca/wwyrk0h/",l:"Westwood",
+  a:"Quiet residential street",p:null,pl:"Ask",mi:1.8,t:"lease",f:[]},
+
+ {n:"888 Hilgard",u:"https://www.888hilgard.com/",l:"Westwood",
+  a:"Furnished 1 and 2 bed, 30-day minimum · rooftop, gym",p:null,pl:"Ask",mi:2.0,t:"flex",f:["flex"]},
+
+ {n:"Wilshire Margot",u:"https://www.apartments.com/wilshire-margot-los-angeles-ca/4h45ddj/",l:"Wilshire Blvd",
+  a:"Resort-style amenities, leafy setting",p:null,pl:"Ask",mi:2.3,t:"lease",f:[]},
+
+ {n:"2306 Fox Hills Drive #103",u:"https://www.compass.com/homedetails/2306-Fox-Hills-Dr-Unit-103-Los-Angeles-CA-90064/1KOU0Y_pid/",l:"90064",
+  a:"2 bed · 3 bath · 1,500 sq ft",p:4750,pl:"$4,750",mi:2.5,t:"lease",ver:1,f:["budget","2bd","ver"]},
+
+ {n:"Linea",u:"https://www.zillow.com/apartments/los-angeles-ca/linea/CkCNh5/",l:"2435 S Sepulveda Blvd",
+  a:"Units 21014 and 01817 · 2 bed, 2 bath",p:5400,pl:"Under $5,500",mi:3.6,t:"lease",ver:1,f:["budget","2bd","ver"]},
+
+ {n:"Bedford Housing, Brentwood",u:"https://bedfordhousing.com/locations/brentwood/",l:"Brentwood",
+  a:"Furnished 2 bed townhouses, month to month · gated, garage",p:null,pl:"Ask",mi:4.5,t:"flex",f:["flex","2bd"]},
+
+ {n:"Urbanlux Sunset Premium",u:"https://www.rentcafe.com/apartments/ca/los-angeles/urbanlux-sunset-premium-0/default.aspx",l:"1425 N Alta Vista, 90046",
+  a:"Unit 221 · 2 bed, 2 bath · available 14 September",p:3200,pl:"$3,200",mi:6.0,t:"lease",ver:1,f:["budget","2bd","ver"]},
+
+ {n:"ARQ",u:"https://www.apartments.com/arq-los-angeles-ca/h9t7ky3/",l:"3311 S La Cienega Blvd, 90016",
+  a:"Several 2 bed, 2 bath units showing",p:5500,pl:"$5,500",mi:5.5,t:"lease",ver:1,f:["budget","2bd","ver"]},
+
+ {n:"Elm Luxury",u:"https://www.apartments.com/elm-luxury-investments-llc-beverly-hills-ca/9b0k3s7/",l:"134 S Elm Dr, Beverly Hills, 90212",
+  a:"Prime Beverly Hills, just south of Wilshire · worth a look",p:null,pl:"Ask",mi:1.6,t:"lease",f:[]},
+
+ {n:"The Roy",u:"https://www.apartments.com/the-roy-los-angeles-ca/x5pe7zp/",l:"3644 Overland Ave, Palms, 90034",
+  a:"To price",p:null,pl:"Ask",mi:3.2,t:"lease",f:[]}
+];
+const L=document.getElementById('list'),C=document.getElementById('count');
+let f='all',s='dist';
+const TT={walk:'Walk to work',flex:'Furnished · flexible',lease:'Standard lease'};
+function render(){
+  let x=D.filter(d=>f==='all'||d.f.includes(f));
+  x=[...x].sort((a,b)=>{
+    if(s==='price')return (a.p===null?999999:a.p)-(b.p===null?999999:b.p);
+    return (a.mi===null?99:a.mi)-(b.mi===null?99:b.mi);
+  });
+  C.textContent=x.length+(x.length===1?' place':' places');
+  L.innerHTML=x.map(d=>`<div class="row">
+   <div><p class="nm"><a href="${d.u}" target="_blank" rel="noopener">${d.n}</a>${d.ver?' <span class="chk">✓</span>':''}</p><p class="loc">${d.l}</p></div>
+   <div class="amen">${d.a}</div>
+   <div class="price">${d.pl}${d.ver?'<small>listed now</small>':''}</div>
+   <div class="tagwrap"><span class="tag t-${d.t}">${TT[d.t]}</span></div>
+   <div class="mi">${d.mi===null?'TBC':d.mi+' mi'}</div></div>`).join('');
+}
+document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{f=b.dataset.f;document.querySelectorAll('[data-f]').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{s=b.dataset.s;document.querySelectorAll('[data-s]').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+render();
+</script>
+</body>
+</html>
