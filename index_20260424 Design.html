@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scott Johnson Composer</title>
+    <meta property="og:title" content="Scott Johnson">
+    <meta property="og:description" content="Website for Film Composer Scott Johnson.">
+    <meta property="og:image" content="/preview-image.jpg">
+    <meta property="og:url" content="https://www.scottjohnsoncomposer.net">
+    <meta property="og:type" content="website">
+    <link rel="stylesheet" href="fonts/stylesheet.css">
+    <style>
+        :root {
+            --bg-dark: #151518;
+            --text-light: #fff;
+            --accent-red: #b22222;
+            --nav-bg: rgba(21, 21, 24, 0.9);
+            --glow-color: #b22222;
+            --transition-speed: 0.3s;
+            --section-padding: 80px 20px;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-behavior: auto;
+        }
+
+        #bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+            pointer-events: none;
+            filter: brightness(0.4) saturate(0.9);
+            opacity: 0.7;
+            transition: opacity 1s ease-in-out;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: var(--nav-bg);
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 500;
+            padding: 5px 0;
+            position: relative;
+        }
+
+        .glow-hover {
+            transition: color var(--transition-speed) ease, text-shadow var(--transition-speed) ease;
+        }
+
+        .glow-hover:hover {
+            color: var(--glow-color);
+            text-shadow: 0 0 10px var(--glow-color), 0 0 2px var(--glow-color);
+        }
+
+        .glow-hover::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--glow-color);
+            transform: scaleX(0);
+            transition: transform var(--transition-speed) ease-out;
+        }
+
+        .glow-hover:hover::after {
+            transform: scaleX(1);
+        }
+
+        /* Mobile Navigation Toggle (Hamburger) */
+        .mobile-menu-toggle {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            width: 30px;
+            height: 25px;
+            cursor: pointer;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mobile-menu-toggle span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: var(--text-light);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(1) {
+            transform: translateY(11px) rotate(45deg);
+        }
+
+        .mobile-menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(3) {
+            transform: translateY(-11px) rotate(-45deg);
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(21, 21, 24, 0.98);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 999;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+        }
+
+        .mobile-menu-overlay.active {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .mobile-menu-overlay ul {
+            list-style-type: none;
+            padding: 80px 0 40px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .mobile-menu-overlay ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: clamp(1.1em, 5vw, 1.6em);
+            font-weight: 500;
+            padding: 10px 20px;
+            display: block;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            transition-delay: var(--stagger-delay, 0s);
+        }
+
+        .mobile-menu-overlay.active ul li a {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mobile-menu-overlay ul li a:hover {
+            color: var(--glow-color);
+            text-shadow: 0 0 10px var(--glow-color), 0 0 2px var(--glow-color);
+        }
+
+        /* Hero Section (Video Container) */
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 70vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .video-container::before,
+        .video-container::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .video-container::before {
+            top: 0;
+            background: linear-gradient(to bottom, var(--bg-dark) 0%, transparent 100%);
+        }
+
+        .video-container::after {
+            bottom: 0;
+            background: linear-gradient(to top, var(--bg-dark) 0%, transparent 100%);
+        }
+
+        .header-banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.6);
+            transition: filter 0.5s ease-out;
+        }
+
+        .fade-text {
+            position: relative;
+            z-index: 3;
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-family: 'Ailerons', sans-serif;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+            color: var(--text-light);
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+        }
+
+        .fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-out {
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 1s ease-in, transform 1s ease-in;
+        }
+
+        .composer {
+            color: var(--accent-red);
+            display: block;
+            font-size: 0.5em;
+            letter-spacing: 0.2em;
+            margin-top: -10px;
+        }
+
+        .video-text {
+            position: absolute;
+            bottom: 35px;
+            right: 20px;
+            text-align: right;
+            color: var(--text-light);
+            z-index: 3;
+            font-size: 0.9em;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+        }
+
+        .video-text span {
+            display: block;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .video-text .bold {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--accent-red);
+        }
+
+        .video-text .italic {
+            font-style: italic;
+        }
+
+        /* General Section Styles */
+        section {
+            padding: var(--section-padding);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+        }
+
+        section h2 {
+            font-family: 'Ailerons', sans-serif;
+            color: var(--accent-red);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 50px;
+            position: relative;
+            display: inline-block;
+        }
+
+        section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: var(--accent-red);
+            border-radius: 5px;
+        }
+
+        /* About Section */
+        #about {
+            padding-top: 100px;
+            z-index: 1;
+        }
+
+        .about-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-width: 1100px;
+            margin: 0 auto;
+            gap: 40px;
+            text-align: left;
+        }
+
+        @media (min-width: 768px) {
+            .about-content {
+                flex-direction: row;
+                text-align: left;
+            }
+        }
+
+        .about-content .text {
+            flex: 1;
+            padding: 0 20px;
+            max-width: 600px;
+        }
+
+        .about-content .text p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .about-content .image {
+            flex: 1;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .about-content .image img {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            filter: brightness(0.9);
+            transition: all var(--transition-speed) ease-in-out;
+        }
+
+        .about-content .image img:hover {
+            filter: brightness(1);
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .dark-red {
+            color: var(--accent-red);
+        }
+
+        .white {
+            color: var(--text-light);
+        }
+
+        .fade-in-element {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+
+        .fade-in-element.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .about-heading {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .about-heading.fade-in {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* About Section Glow Accents */
+        #about::before,
+        #about::after {
+            content: "";
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle at center, var(--accent-red) 0%, transparent 70%);
+            opacity: 0.1;
+            filter: blur(100px);
+            animation: glowPulse 6s ease-in-out infinite, floatUpDown 10s ease-in-out infinite;
+            transform-origin: center;
+            z-index: -1;
+        }
+
+        #about::before {
+            top: 10%;
+            left: -150px;
+        }
+
+        #about::after {
+            bottom: 10%;
+            right: -150px;
+            animation-delay: 2s;
+        }
+
+        @keyframes floatUpDown {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(50px);
+            }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% {
+                opacity: 0.1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.25;
+                transform: scale(1.05);
+            }
+        }
+
+        /* Projects Section */
+        #projects {
+            background-color: #1a1a1e;
+            padding-top: var(--section-padding);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .poster-box {
+            width: 100%;
+            padding-top: 150%;
+            background-color: #333;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out, transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        .poster-box.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .poster-box:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .poster-box img {
+            display: none;
+        }
+
+        #imdb-button {
+            margin-top: 50px;
+        }
+
+        #imdb-button img {
+            width: 60px;
+            height: auto;
+            border-radius: 50%;
+            transition: transform var(--transition-speed) ease, filter var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #imdb-button img:hover {
+            transform: scale(1.15);
+            filter: brightness(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* By The Numbers Section */
+        #by-the-numbers {
+            background-color: #1a1a1e;
+            padding: 40px 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background-color: #222;
+            padding: 25px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .stat-card.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .stat-number {
+            font-family: 'Ailerons', sans-serif;
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            color: var(--accent-red);
+            font-weight: bold;
+            margin: 0;
+            line-height: 1;
+            padding-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .stat-summary {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 10px;
+            min-height: 40px;
+        }
+
+        /* Clients & Collaborators Section */
+        #ClientsNew {
+            background-color: var(--bg-dark);
+            padding-top: var(--section-padding);
+        }
+
+        .ClientsNew-icons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .ClientsNew-icons .icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: contain;
+            background-color: #222;
+            padding: 10px;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow var(--transition-speed) ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            filter: grayscale(80%) brightness(0.8);
+        }
+
+        .ClientsNew-icons .icon.in-view {
+            opacity: 1;
+            transform: scale(1);
+            filter: grayscale(0%) brightness(1);
+        }
+
+        .ClientsNew-icons .icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            filter: grayscale(0%) brightness(1.1);
+        }
+
+        /* Music Section */
+        #music {
+            background-color: var(--bg-dark);
+            padding-top: var(--section-padding);
+        }
+
+        .music-player {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #222;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 50px;
+        }
+
+        .music-player iframe {
+            border-radius: 8px;
+        }
+
+        /* Connect Section */
+        #connect {
+            background-color: #1a1a1e;
+            padding-top: var(--section-padding);
+            padding-bottom: 100px;
+        }
+
+        #connect .email {
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .email-link {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color var(--transition-speed) ease;
+        }
+
+        .email-link:hover {
+            color: var(--accent-red);
+            text-decoration: underline;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .social-icons img {
+            width: 50px;
+            height: auto;
+            border-radius: 50%;
+            transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease, filter var(--transition-speed) ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            filter: brightness(0.8);
+        }
+
+        .social-icons a:hover img {
+            transform: scale(1.2);
+            filter: brightness(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Footer */
+        footer {
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 30px 20px;
+            text-align: center;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            nav ul.desktop-nav {
+                display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            nav {
+                justify-content: flex-end;
+                padding-right: 20px;
+                padding-left: 20px;
+            }
+
+            .video-container {
+                height: 60vh;
+            }
+
+            .fade-text {
+                font-size: clamp(2.5rem, 12vw, 5rem);
+            }
+
+            .composer {
+                font-size: 0.6em;
+            }
+
+            .video-text {
+                bottom: 20px;
+                right: 10px;
+                font-size: 0.8em;
+            }
+
+            section {
+                padding: 60px 15px;
+            }
+
+            section h2 {
+                font-size: clamp(1.8rem, 7vw, 3rem);
+                margin-bottom: 40px;
+            }
+
+            .about-content {
+                flex-direction: column;
+                padding: 0 15px;
+                gap: 30px;
+            }
+
+            .about-content .text {
+                padding: 0;
+                text-align: center;
+            }
+
+            .about-content .text p {
+                font-size: 1em;
+            }
+
+            .about-content .image img {
+                max-width: 80%;
+            }
+
+            .ClientsNew-icons {
+                gap: 25px;
+            }
+
+            .ClientsNew-icons .icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .music-player {
+                padding: 15px;
+            }
+
+            #imdb-button img {
+                width: 50px;
+            }
+
+            .social-icons img {
+                width: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-container {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 20px;
+            }
+
+            .ClientsNew-icons {
+                gap: 20px;
+            }
+
+            .ClientsNew-icons .icon {
+                width: 70px;
+                height: 70px;
+            }
+
+            .mobile-menu-overlay ul li a {
+                font-size: clamp(1.0em, 4.5vw, 1.4em);
+            }
+        }
+
+        body.no-scroll {
+            overflow: hidden !important;
+        }
+    </style>
+</head>
+
+<body>
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="backgroundvideo.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <nav>
+        <div class="mobile-menu-toggle" id="mobile-menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <ul class="desktop-nav">
+            <li><a href="#about" class="glow-hover">About</a></li>
+            <li><a href="#music" class="glow-hover">Music</a></li>
+            <li><a href="#projects" class="glow-hover">Projects</a></li>
+            <li><a href="#connect" class="glow-hover">Connect</a></li>
+        </ul>
+
+        <div class="mobile-menu-overlay" id="mobile-menu-overlay">
+            <ul>
+                <li><a href="#about" class="glow-hover mobile-nav-link">About</a></li>
+                <li><a href="#music" class="glow-hover mobile-nav-link">Music</a></li>
+                <li><a href="#projects" class="glow-hover mobile-nav-link">Projects</a></li>
+                <li><a href="#connect" class="glow-hover mobile-nav-link">Connect</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="video-container">
+        <video class="header-banner" autoplay muted playsinline loop>
+            <source src="header.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div id="fade-text" class="fade-text">
+            Scott Johnson <span class="composer">Composer</span>
+        </div>
+        <div class="video-text">
+            <span class="bold">EUROPA</span>
+            <span>dir. Jacqueline Elyse Rosenthal</span>
+            <span class="italic"></span>
+        </div>
+    </div>
+
+    <section id="about">
+        <h2 class="about-heading"><span class="white">ABOUT</span> <span class="dark-red">SCOTT</span></h2>
+        <div class="about-content">
+            <div class="text">
+                <p class="fade-in-element">Scott pursued his undergraduate education at the esteemed <strong>USC School of Cinematic Arts</strong>, specializing in Film & Television Production—widely regarded as the world's leading academic program in the film & entertainment field.</p>
+
+                <p class="fade-in-element">While at USC, Scott made history scoring <strong>over 100 USC thesis films</strong> and earned the reputation of being a “secret weapon” within the program for his work ethic and collaborative spirit. His contributions have been instrumental in numerous projects that achieved critical acclaim, including those that have garnered awards at the <strong>Cannes Film Festival</strong> and the <strong>Student Academy Awards</strong>.</p>
+
+                <p class="fade-in-element">In 2020, Scott's work was showcased on a global stage when he scored a “Shot on iPhone” short for <strong>Apple Inc</strong>.</p>
+
+                <p class="fade-in-element">Prior to graduating film school, Scott was invited to join <strong>Hans Zimmer’s Bleeding Fingers Music</strong>.</p>
+
+                <p class="fade-in-element">Scott's career trajectory has seen him collaborate with industry luminaries such as Roeban Katz and <strong>Alexandre Desplat</strong>. He has also worked with major networks like ABC, where he contributed to special editions of ABC 20/20’s <strong><em>“Black Panther: In Search of Wakanda”</em></strong> and <strong><em>“Disney 100: A Century of Dreams”</em></strong>.</p>
+
+                <p class="fade-in-element">Beyond film, Scott has sound-designed segments for <strong>Coachella</strong> and partnered with top-tier digital creators. His research-backed cochlear implant audio simulation for advocate <strong>Chrissy Marshall</strong> reached 2M+ viewers, and his editing and original scoring for <strong>Chelsea Sik</strong> helped drive a channel network of 674M+ views, including a viral reel topping 30 million views.</p>
+            </div>
+            <div class="image">
+                <img class="fade-in-element" src="about.jpg" alt="Scott Johnson">
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <h2>Projects & Placements</h2>
+        <div class="grid-container">
+            <a href="https://www.emmys.com" target="_blank" class="poster-box" style="background-image: url('poster01.jpg');"></a>
+            <a href="https://www.disneyplus.com/movies/disney-100-a-century-of-dreams-a-special-edition-of-20-20/1sd7Rkcq23oD" target="_blank" class="poster-box" style="background-image: url('poster02.jpg');"></a>
+            <a href="https://www.history.com/shows/colosseum" target="_blank" class="poster-box" style="background-image: url('poster03.jpg');"></a>
+            <a href="https://www.bravotv.com/top-chef/watch" target="_blank" class="poster-box" style="background-image: url('poster04.jpg');"></a>
+            <a href="https://abc.com/show/316bd540-412e-4480-b801-1b59dda0ec99" target="_blank" class="poster-box" style="background-image: url('poster05.jpg');"></a>
+            <a href="https://m.imdb.com/title/tt30319894/?ref_=mv_desc" target="_blank" class="poster-box" style="background-image: url('poster06.jpg');"></a>
+            <a href="https://www.imdb.com/title/tt32142182/" target="_blank" class="poster-box" style="background-image: url('poster07.jpg');"></a>
+            <a href="https://www.wmm.com/catalog/film/neurodivergent/" target="_blank" class="poster-box" style="background-image: url('poster08.jpg');"></a>
+            <a href="https://www.oscars.org/news/meet-2022-student-academy-awards-finalists" target="_blank" class="poster-box" style="background-image: url('poster09.jpg');"></a>
+            <a href="https://mubi.com/en/us/films/taste-of-cherry-2022" target="_blank" class="poster-box" style="background-image: url('poster10.jpg');"></a>
+        </div>
+        <div id="imdb-button">
+            <a href="https://www.imdb.com/name/nm10841602/?ref_=ttfc_fc_cr16" target="_blank">
+                <img src="IMDb.jpg" alt="IMDb Profile">
+            </a>
+        </div>
+    </section>
+
+    <section id="by-the-numbers">
+        <h2>By The Numbers</h2>
+        <div class="stats-grid">
+            <div class="stat-card fade-in-element" data-target-number="700000000" data-plus="true">
+                <p class="stat-number">0M+</p>
+                <p class="stat-label">Audience Reach</p>
+                <p class="stat-summary">Music and sound design featured on primetime television (ABC's 20/20), global YouTube premieres, and massive creator channels—including a single viral reel with 30M+ views and a creator network exceeding 674M views.</p>
+            </div>
+            <div class="stat-card fade-in-element" data-target-number="250" data-plus="true">
+                <p class="stat-number">0+</p>
+                <p class="stat-label">Scores Delivered</p>
+                <p class="stat-summary">Full scores and stems delivered for feature films, short films, video games, and other media.</p>
+            </div>
+            <div class="stat-card fade-in-element" data-target-number="150" data-plus="true">
+                <p class="stat-number">0+</p>
+                <p class="stat-label">Major Network Placements</p>
+                <p class="stat-summary">Prime-Time placements on ABC, CBS, NBC, other placements on Netflix, Disney+, HBO Max, Hulu.</p>
+            </div>
+            <div class="stat-card fade-in-element" data-target-number="50" data-plus="true">
+                <p class="stat-number">0+</p>
+                <p class="stat-label">Ongoing Partnerships</p>
+                <p class="stat-summary">Collaborations from USC, NYU, and various film networks, teams, and music publishers.</p>
+            </div>
+            <div class="stat-card fade-in-element" data-target-number="10" data-plus="true">
+                <p class="stat-number">0+</p>
+                <p class="stat-label">Awards / Nominations</p>
+                <p class="stat-summary">For best original score and best original song, as well as awards for producing and project management roles.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="ClientsNew">
+        <h2>Clients & Collaborators</h2>
+        <div class="ClientsNew-icons">
+            <img src="client01.jpg" class="icon" alt="Apple Logo">
+            <img src="client02.jpg" class="icon" alt="Bleeding Fingers Music Logo">
+            <img src="client03.jpg" class="icon" alt="ABC Logo">
+            <img src="client04.jpg" class="icon" alt="Disney Logo">
+            <img src="client05.jpg" class="icon" alt="USC Logo">
+            <img src="client06.jpg" class="icon" alt="ITG Logo">
+            <img src="client07.jpg" class="icon" alt="Cenima Logo">
+            <img src="client08.jpg" class="icon" alt="Extreme Music Logo">
+            <img src="client09.jpg" class="icon" alt="Droid Mafia Logo">
+            <img src="client10.jpg" class="icon" alt="Lanport Productions Logo">
+        </div>
+    </section>
+
+    <section class="collaborator-section">
+      </section>
+
+    <section id="music">
+        <h2>Listen</h2>
+        <div class="music-player">
+            <iframe width="100%" height="600" scrolling="no" frameborder="no" src="https://play.reelcrafter.com/embed/89cfc08c-faf9-449a-9c25-e6e0d646bb9f"></iframe>
+        </div>
+    </section>
+
+    <section id="connect">
+        <h2>Connect</h2>
+        <p class="email"> <a href="mailto:scottjohnsoncomposer@gmail.com" class="email-link glow-hover">scottjohnsoncomposer@gmail.com</a></p>
+        <div class="social-icons">
+            <a href="https://www.instagram.com/scottjohnsoncomposer/" target="_blank"><img src="connect-instagram.jpg" alt="Instagram"></a>
+            <a href="https://www.facebook.com/ScottJohnsonComposer" target="_blank"><img src="connect-facebook.jpg" alt="Facebook"></a>
+            <a href="https://www.youtube.com/channel/UC-FoZLRa8sQVt_Zz0evumbA" target="_blank"><img src="connect-youtube.jpg" alt="YouTube"></a>
+            <a href="https://www.linkedin.com/in/scottjohnsoncomposer/?trk=hp-identity-edit-profile" target="_blank"><img src="connect-linkedin.jpg" alt="LinkedIn"></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 Scott Johnson Composer. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Custom Smooth Scrolling Function
+        function smoothScrollTo(targetId) {
+            const targetElement = document.querySelector(targetId);
+            if (!targetElement) return;
+
+            const startPosition = window.pageYOffset;
+            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+            const distance = targetPosition - startPosition;
+            const duration = 1200;
+            let startTime = null;
+
+            function easeInOutQuad(t, b, c, d) {
+                t /= d / 2;
+                if (t < 1) return c / 2 * t * t + b;
+                t--;
+                return -c / 2 * (t * (t - 2) - 1) + b;
+            }
+
+            function animation(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                const timeElapsed = currentTime - startTime;
+                const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
+                window.scrollTo(0, run);
+                if (timeElapsed < duration) {
+                    requestAnimationFrame(animation);
+                } else {
+                    window.scrollTo(0, targetPosition);
+                }
+            }
+            requestAnimationFrame(animation);
+        }
+
+        // Attach custom smooth scrolling to desktop navigation links
+        document.querySelectorAll('nav ul.desktop-nav li a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                smoothScrollTo(this.getAttribute('href'));
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hero text fade-in and fade-out
+            const textElement = document.getElementById('fade-text');
+            setTimeout(() => {
+                textElement.classList.add('fade-in');
+            }, 1000);
+
+            setTimeout(() => {
+                textElement.classList.remove('fade-in');
+                textElement.classList.add('fade-out');
+            }, 6000);
+
+            // Observe elements for fade-in animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const callback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                        if (entry.target.classList.contains('stat-card')) {
+                            animateCounter(entry.target);
+                        }
+                        observer.unobserve(entry.target);
+                    }
+                });
+            };
+
+            const generalObserver = new IntersectionObserver(callback, observerOptions);
+
+            document.querySelectorAll('.fade-in-element').forEach(element => {
+                generalObserver.observe(element);
+            });
+            document.querySelectorAll('.poster-box').forEach(element => {
+                generalObserver.observe(element);
+            });
+            document.querySelectorAll('.ClientsNew-icons .icon').forEach((icon, index) => {
+                icon.style.transitionDelay = `${index * 0.1}s`;
+                generalObserver.observe(icon);
+            });
+
+            // About Heading Fade In
+            const aboutHeading = document.querySelector('.about-heading');
+            const headingObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        aboutHeading.classList.add('fade-in');
+                        headingObserver.unobserve(aboutHeading);
+                    }
+                });
+            }, {
+                threshold: 0.2
+            });
+            headingObserver.observe(aboutHeading);
+
+            // Collaborator Names Staggered Fade In
+            const collaboratorNamesContainer = document.querySelector(".collaborator-section");
+            const names = document.querySelectorAll(".collaborator-names .name");
+
+            const collaboratorObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        names.forEach((name, i) => {
+                            setTimeout(() => {
+                                name.classList.add("visible");
+                            }, i * 80);
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.3
+            });
+
+            if (collaboratorNamesContainer) collaboratorObserver.observe(collaboratorNamesContainer);
+
+
+            // Number Counter Animation with Easing
+            function animateCounter(card) {
+                const numberElement = card.querySelector('.stat-number');
+                let targetNumber = parseInt(card.dataset.targetNumber);
+                const isPlus = card.dataset.plus === 'true';
+                const isMillion = targetNumber >= 1000000;
+                let startNumber = 0;
+                const duration = 4000;
+                let startTimestamp = null;
+
+                function easeOutQuart(t) {
+                    return 1 - Math.pow(1 - t, 4);
+                }
+
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = timestamp - startTimestamp;
+                    const normalizedTime = Math.min(progress / duration, 1);
+                    const easedTime = easeOutQuart(normalizedTime);
+                    const currentNumber = Math.floor(easedTime * targetNumber);
+
+                    if (isMillion) {
+                        numberElement.textContent = Math.floor(currentNumber / 1000000) + 'M+';
+                    } else {
+                        numberElement.textContent = currentNumber + (isPlus ? '+' : '');
+                    }
+
+                    if (progress < duration) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        if (isMillion) {
+                            numberElement.textContent = Math.floor(targetNumber / 1000000) + 'M+';
+                        } else {
+                            numberElement.textContent = targetNumber + (isPlus ? '+' : '');
+                        }
+                    }
+                };
+
+                window.requestAnimationFrame(step);
+            }
+
+
+            // Dynamic video text logic
+            const videoText = document.querySelector('.video-text');
+            const headerVideo = document.querySelector('.header-banner');
+
+            const textEvents = [
+                {
+                    time: 10,
+                    duration: 17,
+                    lines: ['EUROPA', 'dir. Jacqueline Elyse Rosenthal', '']
+                },
+                {
+                    time: 30,
+                    duration: 17,
+                    lines: ['COLOSSEUM', 'dir. Roel Reiné', 'As Technical Score Assistant']
+                },
+                {
+                    time: 49,
+                    duration: 11,
+                    lines: ['TASTE OF CHERRY', 'dir. Xinran Zou', '']
+                },
+                {
+                    time: 63,
+                    duration: 27,
+                    lines: ['COACHELLA 2024', 'DojaCat Livestream Outro', 'As Sound Designer']
+                },
+            ];
+
+            function updateVideoText(lines) {
+                const spans = videoText.querySelectorAll('span');
+                spans[0].textContent = lines[0];
+                spans[1].textContent = lines[1];
+                spans[2].textContent = lines[2];
+                spans.forEach(span => span.style.opacity = '1');
+            }
+
+            function clearVideoText() {
+                videoText.querySelectorAll('span').forEach(span => span.style.opacity = '0');
+            }
+
+            let currentTextEvent = null;
+
+            headerVideo.addEventListener('timeupdate', () => {
+                const currentTime = headerVideo.currentTime;
+                let foundEvent = null;
+
+                for (const event of textEvents) {
+                    if (currentTime >= event.time && currentTime < event.time + event.duration) {
+                        foundEvent = event;
+                        break;
+                    }
+                }
+
+                if (foundEvent && foundEvent !== currentTextEvent) {
+                    updateVideoText(foundEvent.lines);
+                    currentTextEvent = foundEvent;
+                } else if (!foundEvent && currentTextEvent) {
+                    clearVideoText();
+                    currentTextEvent = null;
+                }
+            });
+
+            headerVideo.addEventListener('ended', () => {
+                headerVideo.currentTime = 0;
+                headerVideo.play();
+                clearVideoText();
+                currentTextEvent = null;
+            });
+        });
+
+        // --- Mobile Menu Logic ---
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const mobileNavLinks = document.querySelectorAll('.mobile-menu-overlay ul li a');
+
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenuToggle.classList.toggle('active');
+            mobileMenuOverlay.classList.toggle('active');
+            document.body.classList.toggle('no-scroll');
+
+            if (mobileMenuOverlay.classList.contains('active')) {
+                mobileNavLinks.forEach((link, index) => {
+                    link.style.setProperty('--stagger-delay', `${index * 0.1 + 0.1}s`);
+                    link.style.opacity = '1';
+                    link.style.transform = 'translateY(0)';
+                });
+            } else {
+                mobileNavLinks.forEach(link => {
+                    link.style.transitionDelay = '0s';
+                    link.style.opacity = '0';
+                    link.style.transform = 'translateY(20px)';
+                });
+            }
+        });
+
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                smoothScrollTo(link.getAttribute('href'));
+                mobileMenuToggle.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+                document.body.classList.remove('no-scroll');
+            });
+        });
+
+        const styleSheet = document.createElement('style');
+        styleSheet.innerHTML = `
+            body.no-scroll {
+                overflow: hidden !important;
+            }
+        `;
+        document.head.appendChild(styleSheet);
+        // --- End of Mobile Menu Logic ---
+    </script>
+</body>
+
+</html>
