@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F151C">
+<title>EHF Monitor</title>
+<style>
+:root{
+  --ink:#0F151C;
+  --panel:#172029;
+  --panel-2:#1D2833;
+  --line:#26333F;
+  --text:#E2E8EF;
+  --dim:#8496A8;
+  --dimmer:#5D6E7E;
+  --right:#E8594C;
+  --left:#5AA2E8;
+  --warn:#E0A040;
+  --ok:#6FCF97;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--ink);color:var(--text)}
+body{
+  font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  min-height:100vh;
+}
+button{font-family:inherit;font-variant-numeric:inherit;color:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid #9DBBD6;outline-offset:2px
+}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
+h1{font-size:17px;font-weight:600;letter-spacing:-0.01em;margin:0}
+.sub{font-size:13px;color:var(--dim);margin:2px 0 0}
+.status-dot{font-size:12px;color:var(--dim)}
+
+/* ---------- tabs ---------- */
+nav.tabs{display:flex;gap:4px;background:var(--panel);padding:4px;border-radius:11px;margin-bottom:18px}
+nav.tabs button{
+  flex:1;border:0;background:transparent;color:var(--dim);
+  padding:9px 6px;border-radius:8px;font-size:13.5px;font-weight:500;
+}
+nav.tabs button[aria-selected="true"]{background:var(--panel-2);color:var(--text);box-shadow:0 1px 0 rgba(255,255,255,.05) inset}
+
+/* ---------- generic panel ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.panel h2{font-size:14px;font-weight:600;margin:0 0 4px}
+.panel p.note{font-size:13px;line-height:1.5;color:var(--dim);margin:0 0 12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grow{flex:1}
+
+.btn{
+  border:1px solid var(--line);background:var(--panel-2);color:var(--text);
+  padding:11px 16px;border-radius:10px;font-size:14px;font-weight:500;
+}
+.btn:hover{background:#25323E}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn.primary{background:#2C4457;border-color:#3C5F79}
+.btn.primary:hover{background:#345069}
+.btn.ghost{background:transparent}
+.btn.small{padding:7px 11px;font-size:12.5px;border-radius:8px}
+
+select,input[type=text],input[type=number]{
+  background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+  padding:8px 10px;border-radius:8px;font-size:13.5px;font-family:inherit
+}
+label.field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--dim)}
+
+/* ---------- preflight ---------- */
+ul.check{list-style:none;margin:0 0 12px;padding:0;font-size:13.5px;line-height:1.55}
+ul.check li{display:flex;gap:9px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+ul.check li:last-child{border-bottom:0}
+ul.check b{font-weight:600;color:var(--text)}
+.mark{color:var(--dimmer);flex-shrink:0;width:14px}
+.mark.ok{color:var(--ok)}
+.mark.warn{color:var(--warn)}
+
+/* ---------- test stage ---------- */
+.stage{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 16px;text-align:center;margin-bottom:14px;min-height:330px;
+  display:flex;flex-direction:column;justify-content:center;gap:18px
+}
+.stage-head{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--dim)}
+.ear-tag{font-weight:600;letter-spacing:.04em}
+.ear-tag.R{color:var(--right)}
+.ear-tag.L{color:var(--left)}
+.freq-hero{font-size:clamp(40px,13vw,62px);font-weight:250;letter-spacing:-0.03em;line-height:1}
+.freq-hero small{font-size:.34em;font-weight:400;color:var(--dim);margin-left:.25em;letter-spacing:0}
+.level-line{font-size:13px;color:var(--dim);margin-top:6px}
+
+.intervals{display:flex;gap:10px;justify-content:center}
+.iv{
+  flex:1;max-width:120px;aspect-ratio:1/1;border-radius:14px;
+  border:1px solid var(--line);background:var(--panel-2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:300;color:var(--dimmer);
+  transition:transform .08s ease,background .12s ease,border-color .12s ease,color .12s ease;
+}
+.iv.lit{background:#2E4356;border-color:#54809E;color:#fff}
+.iv.armed{color:var(--text)}
+.iv:disabled{cursor:default}
+.iv.armed:not(:disabled):hover{background:#25323E}
+.iv:active{transform:scale(.97)}
+.prompt{font-size:14.5px;color:var(--dim);min-height:20px}
+.progress{height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+.progress i{display:block;height:100%;background:#4E7FA3;width:0%;transition:width .25s ease}
+
+.verdict{font-size:15px;line-height:1.5}
+.verdict .big{display:block;font-size:30px;font-weight:300;margin-bottom:6px}
+.verdict.pass .big{color:var(--ok)}
+.verdict.recheck .big{color:var(--warn)}
+.verdict.fail .big{color:var(--right)}
+
+/* ---------- plot ---------- */
+.plot-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+svg.plot{display:block;width:100%;min-width:420px;height:auto}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--dim);margin-top:10px;flex-wrap:wrap}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+
+/* ---------- results table ---------- */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:right;padding:7px 6px;border-bottom:1px solid rgba(255,255,255,.05)}
+th{color:var(--dim);font-weight:500;font-size:11.5px}
+th:first-child,td:first-child{text-align:left}
+td.delta-better{color:var(--ok)}
+td.delta-worse{color:var(--warn)}
+
+/* ---------- grid mode ---------- */
+.freq-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);flex-wrap:wrap}
+.freq-row:last-child{border-bottom:0}
+.freq-label{width:64px;flex-shrink:0;font-size:13px;color:var(--dim)}
+.chips{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+.chip{
+  border:1px solid var(--line);background:var(--panel-2);color:var(--dim);
+  border-radius:7px;padding:7px 9px;font-size:12px;min-width:46px;
+}
+.chip.on-R{background:rgba(232,89,76,.2);border-color:var(--right);color:#fff}
+.chip.on-L{background:rgba(90,162,232,.2);border-color:var(--left);color:#fff}
+.chip.base{box-shadow:inset 0 -2px 0 var(--dimmer)}
+
+/* ---------- misc ---------- */
+.inline-warn{
+  font-size:12.5px;line-height:1.5;color:var(--warn);
+  background:rgba(224,160,64,.08);border:1px solid rgba(224,160,64,.25);
+  border-radius:9px;padding:9px 11px;margin:0 0 12px
+}
+.meter{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:8px}
+.meter i{display:block;height:100%;background:var(--ok);width:0%}
+details{font-size:13px;line-height:1.6;color:var(--dim)}
+details summary{cursor:pointer;color:var(--text);font-size:13.5px;font-weight:500;padding:4px 0}
+details p{margin:8px 0}
+.hidden{display:none !important}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <h1>EHF Monitor</h1>
+    <p class="sub">Extended high-frequency self-check, referenced to your own baseline</p>
+  </div>
+  <div class="status-dot" id="ctxInfo"></div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" id="tab-test" aria-selected="true">Test</button>
+  <button role="tab" id="tab-grid" aria-selected="false">Grid</button>
+  <button role="tab" id="tab-history" aria-selected="false">History</button>
+  <button role="tab" id="tab-setup" aria-selected="false">Setup</button>
+</nav>
+
+<!-- ============ TEST ============ -->
+<section id="view-test">
+
+  <div class="panel" id="preflight">
+    <h2>Before you start</h2>
+    <p class="note">These four things change your result more than your ears do. Keep them identical every session or the numbers aren't comparable.</p>
+    <ul class="check">
+      <li><span class="mark" id="mkRate">·</span><div><b>Output</b> <span id="rateText">tap anything to check the audio path</span></div></li>
+      <li><span class="mark" id="mkVol">·</span><div><b>System volume at maximum.</b> All level control happens in software here, so max volume is the only setting you can reproduce exactly. Turn it back down before you play music.</div></li>
+      <li><span class="mark">·</span><div><b>Headphone Accommodations off</b> (Settings &rsaquo; Accessibility &rsaquo; Audio &amp; Visual). It reshapes high frequencies and will silently move your thresholds.</div></li>
+      <li><span class="mark">·</span><div><b>Same noise-control mode and same seal.</b> Reseat the buds until they feel identical. Insertion depth alone can move 14&nbsp;kHz by 10&nbsp;dB or more.</div></li>
+    </ul>
+    <div class="row">
+      <button class="btn small" id="btnSanity">Play 1 kHz reference</button>
+      <button class="btn small ghost" id="btnNoise">Check room noise</button>
+      <span class="grow"></span>
+      <button class="btn small ghost" id="btnHidePre">Hide</button>
+    </div>
+    <div class="meter hidden" id="noiseMeter"><i></i></div>
+    <p class="note hidden" id="noiseText" style="margin-top:8px"></p>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <label class="field grow">Targets
+        <select id="selTargets"></select>
+      </label>
+      <label class="field">Noise control
+        <select id="selANC">
+          <option value="off">Off</option>
+          <option value="anc">ANC</option>
+          <option value="transparency">Transparency</option>
+        </select>
+      </label>
+      <label class="field">Tag
+        <input type="text" id="inpTag" placeholder="e.g. after bar" style="width:110px">
+      </label>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="btnSpot">Spot check</button>
+      <button class="btn" id="btnThreshold">Measure threshold</button>
+      <button class="btn ghost hidden" id="btnAbort">Stop</button>
+    </div>
+    <p class="note" id="modeHint" style="margin:10px 0 0"></p>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="stage-head">
+      <span id="stTrial">Ready</span>
+      <span class="ear-tag" id="stEar"></span>
+    </div>
+    <div>
+      <div class="freq-hero" id="stFreq">—<small>kHz</small></div>
+      <div class="level-line" id="stLevel">Pick a mode above to begin</div>
+    </div>
+    <div class="intervals" id="ivRow">
+      <button class="iv" data-i="0" disabled>1</button>
+      <button class="iv" data-i="1" disabled>2</button>
+      <button class="iv" data-i="2" disabled>3</button>
+    </div>
+    <div class="prompt" id="stPrompt">Which flash had the tone in it?</div>
+    <div class="progress"><i id="stProg"></i></div>
+  </div>
+
+  <div class="panel hidden" id="resultPanel">
+    <h2>Result</h2>
+    <div id="resultBody"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn small" id="btnSaveRun">Save to history</button>
+      <button class="btn small ghost" id="btnSetBaseline">Set as baseline</button>
+      <button class="btn small ghost" id="btnDiscard">Discard</button>
+    </div>
+  </div>
+
+  <details class="panel">
+    <summary>Why this doesn't tell you whether you have hearing loss</summary>
+    <p>Thresholds here are in dBFS — how far below your device's maximum output the tone sits. That is not dB HL. Turning dBFS into dB HL needs a transducer calibrated against a reference standard, and above 8 kHz those reference values don't exist for consumer earbuds at all.</p>
+    <p>What this <em>can</em> do is detect change in you, measured on the same hardware, under the same conditions, against your own baseline. That's the useful question anyway.</p>
+    <p>A threshold that shifts by a few dB between sessions is normal measurement scatter, mostly from earbud seal. Treat 5 dB as noise. Treat a 15 dB shift that repeats across two separate sessions as worth a clinic visit.</p>
+  </details>
+</section>
+
+<!-- ============ GRID ============ -->
+<section id="view-grid" class="hidden">
+  <div class="panel">
+    <h2>Manual grid</h2>
+    <p class="note">The original workflow: pick a level, listen, decide. Fast, but you know a tone is playing, so your expectation fills in the gap near threshold. Use it to explore; use the forced-choice test for numbers you'll compare over time.</p>
+    <div class="row">
+      <label class="field">Tone
+        <select id="gridShape">
+          <option value="pulsed">Pulsed 250 ms</option>
+          <option value="steady">Continuous</option>
+        </select>
+      </label>
+      <label class="field">Trim
+        <input type="number" id="gridTrim" value="0" step="1" min="-20" max="20" style="width:70px">
+      </label>
+      <span class="grow"></span>
+      <button class="btn small ghost" id="gridStop">Stop</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2 style="color:var(--right)">Right</h2>
+    <div id="gridR"></div>
+  </div>
+  <div class="panel">
+    <h2 style="color:var(--left)">Left</h2>
+    <div id="gridL"></div>
+  </div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section id="view-history" class="hidden">
+  <div class="panel">
+    <h2>Thresholds over time</h2>
+    <p class="note" id="histNote"></p>
+    <div class="plot-wrap"><svg class="plot" id="plot" viewBox="0 0 620 340" role="img" aria-label="Threshold plot"></svg></div>
+    <div class="legend">
+      <span><i style="background:var(--right)"></i>Right</span>
+      <span><i style="background:var(--left)"></i>Left</span>
+      <span><i style="background:var(--dimmer)"></i>Baseline</span>
+      <span>Higher on the chart = you heard it quieter</span>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Sessions</h2>
+    <div id="histTable"></div>
+  </div>
+  <div class="panel">
+    <h2>Your data</h2>
+    <p class="note" id="storeNote"></p>
+    <div class="row">
+      <button class="btn small" id="btnExport">Export JSON</button>
+      <button class="btn small ghost" id="btnImport">Import</button>
+      <button class="btn small ghost" id="btnCsv">Export CSV</button>
+      <span class="grow"></span>
+      <button class="btn small ghost" id="btnClear">Erase all</button>
+    </div>
+    <input type="file" id="fileImport" accept=".json,application/json" class="hidden">
+  </div>
+</section>
+
+<!-- ============ SETUP ============ -->
+<section id="view-setup" class="hidden">
+  <div class="panel">
+    <h2>Frequencies tested</h2>
+    <p class="note">Pick the pairs you actually watch. Fewer targets means a faster check, which matters when you're doing this standing in a bathroom.</p>
+    <div id="targetList"></div>
+    <div class="row" style="margin-top:12px">
+      <label class="field">Add
+        <select id="addFreq"></select>
+      </label>
+      <label class="field">Ear
+        <select id="addEar"><option value="R">Right</option><option value="L">Left</option></select>
+      </label>
+      <button class="btn small" id="btnAddTarget">Add target</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Baselines</h2>
+    <p class="note">A baseline is the reference your spot checks are compared against. Set it from a threshold run on a good day, in a quiet room, with a fresh seal.</p>
+    <div id="baselineList"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn small ghost" id="btnMedianBaseline">Rebuild from median of last 5 runs</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Safety ceiling</h2>
+    <p class="note">With system volume at maximum, a slip could be loud. Nothing here will exceed this level.</p>
+    <label class="field">Maximum output
+      <select id="selCeiling">
+        <option value="-20">−20 dBFS</option>
+        <option value="-25" selected>−25 dBFS</option>
+        <option value="-30">−30 dBFS</option>
+      </select>
+    </label>
+  </div>
+</section>
+
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   storage — falls back to memory if localStorage is blocked
+   ========================================================= */
+const mem = {};
+let storagePersistent = true;
+const store = {
+  get(k, d){
+    try{ const v = localStorage.getItem(k); return v===null ? (k in mem ? mem[k] : d) : JSON.parse(v); }
+    catch(e){ storagePersistent = false; return (k in mem) ? mem[k] : d; }
+  },
+  set(k, v){
+    mem[k] = v;
+    try{ localStorage.setItem(k, JSON.stringify(v)); }
+    catch(e){ storagePersistent = false; }
+  }
+};
+
+const DEFAULT_TARGETS = [
+  {f:14500, ear:'R'}, {f:14000, ear:'R'}, {f:13000, ear:'R'},
+  {f:14000, ear:'L'}, {f:13000, ear:'L'}, {f:12500, ear:'L'}
+];
+const ALL_FREQS = [8000,9000,10000,11200,12000,12500,13000,13500,14000,14500,15000,16000];
+
+let targets  = store.get('ehf.targets', DEFAULT_TARGETS);
+let baseline = store.get('ehf.baseline', {});          // "14500R" -> dBFS
+let history  = store.get('ehf.history', []);           // [{t, kind, anc, tag, results:[...], sampleRate}]
+let ceiling  = store.get('ehf.ceiling', -25);
+
+const key = t => t.f + t.ear;
+const kHz = f => (f/1000).toFixed(f%1000 ? 1 : 0);
+
+/* =========================================================
+   audio
+   ========================================================= */
+let ctx = null;
+const FLOOR = -100;
+
+function audio(){
+  if(!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if(ctx.state === 'suspended') ctx.resume();
+  return ctx;
+}
+
+/* One raised-cosine envelope for the whole burst. Abrupt gating on a
+   14 kHz sine splatters broadband energy — you end up hearing a click
+   at 2 kHz and scoring it as "heard the tone". 25 ms ramps kill that. */
+function burst({freq, dbfs, ear, when, dur=0.30, ramp=0.025}){
+  const c = audio();
+  const amp = Math.pow(10, Math.min(dbfs, ceiling)/20);
+  const osc = c.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  const g = c.createGain();
+  g.gain.value = 0;
+  const pan = c.createStereoPanner();
+  pan.pan.value = ear === 'R' ? 1 : -1;
+
+  const N = 300, env = new Float32Array(N);
+  for(let i=0;i<N;i++){
+    const t = (i/(N-1))*dur;
+    let a = 1;
+    if(t < ramp) a = 0.5*(1-Math.cos(Math.PI*t/ramp));
+    else if(t > dur-ramp) a = 0.5*(1-Math.cos(Math.PI*(dur-t)/ramp));
+    env[i] = amp*a;
+  }
+  env[0] = 0; env[N-1] = 0;
+  g.gain.setValueCurveAtTime(env, when, dur);
+
+  osc.connect(g); g.connect(pan); pan.connect(c.destination);
+  osc.start(when);
+  osc.stop(when + dur + 0.05);
+  return osc;
+}
+
+let steady = null;
+function steadyTone(freq, dbfs, ear){
+  stopSteady();
+  const c = audio();
+  const amp = Math.pow(10, Math.min(dbfs, ceiling)/20);
+  const osc = c.createOscillator();
+  osc.type='sine'; osc.frequency.value = freq;
+  const g = c.createGain(); g.gain.value = 0;
+  g.gain.linearRampToValueAtTime(amp, c.currentTime + 0.04);
+  const pan = c.createStereoPanner(); pan.pan.value = ear==='R'?1:-1;
+  osc.connect(g); g.connect(pan); pan.connect(c.destination);
+  osc.start();
+  steady = {osc, g};
+}
+function stopSteady(){
+  if(!steady) return;
+  const {osc, g} = steady; steady = null;
+  const c = audio();
+  g.gain.cancelScheduledValues(c.currentTime);
+  g.gain.setValueAtTime(g.gain.value, c.currentTime);
+  g.gain.linearRampToValueAtTime(0, c.currentTime + 0.04);
+  setTimeout(()=>{ try{osc.stop();osc.disconnect();g.disconnect();}catch(e){} }, 120);
+}
+
+/* =========================================================
+   preflight
+   ========================================================= */
+const $ = id => document.getElementById(id);
+
+function reportContext(){
+  const c = audio();
+  const sr = c.sampleRate;
+  $('ctxInfo').textContent = (sr/1000).toFixed(1) + ' kHz';
+  const mk = $('mkRate');
+  if(sr < 32000){
+    mk.textContent = '!'; mk.className = 'mark warn';
+    $('rateText').textContent = 'sample rate is ' + sr + ' Hz — too low to reproduce these tones. Anything above about ' + Math.floor(sr/2/1000) + ' kHz is not being played at all.';
+  } else {
+    mk.textContent = '✓'; mk.className = 'mark ok';
+    $('rateText').textContent = 'running at ' + (sr/1000).toFixed(1) + ' kHz, which reaches ' + (sr/2000).toFixed(0) + ' kHz. Good.';
+  }
+}
+
+$('btnSanity').addEventListener('click', ()=>{
+  reportContext();
+  const c = audio(), t = c.currentTime + 0.1;
+  burst({freq:1000, dbfs:-40, ear:'R', when:t, dur:0.35});
+  burst({freq:1000, dbfs:-40, ear:'L', when:t+0.55, dur:0.35});
+  $('mkVol').textContent = '✓'; $('mkVol').className='mark ok';
+});
+
+$('btnHidePre').addEventListener('click', ()=> $('preflight').classList.add('hidden'));
+
+/* room noise — relative, uncalibrated, but tells you if a hand dryer
+   is masking the thing you're trying to hear */
+$('btnNoise').addEventListener('click', async ()=>{
+  const txt = $('noiseText'), meter = $('noiseMeter');
+  txt.classList.remove('hidden'); meter.classList.remove('hidden');
+  txt.textContent = 'Listening…';
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:{
+      echoCancellation:false, noiseSuppression:false, autoGainControl:false
+    }});
+    const c = audio();
+    const src = c.createMediaStreamSource(stream);
+    const an = c.createAnalyser();
+    an.fftSize = 4096; an.smoothingTimeConstant = 0.6;
+    src.connect(an);
+    const buf = new Float32Array(an.frequencyBinCount);
+    const binHz = c.sampleRate / an.fftSize;
+    const lo = Math.floor(10000/binHz), hi = Math.min(Math.floor(16000/binHz), an.frequencyBinCount-1);
+    let peak = -140, n = 0;
+    const tick = ()=>{
+      an.getFloatFrequencyData(buf);
+      let sum = 0, ct = 0;
+      for(let i=lo;i<=hi;i++){ sum += Math.pow(10, buf[i]/10); ct++; }
+      const db = 10*Math.log10(sum/Math.max(ct,1));
+      peak = Math.max(peak, db);
+      const pct = Math.max(0, Math.min(100, (db + 110) / 60 * 100));
+      meter.firstElementChild.style.width = pct + '%';
+      if(++n < 90) requestAnimationFrame(tick);
+      else {
+        stream.getTracks().forEach(t=>t.stop());
+        const quiet = peak < -78;
+        meter.firstElementChild.style.background = quiet ? 'var(--ok)' : 'var(--warn)';
+        txt.textContent = quiet
+          ? 'Quiet enough in the 10–16 kHz band. Results should be trustworthy.'
+          : 'There is real energy up in the 10–16 kHz band here — fans, dryers, electronics. That masks the tones and will make your thresholds look worse than they are. This is the single most common reason a bathroom check reads low.';
+      }
+    };
+    tick();
+  }catch(e){
+    txt.textContent = 'Microphone unavailable. Needs HTTPS and permission.';
+    meter.classList.add('hidden');
+  }
+});
+
+/* =========================================================
+   3AFC adaptive staircase
+   ========================================================= */
+function Staircase(startDb){
+  this.level = startDb;
+  this.dir = 0;             // -1 going quieter, +1 going louder
+  this.correctRun = 0;
+  this.reversals = [];
+  this.trials = 0;
+  this.done = false;
+  this.atFloor = 0;
+}
+Staircase.prototype.step = function(){
+  const r = this.reversals.length;
+  return r < 2 ? 8 : (r < 4 ? 4 : 2);
+};
+Staircase.prototype.respond = function(correct){
+  this.trials++;
+  let move = 0;
+  if(correct){
+    this.correctRun++;
+    if(this.correctRun >= 2){ move = -1; this.correctRun = 0; }   // 2-down
+  } else {
+    this.correctRun = 0;
+    move = +1;                                                    // 1-up
+  }
+  if(move !== 0){
+    if(this.dir !== 0 && move !== this.dir) this.reversals.push(this.level);
+    this.dir = move;
+    this.level += move * this.step();
+    if(this.level < FLOOR){ this.level = FLOOR; this.atFloor++; }
+    if(this.level > ceiling){ this.level = ceiling; }
+  }
+  if(this.reversals.length >= 8 || this.trials >= 45 || this.atFloor >= 4) this.done = true;
+};
+Staircase.prototype.threshold = function(){
+  const r = this.reversals;
+  if(r.length < 2) return null;
+  const use = r.slice(-6);
+  return use.reduce((a,b)=>a+b,0)/use.length;
+};
+Staircase.prototype.spread = function(){
+  const use = this.reversals.slice(-6);
+  if(use.length < 3) return null;
+  const m = use.reduce((a,b)=>a+b,0)/use.length;
+  return Math.sqrt(use.reduce((a,b)=>a+(b-m)*(b-m),0)/use.length);
+};
+
+/* =========================================================
+   test runner
+   ========================================================= */
+const IV_DUR = 0.30, IV_GAP = 0.28, LEAD = 0.45;
+let run = null;           // active run state
+let awaiting = null;      // resolver for the current answer
+
+function setStage({trial, ear, freq, level, prompt, prog}){
+  if(trial !== undefined) $('stTrial').textContent = trial;
+  if(ear !== undefined){ $('stEar').textContent = ear==='R'?'Right':'Left'; $('stEar').className = 'ear-tag ' + ear; }
+  if(freq !== undefined) $('stFreq').innerHTML = kHz(freq) + '<small>kHz</small>';
+  if(level !== undefined) $('stLevel').textContent = level;
+  if(prompt !== undefined) $('stPrompt').textContent = prompt;
+  if(prog !== undefined) $('stProg').style.width = Math.round(prog*100) + '%';
+}
+
+function armIntervals(on){
+  document.querySelectorAll('.iv').forEach(b=>{
+    b.disabled = !on;
+    b.classList.toggle('armed', on);
+    b.classList.remove('lit');
+  });
+}
+
+function presentTrial(freq, ear, dbfs){
+  return new Promise(resolve=>{
+    const c = audio();
+    const target = Math.floor(Math.random()*3);
+    const t0 = c.currentTime + LEAD;
+    armIntervals(false);
+    setStage({prompt:'Listen'});
+
+    for(let i=0;i<3;i++){
+      const when = t0 + i*(IV_DUR + IV_GAP);
+      if(i === target) burst({freq, dbfs, ear, when, dur:IV_DUR});
+      const delay = (when - c.currentTime)*1000;
+      setTimeout(()=>{
+        const el = document.querySelector('.iv[data-i="'+i+'"]');
+        if(!el) return;
+        el.classList.add('lit');
+        setTimeout(()=>el.classList.remove('lit'), IV_DUR*1000);
+      }, Math.max(0, delay));
+    }
+
+    const total = (LEAD + 3*IV_DUR + 2*IV_GAP)*1000 + 60;
+    setTimeout(()=>{
+      if(!run){ resolve(false); return; }
+      armIntervals(true);
+      setStage({prompt:'Which one had the tone? (1 / 2 / 3)'});
+      awaiting = pick => { awaiting = null; armIntervals(false); resolve(pick === target); };
+    }, total);
+  });
+}
+
+document.querySelectorAll('.iv').forEach(b=>{
+  b.addEventListener('click', ()=>{ if(awaiting) awaiting(parseInt(b.dataset.i,10)); });
+});
+document.addEventListener('keydown', e=>{
+  if(!awaiting) return;
+  if(e.key==='1'||e.key==='2'||e.key==='3') awaiting(parseInt(e.key,10)-1);
+});
+
+function activeTargets(){
+  const v = $('selTargets').value;
+  if(v === 'all') return targets.slice();
+  return targets.filter(t => key(t) === v);
+}
+
+async function runSpot(){
+  const list = activeTargets().filter(t => baseline[key(t)] !== undefined);
+  if(!list.length){
+    alert('No baseline yet for these targets. Run "Measure threshold" first, then save it as your baseline.');
+    return;
+  }
+  startRun('spot');
+  const results = [];
+  const TRIALS = 4, OFFSET = 5;
+  let n = 0, total = list.length*TRIALS;
+  for(const t of list){
+    const lvl = baseline[key(t)] + OFFSET;
+    let hits = 0;
+    setStage({ear:t.ear, freq:t.f, level:'Testing at ' + lvl.toFixed(1) + ' dBFS (baseline + ' + OFFSET + ')'});
+    for(let i=0;i<TRIALS;i++){
+      if(!run) return;
+      setStage({trial:'Trial ' + (n+1) + ' of ' + total, prog:n/total});
+      const ok = await presentTrial(t.f, t.ear, lvl);
+      if(!run) return;
+      if(ok) hits++;
+      n++;
+    }
+    results.push({f:t.f, ear:t.ear, level:lvl, hits, trials:TRIALS});
+  }
+  finishRun('spot', results);
+}
+
+async function runThreshold(){
+  const list = activeTargets();
+  startRun('threshold');
+  const results = [];
+  for(const t of list){
+    const b = baseline[key(t)];
+    const start = (b !== undefined) ? Math.min(b + 14, ceiling) : -45;
+    const sc = new Staircase(start);
+    setStage({ear:t.ear, freq:t.f});
+    while(!sc.done){
+      if(!run) return;
+      setStage({
+        trial: 'Reversal ' + sc.reversals.length + ' of 8',
+        level: sc.level.toFixed(0) + ' dBFS' + (sc.level <= FLOOR+1 ? ' — at the floor' : ''),
+        prog: Math.min(sc.reversals.length/8, sc.trials/45)
+      });
+      const ok = await presentTrial(t.f, t.ear, sc.level);
+      if(!run) return;
+      sc.respond(ok);
+    }
+    results.push({
+      f:t.f, ear:t.ear,
+      threshold: sc.threshold(),
+      spread: sc.spread(),
+      trials: sc.trials,
+      floored: sc.atFloor >= 4
+    });
+  }
+  finishRun('threshold', results);
+}
+
+function startRun(kind){
+  run = {kind, started:Date.now()};
+  $('btnSpot').disabled = true;
+  $('btnThreshold').disabled = true;
+  $('btnAbort').classList.remove('hidden');
+  $('resultPanel').classList.add('hidden');
+  reportContext();
+  if(navigator.wakeLock) navigator.wakeLock.request('screen').then(l=>{ run && (run.lock = l); }).catch(()=>{});
+}
+
+function endRunUI(){
+  if(run && run.lock){ try{ run.lock.release(); }catch(e){} }
+  run = null; awaiting = null;
+  armIntervals(false);
+  $('btnSpot').disabled = false;
+  $('btnThreshold').disabled = false;
+  $('btnAbort').classList.add('hidden');
+  setStage({trial:'Ready', prog:0, prompt:'Which flash had the tone in it?'});
+}
+
+$('btnAbort').addEventListener('click', ()=>{
+  endRunUI();
+  setStage({level:'Stopped. Nothing saved.'});
+});
+
+let pendingRun = null;
+
+function finishRun(kind, results){
+  pendingRun = {
+    t: Date.now(),
+    kind,
+    anc: $('selANC').value,
+    tag: $('inpTag').value.trim(),
+    sampleRate: ctx ? ctx.sampleRate : null,
+    ceiling,
+    results
+  };
+  endRunUI();
+  renderResult(pendingRun);
+}
+
+function renderResult(r){
+  const p = $('resultPanel'); p.classList.remove('hidden');
+  const body = $('resultBody');
+  if(r.kind === 'spot'){
+    const worst = Math.min(...r.results.map(x=>x.hits));
+    const cls = worst === 4 ? 'pass' : (worst === 3 ? 'recheck' : 'fail');
+    const head = worst === 4 ? 'No change'
+               : worst === 3 ? 'Borderline'
+               : 'Below baseline';
+    const msg = worst === 4
+      ? 'You picked the right interval every time at 5 dB above your baseline. Guessing that well has about a 1 in 80 chance.'
+      : worst === 3
+        ? 'One miss. That happens on a perfectly normal ear — usually a seal that shifted. Reseat the buds and run it again, or measure a full threshold.'
+        : 'You missed more than one interval at a level you normally hear. Most often this is seal or room noise, not your ears. Re-seat, check the room noise, and repeat before reading anything into it.';
+    let rows = '<table><tr><th>Target</th><th>Level</th><th>Correct</th></tr>';
+    r.results.forEach(x=>{
+      rows += '<tr><td>' + kHz(x.f) + ' kHz ' + x.ear + '</td><td>' + x.level.toFixed(1) + '</td><td>' + x.hits + ' / ' + x.trials + '</td></tr>';
+    });
+    rows += '</table>';
+    body.innerHTML = '<div class="verdict ' + cls + '"><span class="big">' + head + '</span>' + msg + '</div>' + rows;
+    $('btnSetBaseline').classList.add('hidden');
+  } else {
+    let rows = '<table><tr><th>Target</th><th>Threshold</th><th>Baseline</th><th>Change</th><th>Scatter</th></tr>';
+    let anyFloor = false;
+    r.results.forEach(x=>{
+      const b = baseline[x.f + x.ear];
+      const th = x.threshold;
+      let dCell = '<td>—</td>';
+      if(b !== undefined && th !== null){
+        const d = th - b;   // positive = needed it louder = worse
+        const cls = d > 0 ? 'delta-worse' : 'delta-better';
+        dCell = '<td class="' + cls + '">' + (d>0?'+':'') + d.toFixed(1) + ' dB</td>';
+      }
+      if(x.floored) anyFloor = true;
+      rows += '<tr><td>' + kHz(x.f) + ' kHz ' + x.ear + '</td>' +
+              '<td>' + (th===null?'—':th.toFixed(1)) + '</td>' +
+              '<td>' + (b===undefined?'—':b.toFixed(1)) + '</td>' + dCell +
+              '<td>' + (x.spread===null?'—':'±'+x.spread.toFixed(1)) + '</td></tr>';
+    });
+    rows += '</table>';
+    let notes = '<p class="note" style="margin-top:12px">Scatter above about ±4 dB means the staircase never settled — usually a shifting seal or background noise. Re-run before trusting it.</p>';
+    if(anyFloor) notes += '<p class="inline-warn" style="margin-top:10px">One target hit the output floor: you were still hearing it at the quietest level this device can produce cleanly. The true threshold is below what can be measured here, which is a good problem to have.</p>';
+    body.innerHTML = rows + notes;
+    $('btnSetBaseline').classList.remove('hidden');
+  }
+}
+
+$('btnSaveRun').addEventListener('click', ()=>{
+  if(!pendingRun) return;
+  history.push(pendingRun);
+  store.set('ehf.history', history);
+  pendingRun = null;
+  $('resultPanel').classList.add('hidden');
+  renderHistory();
+  setStage({level:'Saved.'});
+});
+$('btnDiscard').addEventListener('click', ()=>{
+  pendingRun = null;
+  $('resultPanel').classList.add('hidden');
+});
+$('btnSetBaseline').addEventListener('click', ()=>{
+  if(!pendingRun) return;
+  pendingRun.results.forEach(x=>{
+    if(x.threshold !== null && x.threshold !== undefined) baseline[x.f + x.ear] = x.threshold;
+  });
+  store.set('ehf.baseline', baseline);
+  history.push(pendingRun); store.set('ehf.history', history);
+  pendingRun = null;
+  $('resultPanel').classList.add('hidden');
+  renderBaselines(); renderHistory();
+  setStage({level:'Baseline updated and run saved.'});
+});
+
+$('btnSpot').addEventListener('click', runSpot);
+$('btnThreshold').addEventListener('click', runThreshold);
+
+/* =========================================================
+   target / baseline UI
+   ========================================================= */
+function renderTargetSelect(){
+  const s = $('selTargets');
+  s.innerHTML = '<option value="all">All targets (' + targets.length + ')</option>';
+  targets.forEach(t=>{
+    const o = document.createElement('option');
+    o.value = key(t);
+    o.textContent = kHz(t.f) + ' kHz · ' + (t.ear==='R'?'Right':'Left') +
+      (baseline[key(t)]!==undefined ? '  (base ' + baseline[key(t)].toFixed(0) + ')' : '  (no baseline)');
+    s.appendChild(o);
+  });
+  updateHint();
+}
+function updateHint(){
+  const list = activeTargets();
+  const withBase = list.filter(t=>baseline[key(t)]!==undefined).length;
+  $('modeHint').textContent =
+    'Spot check: 4 forced-choice trials per target at 5 dB above baseline — about ' +
+    Math.round(list.length*4*1.5) + ' seconds, pass or fail only. ' +
+    'Measure threshold: an adaptive staircase, 1–2 minutes per target, gives you a number. ' +
+    (withBase < list.length ? (list.length - withBase) + ' of these targets has no baseline yet.' : '');
+}
+$('selTargets').addEventListener('change', updateHint);
+
+function renderTargetList(){
+  const d = $('targetList');
+  d.innerHTML = '';
+  targets.forEach((t,i)=>{
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.style.padding = '6px 0';
+    row.innerHTML = '<span class="grow" style="font-size:13.5px">' + kHz(t.f) + ' kHz · ' + (t.ear==='R'?'Right':'Left') + '</span>';
+    const b = document.createElement('button');
+    b.className = 'btn small ghost'; b.textContent = 'Remove';
+    b.addEventListener('click', ()=>{
+      targets.splice(i,1); store.set('ehf.targets', targets);
+      renderTargetList(); renderTargetSelect(); renderBaselines();
+    });
+    row.appendChild(b);
+    d.appendChild(row);
+  });
+  if(!targets.length) d.innerHTML = '<p class="note">No targets. Add at least one below.</p>';
+}
+(function fillAddFreq(){
+  const s = $('addFreq');
+  ALL_FREQS.forEach(f=>{
+    const o = document.createElement('option'); o.value = f; o.textContent = kHz(f) + ' kHz';
+    s.appendChild(o);
+  });
+  s.value = 14000;
+})();
+$('btnAddTarget').addEventListener('click', ()=>{
+  const t = {f: parseInt($('addFreq').value,10), ear: $('addEar').value};
+  if(targets.some(x=>key(x)===key(t))) return;
+  targets.push(t);
+  targets.sort((a,b)=> a.ear===b.ear ? b.f-a.f : (a.ear<b.ear?1:-1));
+  store.set('ehf.targets', targets);
+  renderTargetList(); renderTargetSelect(); renderBaselines();
+});
+
+function renderBaselines(){
+  const d = $('baselineList'); d.innerHTML = '';
+  targets.forEach(t=>{
+    const k = key(t);
+    const row = document.createElement('div');
+    row.className = 'row'; row.style.padding = '6px 0';
+    const v = baseline[k];
+    row.innerHTML = '<span class="grow" style="font-size:13.5px">' + kHz(t.f) + ' kHz · ' + t.ear +
+      '</span><span style="font-size:13px;color:var(--dim)">' + (v===undefined ? 'not set' : v.toFixed(1) + ' dBFS') + '</span>';
+    if(v!==undefined){
+      const b = document.createElement('button');
+      b.className='btn small ghost'; b.textContent='Clear';
+      b.addEventListener('click', ()=>{ delete baseline[k]; store.set('ehf.baseline', baseline); renderBaselines(); renderTargetSelect(); });
+      row.appendChild(b);
+    }
+    d.appendChild(row);
+  });
+}
+$('btnMedianBaseline').addEventListener('click', ()=>{
+  const runs = history.filter(h=>h.kind==='threshold').slice(-5);
+  if(!runs.length){ alert('No threshold runs saved yet.'); return; }
+  const buckets = {};
+  runs.forEach(h=>h.results.forEach(x=>{
+    if(x.threshold===null||x.threshold===undefined) return;
+    (buckets[x.f+x.ear] = buckets[x.f+x.ear] || []).push(x.threshold);
+  }));
+  Object.keys(buckets).forEach(k=>{
+    const a = buckets[k].sort((x,y)=>x-y);
+    baseline[k] = a[Math.floor(a.length/2)];
+  });
+  store.set('ehf.baseline', baseline);
+  renderBaselines(); renderTargetSelect();
+});
+
+$('selCeiling').value = String(ceiling);
+$('selCeiling').addEventListener('change', e=>{
+  ceiling = parseFloat(e.target.value);
+  store.set('ehf.ceiling', ceiling);
+});
+
+/* =========================================================
+   grid mode
+   ========================================================= */
+const GRID = {
+  R:[{f:14500,lo:-56,hi:-31},{f:14000,lo:-66,hi:-41},{f:13500,lo:-66,hi:-41},{f:13000,lo:-66,hi:-41}],
+  L:[{f:14000,lo:-43,hi:-33},{f:13500,lo:-50,hi:-40},{f:13000,lo:-66,hi:-44},{f:12500,lo:-74,hi:-54},{f:12000,lo:-74,hi:-54}]
+};
+let gridActive = null;
+
+function buildGrid(ear, mount){
+  const host = $(mount); host.innerHTML = '';
+  GRID[ear].forEach(g=>{
+    const row = document.createElement('div'); row.className = 'freq-row';
+    const lab = document.createElement('div'); lab.className='freq-label'; lab.textContent = kHz(g.f)+' kHz';
+    const chips = document.createElement('div'); chips.className='chips';
+    for(let db=g.hi; db>=g.lo; db--){
+      const c = document.createElement('button');
+      c.className = 'chip'; c.textContent = db;
+      c.dataset.f = g.f; c.dataset.db = db; c.dataset.ear = ear;
+      const b = baseline[g.f+ear];
+      if(b!==undefined && Math.abs(b-db) < 0.5) c.classList.add('base');
+      c.addEventListener('click', ()=>toggleChip(c));
+      chips.appendChild(c);
+    }
+    row.appendChild(lab); row.appendChild(chips); host.appendChild(row);
+  });
+}
+
+let gridTimer = null;
+function toggleChip(c){
+  if(gridActive === c){ stopGrid(); return; }
+  stopGrid();
+  gridActive = c;
+  c.classList.add('on-' + c.dataset.ear);
+  const f = parseFloat(c.dataset.f);
+  const db = parseFloat(c.dataset.db) + parseFloat($('gridTrim').value || 0);
+  const ear = c.dataset.ear;
+  if($('gridShape').value === 'steady'){
+    steadyTone(f, db, ear);
+  } else {
+    const fire = ()=>{ burst({freq:f, dbfs:db, ear, when: audio().currentTime + 0.05, dur:0.30}); };
+    fire();
+    gridTimer = setInterval(fire, 700);
+  }
+}
+function stopGrid(){
+  stopSteady();
+  if(gridTimer){ clearInterval(gridTimer); gridTimer = null; }
+  if(gridActive){ gridActive.classList.remove('on-R','on-L'); gridActive = null; }
+}
+$('gridStop').addEventListener('click', stopGrid);
+$('gridShape').addEventListener('change', ()=>{ const a = gridActive; stopGrid(); if(a) toggleChip(a); });
+$('gridTrim').addEventListener('change', ()=>{ const a = gridActive; stopGrid(); if(a) toggleChip(a); });
+
+/* =========================================================
+   history + plot
+   ========================================================= */
+function renderHistory(){
+  const thr = history.filter(h=>h.kind==='threshold');
+  $('histNote').textContent = thr.length
+    ? thr.length + ' threshold session' + (thr.length===1?'':'s') + ' recorded. Points above the dashed baseline mean you heard the tone at a quieter level than your reference.'
+    : 'No threshold sessions yet. Run one and save it to start the chart.';
+  $('storeNote').textContent = storagePersistent
+    ? 'Saved in this browser only, on this device. Export a copy if it matters to you.'
+    : 'This browser is blocking local storage, so history will vanish when you close the tab. Export before you leave.';
+  drawPlot(thr);
+  drawTable();
+}
+
+function drawPlot(thr){
+  const svg = $('plot');
+  const W = 620, H = 340, L = 46, R = 14, T = 16, B = 34;
+  const freqs = targets.map(t=>t.f).filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>a-b);
+  if(!freqs.length){ svg.innerHTML = ''; return; }
+  const yMin = -100, yMax = -20;                      // top of chart = quietest
+  const x = i => L + (freqs.length===1 ? (W-L-R)/2 : i*(W-L-R)/(freqs.length-1));
+  const y = db => T + (db - yMin)/(yMax - yMin) * (H-T-B);   // -100 at top
+
+  let s = '';
+  for(let db=-100; db<=-20; db+=10){
+    const yy = y(db);
+    s += '<line x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+'" y2="'+yy+'" stroke="#26333F" stroke-width="1"/>';
+    s += '<text x="'+(L-8)+'" y="'+(yy+4)+'" fill="#5D6E7E" font-size="10" text-anchor="end">'+db+'</text>';
+  }
+  freqs.forEach((f,i)=>{
+    s += '<line x1="'+x(i)+'" y1="'+T+'" x2="'+x(i)+'" y2="'+(H-B)+'" stroke="#1E2933" stroke-width="1"/>';
+    s += '<text x="'+x(i)+'" y="'+(H-B+18)+'" fill="#8496A8" font-size="11" text-anchor="middle">'+kHz(f)+'</text>';
+  });
+  s += '<text x="'+(L-8)+'" y="'+(T-4)+'" fill="#5D6E7E" font-size="9" text-anchor="end">dBFS</text>';
+
+  ['R','L'].forEach(ear=>{
+    const col = ear==='R' ? '#E8594C' : '#5AA2E8';
+    const pts = [];
+    freqs.forEach((f,i)=>{ const b = baseline[f+ear]; if(b!==undefined) pts.push([x(i), y(b)]); });
+    if(pts.length>1){
+      s += '<polyline points="'+pts.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="#5D6E7E" stroke-width="1.5" stroke-dasharray="4 4"/>';
+    }
+    pts.forEach(p=>{ s += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.5" fill="#5D6E7E"/>'; });
+
+    const recent = thr.slice(-6);
+    recent.forEach((h,hi)=>{
+      const age = (recent.length - hi);
+      const op = Math.max(0.18, 1 - (age-1)*0.22);
+      const rp = [];
+      freqs.forEach((f,i)=>{
+        const m = h.results.find(z=>z.f===f && z.ear===ear && z.threshold!==null && z.threshold!==undefined);
+        if(m) rp.push([x(i), y(m.threshold)]);
+      });
+      if(rp.length>1) s += '<polyline points="'+rp.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="'+col+'" stroke-width="'+(age===1?2:1)+'" opacity="'+op+'"/>';
+      rp.forEach(p=>{
+        s += ear==='R'
+          ? '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(age===1?5:3.5)+'" fill="none" stroke="'+col+'" stroke-width="1.8" opacity="'+op+'"/>'
+          : '<g opacity="'+op+'" stroke="'+col+'" stroke-width="1.8"><line x1="'+(p[0]-4)+'" y1="'+(p[1]-4)+'" x2="'+(p[0]+4)+'" y2="'+(p[1]+4)+'"/><line x1="'+(p[0]-4)+'" y1="'+(p[1]+4)+'" x2="'+(p[0]+4)+'" y2="'+(p[1]-4)+'"/></g>';
+      });
+    });
+  });
+  svg.innerHTML = s;
+}
+
+function drawTable(){
+  const d = $('histTable');
+  if(!history.length){ d.innerHTML = '<p class="note">Nothing saved yet.</p>'; return; }
+  let s = '<table><tr><th>When</th><th>Type</th><th>Mode</th><th>Tag</th><th>Summary</th><th></th></tr>';
+  history.slice().reverse().forEach((h, ri)=>{
+    const idx = history.length-1-ri;
+    const when = new Date(h.t).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+    let sum;
+    if(h.kind==='spot'){
+      const worst = Math.min(...h.results.map(x=>x.hits));
+      sum = h.results.map(x=>kHz(x.f)+x.ear+' '+x.hits+'/'+x.trials).join(', ');
+      sum = (worst===4?'pass — ':'') + sum;
+    } else {
+      sum = h.results.map(x=>{
+        const b = baseline[x.f+x.ear];
+        const th = x.threshold;
+        if(th===null||th===undefined) return kHz(x.f)+x.ear+' —';
+        const d2 = b===undefined ? '' : ' ('+((th-b)>0?'+':'')+(th-b).toFixed(0)+')';
+        return kHz(x.f)+x.ear+' '+th.toFixed(0)+d2;
+      }).join(', ');
+    }
+    s += '<tr><td>'+when+'</td><td>'+h.kind+'</td><td>'+(h.anc||'—')+'</td><td>'+(h.tag||'—')+'</td><td>'+sum+'</td>'+
+         '<td><button class="btn small ghost" data-del="'+idx+'">×</button></td></tr>';
+  });
+  s += '</table>';
+  d.innerHTML = s;
+  d.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', ()=>{
+    history.splice(parseInt(b.dataset.del,10),1);
+    store.set('ehf.history', history);
+    renderHistory();
+  }));
+}
+
+/* export / import */
+function download(name, text, type){
+  const blob = new Blob([text], {type});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+$('btnExport').addEventListener('click', ()=>{
+  download('ehf-'+new Date().toISOString().slice(0,10)+'.json',
+    JSON.stringify({version:2, targets, baseline, history}, null, 2), 'application/json');
+});
+$('btnCsv').addEventListener('click', ()=>{
+  let rows = [['timestamp','kind','noise_mode','tag','sample_rate','freq_hz','ear','threshold_dbfs','spread_db','level_dbfs','hits','trials','baseline_dbfs']];
+  history.forEach(h=>h.results.forEach(x=>rows.push([
+    new Date(h.t).toISOString(), h.kind, h.anc||'', h.tag||'', h.sampleRate||'',
+    x.f, x.ear,
+    x.threshold===null||x.threshold===undefined?'':x.threshold.toFixed(2),
+    x.spread===null||x.spread===undefined?'':x.spread.toFixed(2),
+    x.level===undefined?'':x.level.toFixed(2),
+    x.hits===undefined?'':x.hits, x.trials===undefined?'':x.trials,
+    baseline[x.f+x.ear]===undefined?'':baseline[x.f+x.ear].toFixed(2)
+  ])));
+  download('ehf-'+new Date().toISOString().slice(0,10)+'.csv',
+    rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n'), 'text/csv');
+});
+$('btnImport').addEventListener('click', ()=> $('fileImport').click());
+$('fileImport').addEventListener('change', e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = ()=>{
+    try{
+      const d = JSON.parse(rd.result);
+      if(d.targets) { targets = d.targets; store.set('ehf.targets', targets); }
+      if(d.baseline){ baseline = d.baseline; store.set('ehf.baseline', baseline); }
+      if(d.history) { history = d.history; store.set('ehf.history', history); }
+      renderAll();
+    }catch(err){ alert("That file isn't a valid export."); }
+  };
+  rd.readAsText(f);
+  e.target.value = '';
+});
+$('btnClear').addEventListener('click', ()=>{
+  if(!confirm('Erase all baselines and history on this device? Export first if you want a copy.')) return;
+  targets = DEFAULT_TARGETS.slice(); baseline = {}; history = [];
+  store.set('ehf.targets', targets); store.set('ehf.baseline', baseline); store.set('ehf.history', history);
+  renderAll();
+});
+
+/* =========================================================
+   tabs
+   ========================================================= */
+const VIEWS = {test:'view-test', grid:'view-grid', history:'view-history', setup:'view-setup'};
+Object.keys(VIEWS).forEach(name=>{
+  $('tab-'+name).addEventListener('click', ()=>{
+    Object.keys(VIEWS).forEach(n=>{
+      $('view-'+n).classList.toggle('hidden', n!==name);
+      $('tab-'+n).setAttribute('aria-selected', String(n===name));
+    });
+    if(name !== 'grid') stopGrid();
+    if(name === 'history') renderHistory();
+  });
+});
+
+/* =========================================================
+   init
+   ========================================================= */
+function renderAll(){
+  renderTargetSelect();
+  renderTargetList();
+  renderBaselines();
+  buildGrid('R','gridR');
+  buildGrid('L','gridL');
+  renderHistory();
+}
+renderAll();
+window.addEventListener('pagehide', ()=>{ stopGrid(); });
+</script>
+</body>
+</html>
