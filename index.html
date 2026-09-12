@@ -160,6 +160,26 @@
             background: radial-gradient(circle, rgba(226, 59, 59, 0.09), transparent 65%);
             animation: drift-a 74s ease-in-out infinite alternate-reverse;
         }
+        /* ---- MOBILE: static ambient ----
+           Four 500px-wide layers with a 90px blur, animating forever, are
+           cheap on a desktop GPU and brutal on a phone — Safari rasterises
+           them on the main thread and everything else waits. Phones get the
+           same look painted as plain gradients: no blur, no animation. */
+        @media (max-width: 900px), (pointer: coarse) {
+            #ambient i { display: none; }
+            #ambient {
+                opacity: 0.85;
+                background:
+                    radial-gradient(58vmax 58vmax at 6% 6%,   rgba(226, 59, 59, 0.13), transparent 62%),
+                    radial-gradient(54vmax 54vmax at 96% 38%, rgba(72, 104, 168, 0.12), transparent 62%),
+                    radial-gradient(46vmax 46vmax at 44% 96%, rgba(226, 59, 59, 0.09), transparent 62%);
+            }
+            .masthead.is-stuck {
+                backdrop-filter: none; -webkit-backdrop-filter: none;
+                background: rgba(8, 9, 12, 0.94);
+            }
+        }
+
         @keyframes drift-a {
             from { transform: translate3d(0, 0, 0) scale(1); }
             to   { transform: translate3d(6vw, 7vh, 0) scale(1.14); }
