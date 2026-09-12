@@ -261,7 +261,8 @@
            ============================================================ */
         .hero {
             position: relative; z-index: 5; min-height: 100svh;
-            display: grid; align-items: center;
+            display: grid; grid-template-rows: 1fr auto;
+            align-items: center;
             padding: 0 var(--gutter) 40px;
             overflow: hidden;
         }
@@ -331,8 +332,7 @@
         }
 
         .hero-foot {
-            position: absolute; z-index: 2;
-            left: var(--gutter); right: var(--gutter); bottom: 40px;
+            position: relative; z-index: 2;
             display: flex; align-items: flex-end; justify-content: space-between;
             gap: 24px; flex-wrap: wrap;
             opacity: 0;
@@ -832,10 +832,21 @@
                On a narrow screen the video is cropped harder at the sides, so
                the flare sits lower relative to the title. Raise or lower this
                single number until the red rules meet it. Positive = down. */
-            .hero-plate { --hero-lift: 26px; }
+            /* keep the name on a single line — it's a title card, not a stack */
+            .hero-plate h1 {
+                white-space: nowrap;
+                font-size: 6.2vw;
+                letter-spacing: 0.14em; text-indent: 0.14em;
+            }
             /* tighter tracking and shorter rules keep the role line unbroken */
             .hero-role { gap: 10px; letter-spacing: 0.14em; text-indent: 0.14em; }
             .hero-role::before, .hero-role::after { width: clamp(16px, 5vw, 40px); }
+
+            /* ---- LENS FLARE ALIGNMENT (mobile only) ----
+               This is the ONLY number to touch. It shifts the whole title
+               block without changing anything else. Bigger = moves down
+               toward the flare, negative = moves up. Desktop is unaffected. */
+            .hero-plate { --hero-lift: 18px; }
             .scroll-cue i { height: 30px; }
             .cue { grid-template-columns: 32px minmax(0, 1fr) 50px; gap: 10px; }
             .cue-src { display: none; }
@@ -1058,7 +1069,7 @@
         <div class="festival rise">
             <figure class="festival-reel">
                 <span class="muted-tag ui">Silent</span>
-                <video autoplay muted loop playsinline preload="metadata" poster="festival-poster.jpg" aria-label="Scott Johnson being interviewed at a film festival">
+                <video muted loop playsinline preload="none" poster="festival-poster.jpg" aria-label="Scott Johnson being interviewed at a film festival">
                     <source src="festival-interview.mp4" type="video/mp4">
                 </video>
                 <figcaption>Festival press interview.</figcaption>
@@ -1150,16 +1161,16 @@
    "src" is the path, "film" is the project it came from.
    Delete or add entries freely — the list builds itself. */
 const CUES = [
-    { title: 'Aurora (feat. Esther Zhou)',         film: 'ABC',                          src: 'audio/01-aurora.m4a' },
-    { title: 'Our Kingdom Falls (feat. Hannah Hart)',         film: 'Bleeding Fingers Music',          src: 'audio/02-OurKingdomFalls.m4a' },
-    { title: 'No Two Alike',   film: '',   src: 'audio/03-NoTwoAreAlike.m4a' },
+    { title: 'Aurora (feat. Esther Zhou)',         film: 'ABC',                          src: 'audio/01-aurora.wav' },
+    { title: 'Our Kingdom Falls (feat. Hannah Hart)',         film: 'Bleeding Fingers Music',          src: 'audio/02-OurKingdomFalls.wav' },
+    { title: 'No Two Alike',   film: '',   src: 'audio/03-NoTwoAreAlike.wav' },
     { title: 'Early Acheivers', film: 'Spot dir. Emily Kim',         src: 'audio/EarlyAchievers.m4a' },
-    { title: 'Outside The Box', film: 'ABC',       src: 'audio/04-outsidethebox.m4a' },
-    { title: 'One More Test', film: 'ABC',         src: 'audio/onemoretest.m4a' },
-    { title: 'Cerebral Killer', film: 'ABC',         src: 'audio/05-CerebralKiller.m4a' },
-    { title: 'Algorithm',       film: 'ABC',  src: 'audio/06-Algorithm.m4a' },
-    { title: 'Tropical Mile',    film: 'Bleeding Fingers Music',         src: 'audio/TropicalMile.m4a' },
-    { title: 'Up The Mountain',    film: '',                   src: 'audio/Up The Mountain.m4a' },
+    { title: 'Outside The Box', film: 'ABC',       src: 'audio/04-outsidethebox.mp3' },
+    { title: 'One More Test', film: 'ABC',         src: 'audio/onemoretest.wav' },
+    { title: 'Cerebral Killer', film: 'ABC',         src: 'audio/05-CerebralKiller.wav' },
+    { title: 'Algorithm',       film: 'ABC',  src: 'audio/06-Algorithm.wav' },
+    { title: 'Tropical Mile',    film: 'Bleeding Fingers Music',         src: 'audio/TropicalMile.wav' },
+    { title: 'Up The Mountain',    film: '',                   src: 'audio/Up The Mountain.mp3' },
 ];
 
 /* Scored-to-picture spots. "id" is the bit after v= in the YouTube URL.
