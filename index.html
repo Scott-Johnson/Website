@@ -269,6 +269,7 @@
         .hero-reel {
             position: absolute; inset: 0; width: 100%; height: 100%;
             object-fit: cover; z-index: 0;
+            opacity: 0; transition: opacity 1.4s var(--ease);
             filter: brightness(0.42) saturate(0.85) contrast(1.08);
             /* dissolve the video's own edges instead of covering them with a
                solid gradient — the ambient fields stay visible underneath */
@@ -281,6 +282,8 @@
             -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent 98%);
             mask-image: linear-gradient(to bottom, #000 50%, transparent 98%);
         }
+
+        .hero-reel.is-rolling { opacity: 1; }
 
         .hero-plate {
             position: relative; z-index: 2; align-self: center;
@@ -1070,7 +1073,7 @@
             <figure class="festival-reel">
                 <span class="muted-tag ui">Silent</span>
                 <video muted loop playsinline preload="none" poster="festival-poster.jpg" aria-label="Scott Johnson being interviewed at a film festival">
-                    <source src="festival-interview.mp4" type="video/mp4">
+                    <source src="festival-web.mp4" type="video/mp4">
                 </video>
                 <figcaption>Festival press interview.</figcaption>
             </figure>
@@ -1206,7 +1209,7 @@ const REEL_CARDS = [
 /* Hero video. If you export a smaller, shorter-side version for phones,
    put its filename in "mobile" — it's the single biggest mobile speed win.
    If you'd rather not, set both to the same file. */
-const HERO_VIDEO = { desktop: 'header.mp4', mobile: 'header.mp4' };
+const HERO_VIDEO = { desktop: 'header.mp4', mobile: 'header-mobile.mp4' };
 
 const SMOOTH_SCROLL = true;   // set false to fall back to native scrolling
 
@@ -1441,15 +1444,23 @@ document.getElementById('cue-count').textContent = CUES.length + ' selected cues
 (function () {
     const reel = document.querySelector('.hero-reel');
     if (reel) {
-        // pick the source in JS so phones never start downloading the large cut
-        const src = window.matchMedia('(max-width: 760px)').matches
-            ? HERO_VIDEO.mobile : HERO_VIDEO.desktop;
-        const node = document.createElement('source');
-        node.src = src;
-        node.type = 'video/mp4';
-        reel.appendChild(node);
-        reel.load();
-        reel.play().catch(() => {});
+        // Pick the source in JS so phones never fetch the large cut, and don't
+        // attach it until everything else has finished. The browser's progress
+        // bar counts the video, so starting it late makes the page read as
+        // loaded in a fraction of the time.
+        const startReel = () => {
+            const src = window.matchMedia('(max-width: 760px)').matches
+                ? HERO_VIDEO.mobile : HERO_VIDEO.desktop;
+            const node = document.createElement('source');
+            node.src = src;
+            node.type = 'video/mp4';
+            reel.appendChild(node);
+            reel.load();
+            reel.play().catch(() => {});
+        };
+        reel.addEventListener('playing', () => reel.classList.add('is-rolling'), { once: true });
+        if (document.readyState === 'complete') startReel();
+        else window.addEventListener('load', startReel, { once: true });
     }
     const caption = document.getElementById('reel-caption');
     const filmEl = document.getElementById('reel-title');
