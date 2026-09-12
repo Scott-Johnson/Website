@@ -62,7 +62,7 @@
 
         *, *::before, *::after { box-sizing: border-box; }
 
-        html { -webkit-text-size-adjust: 100%; }
+        html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
 
         body {
             margin: 0;
@@ -72,7 +72,7 @@
             font-size: clamp(1.02rem, 0.4vw + 0.95rem, 1.14rem);
             font-weight: 300;
             line-height: 1.75;
-            overflow-x: hidden;
+            overflow-x: clip;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -132,6 +132,7 @@
         #ambient {
             position: fixed; inset: 0; z-index: 0;
             pointer-events: none;
+            overflow: hidden;          /* orbs must not widen the page */
             opacity: 0.55;
         }
         #ambient i {
@@ -260,8 +261,7 @@
            ============================================================ */
         .hero {
             position: relative; z-index: 5; min-height: 100svh;
-            display: grid; grid-template-rows: 1fr auto;
-            align-items: center;
+            display: grid; align-items: center;
             padding: 0 var(--gutter) 40px;
             overflow: hidden;
         }
@@ -284,6 +284,9 @@
         .hero-plate {
             position: relative; z-index: 2; align-self: center;
             max-width: 1100px; margin-inline: auto; text-align: center;
+            /* nudge the title block up or down to line the red rules up with
+               the lens flare in header.mp4 — see the media queries below */
+            transform: translateY(var(--hero-lift, 0px));
         }
 
         .hero-plate h1 {
@@ -328,7 +331,8 @@
         }
 
         .hero-foot {
-            position: relative; z-index: 2;
+            position: absolute; z-index: 2;
+            left: var(--gutter); right: var(--gutter); bottom: 40px;
             display: flex; align-items: flex-end; justify-content: space-between;
             gap: 24px; flex-wrap: wrap;
             opacity: 0;
@@ -821,8 +825,17 @@
             .nav-links { display: none; }
             .burger { display: block; }
             .work { grid-template-columns: repeat(2, 1fr); }
-            .roster { grid-template-columns: repeat(3, 1fr); }
+            /* two across leaves five even rows — three would orphan the tenth */
+            .roster { grid-template-columns: repeat(2, 1fr); }
             .hero-foot { align-items: flex-start; flex-direction: column-reverse; }
+            /* ---- LENS FLARE ALIGNMENT ----
+               On a narrow screen the video is cropped harder at the sides, so
+               the flare sits lower relative to the title. Raise or lower this
+               single number until the red rules meet it. Positive = down. */
+            .hero-plate { --hero-lift: 26px; }
+            /* tighter tracking and shorter rules keep the role line unbroken */
+            .hero-role { gap: 10px; letter-spacing: 0.14em; text-indent: 0.14em; }
+            .hero-role::before, .hero-role::after { width: clamp(16px, 5vw, 40px); }
             .scroll-cue i { height: 30px; }
             .cue { grid-template-columns: 32px minmax(0, 1fr) 50px; gap: 10px; }
             .cue-src { display: none; }
@@ -882,13 +895,11 @@
 
     <!-- ============================ HERO ============================ -->
     <section class="hero" id="top">
-        <video class="hero-reel" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-            <source src="header.mp4" type="video/mp4">
-        </video>
+        <video class="hero-reel" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
 
         <div class="hero-plate">
             <h1><span>Scott</span> <span>Johnson</span></h1>
-            <p class="hero-role ui">Film Composer &middot; Los Angeles</p>
+            <p class="hero-role ui"><span>Film&nbsp;Composer</span>&nbsp;&middot;&nbsp;<span>Los&nbsp;Angeles</span></p>
         </div>
 
         <div class="hero-foot">
@@ -987,7 +998,7 @@
                         <svg viewBox="0 0 24 24"><path d="M7 6h2.5v12H7zM19 6v12l-9-6z"/></svg>
                     </button>
                     <button class="tbtn primary" id="play" aria-label="Play">
-                        <svg id="play-icon" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>
+                        <svg viewBox="0 0 24 24"><path id="play-icon" d="M7 4.5v15l13-7.5z"/></svg>
                     </button>
                     <button class="tbtn" id="next" aria-label="Next cue">
                         <svg viewBox="0 0 24 24"><path d="M14.5 6H17v12h-2.5zM5 6l9 6-9 6z"/></svg>
@@ -1116,7 +1127,7 @@
     <div class="dock" id="dock" aria-hidden="true">
         <div class="dock-rail"><i id="dock-rail-fill"></i></div>
         <button class="tbtn primary" id="dock-play" aria-label="Play">
-            <svg id="dock-icon" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>
+            <svg viewBox="0 0 24 24"><path id="dock-icon" d="M7 4.5v15l13-7.5z"/></svg>
         </button>
         <button class="tbtn" id="dock-next" aria-label="Next cue">
             <svg viewBox="0 0 24 24"><path d="M14.5 6H17v12h-2.5zM5 6l9 6-9 6z"/></svg>
@@ -1139,16 +1150,16 @@
    "src" is the path, "film" is the project it came from.
    Delete or add entries freely — the list builds itself. */
 const CUES = [
-    { title: 'Aurora (feat. Esther Zhou)',         film: 'ABC',                          src: 'audio/01-aurora.wav' },
-    { title: 'Our Kingdom Falls (feat. Hannah Hart)',         film: 'Bleeding Fingers Music',          src: 'audio/02-OurKingdomFalls.wav' },
-    { title: 'No Two Alike',   film: '',   src: 'audio/03-NoTwoAreAlike.wav' },
+    { title: 'Aurora (feat. Esther Zhou)',         film: 'ABC',                          src: 'audio/01-aurora.m4a' },
+    { title: 'Our Kingdom Falls (feat. Hannah Hart)',         film: 'Bleeding Fingers Music',          src: 'audio/02-OurKingdomFalls.m4a' },
+    { title: 'No Two Alike',   film: '',   src: 'audio/03-NoTwoAreAlike.m4a' },
     { title: 'Early Acheivers', film: 'Spot dir. Emily Kim',         src: 'audio/EarlyAchievers.m4a' },
-    { title: 'Outside The Box', film: 'ABC',       src: 'audio/04-outsidethebox.mp3' },
-    { title: 'One More Test', film: 'ABC',         src: 'audio/onemoretest.wav' },
-    { title: 'Cerebral Killer', film: 'ABC',         src: 'audio/05-CerebralKiller.wav' },
-    { title: 'Algorithm',       film: 'ABC',  src: 'audio/06-Algorithm.wav' },
-    { title: 'Tropical Mile',    film: 'Bleeding Fingers Music',         src: 'audio/TropicalMile.wav' },
-    { title: 'Up The Mountain',    film: '',                   src: 'audio/Up The Mountain.mp3' },
+    { title: 'Outside The Box', film: 'ABC',       src: 'audio/04-outsidethebox.m4a' },
+    { title: 'One More Test', film: 'ABC',         src: 'audio/onemoretest.m4a' },
+    { title: 'Cerebral Killer', film: 'ABC',         src: 'audio/05-CerebralKiller.m4a' },
+    { title: 'Algorithm',       film: 'ABC',  src: 'audio/06-Algorithm.m4a' },
+    { title: 'Tropical Mile',    film: 'Bleeding Fingers Music',         src: 'audio/TropicalMile.m4a' },
+    { title: 'Up The Mountain',    film: '',                   src: 'audio/Up The Mountain.m4a' },
 ];
 
 /* Scored-to-picture spots. "id" is the bit after v= in the YouTube URL.
@@ -1180,6 +1191,11 @@ const REEL_CARDS = [
     { at: 30, hold: 17, film: 'Colosseum',       credit: 'dir. Roel Rein\u00e9' },
     { at: 49, hold: 11, film: 'Taste of Cherry', credit: 'dir. Xinran Zou' }
 ];
+
+/* Hero video. If you export a smaller, shorter-side version for phones,
+   put its filename in "mobile" — it's the single biggest mobile speed win.
+   If you'd rather not, set both to the same file. */
+const HERO_VIDEO = { desktop: 'header.mp4', mobile: 'header.mp4' };
 
 const SMOOTH_SCROLL = true;   // set false to fall back to native scrolling
 
@@ -1413,6 +1429,17 @@ document.getElementById('cue-count').textContent = CUES.length + ' selected cues
    ================================================================ */
 (function () {
     const reel = document.querySelector('.hero-reel');
+    if (reel) {
+        // pick the source in JS so phones never start downloading the large cut
+        const src = window.matchMedia('(max-width: 760px)').matches
+            ? HERO_VIDEO.mobile : HERO_VIDEO.desktop;
+        const node = document.createElement('source');
+        node.src = src;
+        node.type = 'video/mp4';
+        reel.appendChild(node);
+        reel.load();
+        reel.play().catch(() => {});
+    }
     const caption = document.getElementById('reel-caption');
     const filmEl = document.getElementById('reel-title');
     const credEl = document.getElementById('reel-credit');
@@ -1512,21 +1539,30 @@ document.getElementById('cue-count').textContent = CUES.length + ' selected cues
         load(i, true);
     });
 
-    // read durations quietly in the background
-    CUES.forEach((cue, i) => {
-        const probe = new Audio();
-        probe.preload = 'metadata';
-        probe.src = cue.src;
-        probe.addEventListener('loadedmetadata', () => {
-            cue.length = probe.duration;
-            const cell = list.querySelector(`[data-len="${i}"]`);
-            if (cell) cell.textContent = clock(probe.duration);
+    // Read durations, but not until the player is nearly on screen — on a
+    // phone this is nine separate network requests we don't need at load.
+    let probed = false;
+    function readDurations() {
+        if (probed) return;
+        probed = true;
+        CUES.forEach((cue, i) => {
+            const probe = new Audio();
+            probe.preload = 'metadata';
+            probe.src = cue.src;
+            probe.addEventListener('loadedmetadata', () => {
+                cue.length = probe.duration;
+                const cell = list.querySelector(`[data-len="${i}"]`);
+                if (cell) cell.textContent = clock(probe.duration);
+            });
+            probe.addEventListener('error', () => {
+                const cell = list.querySelector(`[data-len="${i}"]`);
+                if (cell) cell.textContent = '';
+            });
         });
-        probe.addEventListener('error', () => {
-            const cell = list.querySelector(`[data-len="${i}"]`);
-            if (cell) cell.textContent = '';
-        });
-    });
+    }
+    new IntersectionObserver((entries, obs) => {
+        if (entries[0].isIntersecting) { readDurations(); obs.disconnect(); }
+    }, { rootMargin: '600px' }).observe(document.getElementById('listen'));
 
     /* ---------- waveform ---------- */
     function sizeCanvas() {
@@ -1552,6 +1588,13 @@ document.getElementById('cue-count').textContent = CUES.length + ' selected cues
 
     async function buildPeaks(url) {
         if (peakCache[url]) return peakCache[url];
+        // Building a real waveform means downloading the whole file. That's
+        // fine on a desktop and expensive on a phone, so skip it there and
+        // let the drawn placeholder stand in.
+        const conn = navigator.connection || {};
+        const thrifty = window.innerWidth < 760 || conn.saveData ||
+                        /2g|slow-2g/.test(conn.effectiveType || '');
+        if (thrifty) return null;
         try {
             const AC = window.AudioContext || window.webkitAudioContext;
             const tmp = new AC();
@@ -1655,7 +1698,6 @@ document.getElementById('cue-count').textContent = CUES.length + ' selected cues
         const loading = index;
         peaks = null;
         draw();
-        buildPeaks(cue.src).then((p) => { if (index === loading) { peaks = p; draw(); } });
 
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
@@ -1668,6 +1710,15 @@ document.getElementById('cue-count').textContent = CUES.length + ' selected cues
             if (ac && ac.state === 'suspended') await ac.resume();
             audio.play().catch(() => { stateEl.textContent = 'Unavailable'; });
         }
+
+        // Only now go after the waveform. Building it downloads the whole
+        // file a second time, so it must never compete with playback for
+        // bandwidth — that is what made tracks slow to start.
+        const startPeaks = () => {
+            buildPeaks(cue.src).then((p) => { if (index === loading) { peaks = p; draw(); } });
+        };
+        if (autoplay) audio.addEventListener('playing', startPeaks, { once: true });
+        else startPeaks();
     }
 
     function toggle() {
