@@ -667,8 +667,13 @@
         .plate {
             position: relative; display: block; aspect-ratio: 2 / 3;
             overflow: hidden; text-decoration: none;
-            background: var(--ink-raised) center/cover no-repeat;
+            background: var(--ink-raised);
             transition: transform 0.55s var(--ease);
+        }
+        /* real <img> rather than a CSS background, so loading="lazy" applies */
+        .plate img {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            object-fit: cover; display: block;
         }
         .plate::after {
             content: ''; position: absolute; inset: 0;
@@ -1072,7 +1077,7 @@
         <div class="festival rise">
             <figure class="festival-reel">
                 <span class="muted-tag ui">Silent</span>
-                <video muted loop playsinline preload="none" poster="festival-poster.jpg" aria-label="Scott Johnson being interviewed at a film festival">
+                <video muted loop playsinline preload="none" aria-label="Scott Johnson being interviewed at a film festival">
                     <source src="festival-web.mp4" type="video/mp4">
                 </video>
                 <figcaption>Festival press interview.</figcaption>
@@ -1292,8 +1297,9 @@ const SMOOTH_SCROLL = true;   // set false to fall back to native scrolling
    ================================================================ */
 document.getElementById('work-grid').innerHTML = WORK.map((w, i) => `
     <a class="plate rise" href="${w.url}" target="_blank" rel="noopener"
-       style="background-image:url('${w.img}'); transition-delay:${Math.min(i * 45, 320)}ms"
+       style="transition-delay:${Math.min(i * 45, 320)}ms"
        aria-label="${w.label}">
+        <img src="${w.img}" alt="" loading="lazy" decoding="async">
         <b>${w.label}</b>
     </a>`).join('');
 
