@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Song Titles</title>
+<!--
+  Song title voting page.
+  To share votes, paste the Google Apps Script URL into SCRIPT_URL below.
+  If SCRIPT_URL is empty it still works, but only saves in your own browser.
+-->
+<style>
+:root{
+  --bg:#fafaf8; --card:#fff; --line:#e4e4e0; --line2:#cfcfca;
+  --text:#191919; --muted:#707070; --faint:#a0a0a0;
+  --hl:#fff3b0; --final:#dff3e4; --green:#18864b; --red:#c8402f; --pink:#d63c5a;
+  --on:#191919; --onText:#fff;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#141414; --card:#1c1c1c; --line:#2d2d2d; --line2:#424242;
+    --text:#e8e8e8; --muted:#9a9a9a; --faint:#666;
+    --hl:#3b3514; --final:#173020; --green:#5cc98a; --red:#ec6b5f; --pink:#f0708a;
+    --on:#e8e8e8; --onText:#141414;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 Helvetica,Arial,sans-serif}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+a,.link{color:var(--muted);text-decoration:underline;font-size:13px}
+.link:hover{color:var(--text)}
+.wrap{max-width:780px;margin:0 auto;padding:30px 16px 60px}
+
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:10px 20px;border-bottom:2px solid var(--text);padding-bottom:12px}
+h1{font-size:28px;margin:0;letter-spacing:-.5px}
+h1 small{font-size:15px;font-weight:normal;color:var(--muted);letter-spacing:0;margin-left:6px}
+.me{font-size:13px;color:var(--muted)}
+.me button{margin-left:4px;padding:3px 7px;border:1px solid var(--line2);border-radius:4px;font-weight:bold;font-size:13px;color:var(--muted)}
+.me button.on{background:var(--pc);border-color:var(--pc);color:#fff}
+#sync{font-size:12px;color:var(--faint);margin-left:8px}
+#sync.error{color:var(--red)}
+.note-bar{font-size:13px;background:var(--hl);padding:6px 10px;margin-top:12px;border-radius:3px}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:16px 0;font-size:13px;color:var(--muted)}
+.toolbar button{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
+.toolbar button.on{color:var(--text);font-weight:bold;text-decoration:none}
+.toolbar label{display:flex;gap:5px;align-items:center;cursor:pointer;margin-left:auto}
+
+.song{background:var(--card);border:1px solid var(--line);border-radius:6px;margin-bottom:14px;scroll-margin-top:10px}
+.song.st-locked{border-color:var(--green)}
+.shead{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.snum{font-weight:bold;color:var(--faint);min-width:22px}
+.stitle{flex:1;min-width:0}
+.stitle .t{font-size:17px;font-weight:bold}
+.song.st-locked .stitle .t{color:var(--green)}
+.stitle .m{font-size:12px;color:var(--muted)}
+.status{border:1px solid var(--line2);background:var(--card);border-radius:4px;padding:3px 4px;font-size:13px;color:var(--muted)}
+.status.leaning{color:#b26b00;border-color:#d9a24a}
+.status.locked{color:var(--green);border-color:var(--green)}
+
+.group{font-size:12px;color:var(--muted);padding:8px 12px 2px;font-weight:bold}
+.opt{border-top:1px solid var(--line)}
+.group + .opt{border-top:0}
+.opt.fr .otitle span.t{background:var(--hl);padding:0 3px;margin-left:-3px;border-radius:2px}
+.opt.final .otitle span.t{background:var(--final);padding:0 3px;margin-left:-3px;border-radius:2px}
+.opt.fr .otitle,.opt.final .otitle{font-weight:bold}
+.orow{display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:10px;padding:6px 12px}
+.otitle{font-size:15px;min-width:0}
+.lead{font-size:12px;font-weight:normal;color:var(--muted);margin-left:6px}
+.ometa{font-size:12px;color:var(--muted)}
+.ometa .lv{color:var(--pink)} .ometa .no{color:var(--red)}
+.score{font-weight:bold;font-size:14px;min-width:26px;text-align:right;color:var(--faint)}
+.score.pos{color:var(--text)} .score.neg{color:var(--red)}
+.vote{display:inline-flex}
+.vote button{padding:3px 8px;font-size:12.5px;border:1px solid var(--line2);margin-left:-1px;color:var(--muted);background:var(--card)}
+.vote button:first-child{border-radius:4px 0 0 4px;margin-left:0}
+.vote button:last-child{border-radius:0 4px 4px 0}
+.vote button:hover{color:var(--text)}
+.vote button.on{background:var(--on);color:var(--onText);border-color:var(--on);position:relative}
+.vote .v-love.on{background:var(--pink);border-color:var(--pink);color:#fff}
+.vote .v-no.on{background:var(--red);border-color:var(--red);color:#fff}
+.nbtn{font-size:12.5px;color:var(--faint);text-decoration:underline;min-width:46px;text-align:right}
+.nbtn.has{color:var(--text)}
+
+.notes{padding:2px 12px 10px 34px;font-size:13.5px}
+.notes .n{padding:3px 0}
+.notes .n b{color:var(--pc)}
+.notes .n small{color:var(--faint);margin-left:6px}
+.notes .n small button{text-decoration:underline;color:var(--faint);font-size:12px}
+.empty{font-size:13px;color:var(--faint);margin:4px 0}
+form.f{display:flex;gap:6px;margin-top:6px}
+form.f input,form.f textarea{flex:1;min-width:0;border:1px solid var(--line2);border-radius:4px;padding:6px 8px;background:var(--card);font-size:14px;resize:none}
+.btn{border:1px solid var(--line2);border-radius:4px;padding:5px 10px;font-size:13px;background:var(--card)}
+.btn.dark{background:var(--on);color:var(--onText);border-color:var(--on)}
+.more{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+.sfoot{padding:7px 12px;border-top:1px solid var(--line);font-size:13px;display:flex;flex-direction:column;gap:6px}
+.sfoot .links{display:flex;gap:14px;flex-wrap:wrap}
+.removed div{display:flex;justify-content:space-between;color:var(--faint)}
+.nothing{padding:30px;text-align:center;color:var(--faint)}
+.lock-ic{width:13px;height:13px;display:inline-block;vertical-align:-1px;margin-right:4px}
+.foot{font-size:12.5px;color:var(--faint);margin-top:20px}
+
+.gate{max-width:300px;margin:18vh auto 0;padding:0 16px;text-align:center}
+.gate h1{margin-bottom:4px}
+.gate p{color:var(--muted);margin:0 0 18px}
+.gate .me button{font-size:16px;padding:8px 12px;margin:0 3px}
+.gate .btn{width:100%;padding:9px;margin-top:22px}
+.gate .err{color:var(--red);font-size:13px;margin-top:10px}
+
+@media (max-width:600px){
+  .wrap{padding:20px 12px 50px}
+  .orow{grid-template-columns:1fr auto;row-gap:5px}
+  .orow .vote{grid-column:1}
+  .orow .nbtn{grid-column:2}
+  .vote button{padding:5px 10px}
+  .toolbar label{margin-left:0}
+}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function () {
+'use strict';
+
+/* ============================ SETTINGS ============================ */
+const ALBUM_NAME = 'SEEK LOVE DESTROY';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzb_XKHuD0mLRc6RRcU1qgXMEfGj5RJN248L_Q2rlT6OS00JlIV-1QxwE5cUOVYGBr/exec';   // paste your Google Apps Script web app URL here
+
+const PEOPLE = [
+  { id: 'SJ', color: '#d9822b' },
+  { id: 'BH', color: '#2a9d8f' },
+  { id: 'MM', color: '#d1495b' },
+  { id: 'NG', color: '#6c5ce7' },
+];
+
+// Starting title options per track. New ideas are best added on the page itself.
+const TRACKS = [
+  ['Free, Like a Bird'],
+  ["Classy (She's Got It)", 'Classy', 'Show for Two'],
+  ['Show for Two', 'My Favorite Tune', 'Quiet Nights', 'With Every Chord', 'Golden Hour', 'Golden Waves'],
+  ['Endless Sea', 'An Endless Sea', 'Sinking Through an Endless Sea', 'Sinking Through Your Endless Sea', 'Sinking Through'],
+  ['Into the Shadows', 'Battle for Control', 'Into the Shadows of Control'],
+  ['This Way', 'Guiding River', 'Turn to Light'],
+  ['I Will Fly'],
+  ['Feel Again'],
+  ["Pretender's Paradise"],
+  ['A Magical Journey Through the Unraveling Cycle', 'The Crave for ___ ___ _ ___ __', 'The Escape', 'The Wander Away From', 'The Wanderer and the Journey Through the Unraveling Cycle'],
+  ['Alone', 'The Burn', 'The Battle Part II', 'The Battle for ___', 'Consuming Control', 'Surrendering Control', 'Battle of ___ and ___'],
+  ['Never Enough', 'New Kind of Love', 'Scorching of the Sun'],
+  ['The Rebirth of Everything', 'The Eyes That Open a Second Time'],
+  ['Mi Amor, I Am Nothing at All!', "Mi Amor, I'm Sorry, I Cannot Feel Again!"],
+  ['Turn to Light', 'Turned to Light', 'Absorbed by Light', 'I Am the Guiding Light', 'Guide the River', 'Turn to Guiding Light', 'Let Go into the Light', 'Light Connects All', 'I Have Become the Light'],
+  ['A Message from the Cosmos', 'A Message from the Stars', 'A Message the Universe', 'Flight Through the Stars', 'Discovering the Cosmos', 'Where?', 'Where Now?', 'Drift', 'Discovering the Key', 'Discovering the Energy', 'You Are a Part of This Now', 'The Thread', 'Discovering the Thread'],
+  ["Beyond the Mind's Cave", "The Love Beyond the Mind's Cave"],
+  ['The Final Ascent', 'Never Enough', 'The Final Ascend, The Final Burn', 'The Final Burn', 'The Final Ascent Into Smoke', 'The Final Ascent, Into the Fire', 'Ascending into the Fire', 'Ascending Into Fire'],
+  ['The State That Remains', 'Free, As What Is', 'Free, The State That Remains'],
+];
+/* ================================================================== */
+
+const REACTIONS = [
+  { v: 'no',   label: 'No',   pts: -1 },
+  { v: 'okay', label: 'Okay', pts: 0 },
+  { v: 'like', label: 'Like', pts: 1 },
+  { v: 'love', label: 'Love', pts: 2 },
+];
+const PTS = {}; REACTIONS.forEach(r => PTS[r.v] = r.pts);
+const LABEL = {}; REACTIONS.forEach(r => LABEL[r.v] = r.label);
+const PICK_PTS = 0;
+const STATUS = [
+  { v: 'open', label: 'Wide open' },
+  { v: 'leaning', label: 'Leaning' },
+  { v: 'locked', label: 'Locked' },
+];
+const POLL_MS = 15000;
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('tt:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('tt:' + k, JSON.stringify(v)); } catch (e) {} },
+};
+
+let me = store.get('me', null);
+let serverEvents = store.get('events', []);
+let pending = store.get('pending', []);
+const ui = Object.assign({ open: [], notes: [], filter: 'all', showHidden: [], songNotes: [], peek: [], adding: [], topOnly: false }, store.get('ui', {}));
+const sync = { state: SCRIPT_URL ? 'idle' : 'local', at: 0, busy: false, error: '' };
+let gatePick = me;
+let gateError = '';
+
+const app = document.getElementById('app');
+const saveUI = () => store.set('ui', ui);
+const toggleIn = (arr, v) => { const i = arr.indexOf(v); i < 0 ? arr.push(v) : arr.splice(i, 1); };
+const person = id => PEOPLE.find(p => p.id === id) || { id, color: '#a39a8d' };
+const pad = n => String(n).padStart(2, '0');
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const seedId = (n, text) => 's' + n + '-' + slug(text);
+const fmtScore = n => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n);
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function ago(t) {
+  const s = (Date.now() - new Date(t).getTime()) / 1000;
+  if (!isFinite(s)) return '';
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  if (s < 86400 * 7) return Math.floor(s / 86400) + 'd ago';
+  return new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+const LOCK = '<svg class="lock-ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
+const CHEV = '<svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4l4 4-4 4"/></svg>';
+
+/* ---------- data ---------- */
+function allEvents() {
+  const seen = new Set(), out = [];
+  serverEvents.concat(pending).forEach(e => { if (e && e.id && !seen.has(e.id)) { seen.add(e.id); out.push(e); } });
+  out.sort((a, b) => (a.time < b.time ? -1 : a.time > b.time ? 1 : a.id < b.id ? -1 : 1));
+  return out;
+}
+
+function reduce(events) {
+  const S = { titles: {}, order: [], votes: {}, picks: {}, status: {}, notes: [], labels: {} };
+  TRACKS.forEach((list, i) => list.forEach(text => {
+    const id = seedId(i + 1, text);
+    if (!S.titles[id]) { S.titles[id] = { id, track: i + 1, text, who: '', hidden: false }; S.order.push(id); }
+  }));
+  events.forEach(e => {
+    const track = parseInt(e.track, 10);
+    switch (e.type) {
+      case 'add':
+        if (!S.titles[e.titleId] && track && e.text) { S.titles[e.titleId] = { id: e.titleId, track, text: e.text, who: e.who, hidden: false }; S.order.push(e.titleId); }
+        break;
+      case 'vote':
+        S.votes[e.titleId] = S.votes[e.titleId] || {};
+        if (PTS[e.value] !== undefined) S.votes[e.titleId][e.who] = e.value; else delete S.votes[e.titleId][e.who];
+        break;
+      case 'pick':
+        S.picks[track] = S.picks[track] || {};
+        if (e.titleId) S.picks[track][e.who] = e.titleId; else delete S.picks[track][e.who];
+        break;
+      case 'status': S.status[track] = { value: e.value, titleId: e.titleId, who: e.who, time: e.time }; break;
+      case 'note': S.notes.push({ id: e.id, track, titleId: e.titleId, who: e.who, time: e.time, text: e.text }); break;
+      case 'unnote': S.notes = S.notes.filter(n => !(n.id === e.value && n.who === e.who)); break;
+      case 'hide': if (S.titles[e.titleId]) S.titles[e.titleId].hidden = e.value === '1'; break;
+      case 'label': S.labels[track] = e.text; break;
+    }
+  });
+  return S;
+}
+
+function trackView(S, n) {
+  const all = S.order.map(id => S.titles[id]).filter(t => t.track === n);
+  const picks = S.picks[n] || {};
+  const status = S.status[n] || { value: 'open' };
+  const lockedId = status.value === 'locked' ? status.titleId : null;
+  const titles = all.filter(t => !t.hidden).map((t, idx) => {
+    const votes = S.votes[t.id] || {};
+    const pickers = PEOPLE.filter(p => picks[p.id] === t.id).map(p => p.id);
+    let score = pickers.length * PICK_PTS;
+    Object.keys(votes).forEach(p => score += PTS[votes[p]] || 0);
+    return Object.assign({}, t, { votes, pickers, score, idx, rated: Object.keys(votes).length });
+  });
+  titles.sort((a, b) => (b.id === lockedId) - (a.id === lockedId) || b.score - a.score || a.idx - b.idx);
+  return {
+    n, titles, status, lockedId, picks,
+    hidden: all.filter(t => t.hidden),
+    leader: titles[0],
+    label: S.labels[n] || '',
+    notes: S.notes.filter(x => x.track === n && !x.titleId),
+    titleNotes: id => S.notes.filter(x => x.titleId === id),
+  };
+}
+
+function emit(type, fields) {
+  if (!me) return;
+  const ev = Object.assign({ id: uid(), time: new Date().toISOString(), who: me, type, track: '', titleId: '', value: '', text: '' }, fields);
+  Object.keys(ev).forEach(k => ev[k] = ev[k] == null ? '' : String(ev[k]));
+  if (!SCRIPT_URL) { serverEvents.push(ev); store.set('events', serverEvents); }
+  else { pending.push(ev); store.set('pending', pending); scheduleSync(400); }
+  render();
+}
+
+/* ---------- sync ---------- */
+let syncTimer = null;
+function scheduleSync(ms) { clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, ms); }
+
+async function syncNow() {
+  if (!SCRIPT_URL || !me || sync.busy) return;
+  sync.busy = true; paintSync();
+  const batch = pending.slice();
+  const before = serverEvents.length;
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(batch.length ? { action: 'write', events: batch } : { action: 'read' }),
+    });
+    const j = await res.json();
+    if (!j.ok) throw new Error(j.error || 'Something went wrong');
+    serverEvents = j.events || []; store.set('events', serverEvents);
+    const sent = new Set(batch.map(e => e.id));
+    pending = pending.filter(e => !sent.has(e.id)); store.set('pending', pending);
+    sync.state = 'ok'; sync.at = Date.now(); sync.error = '';
+  } catch (err) {
+    sync.state = 'error'; sync.error = String(err && err.message || err);
+  } finally { sync.busy = false; }
+  if (pending.length && sync.state === 'ok') scheduleSync(50);
+  if (serverEvents.length !== before || batch.length) render(); else paintSync();
+}
+
+function syncText() {
+  if (!SCRIPT_URL) return ['local', ''];
+  if (sync.busy) return ['busy', 'saving...'];
+  if (sync.state === 'error') return ['error', 'offline' + (pending.length ? ', will retry' : '')];
+  if (sync.state === 'ok') return ['ok', 'saved'];
+  return ['busy', 'loading...'];
+}
+function paintSync() {
+  const el = document.getElementById('sync'); if (!el) return;
+  const [c, t] = syncText(); el.className = 'sync ' + c; el.textContent = t;
+}
+
+/* ---------- rendering ---------- */
+function whoLine(t) {
+  const out = [];
+  const by = v => PEOPLE.filter(p => t.votes[p.id] === v).map(p => p.id).join(', ');
+  if (by('love')) out.push(`<span class="lv">&hearts; ${by('love')}</span>`);
+  if (by('like')) out.push(`like ${by('like')}`);
+  if (by('okay')) out.push(`okay ${by('okay')}`);
+  if (by('no')) out.push(`<span class="no">no ${by('no')}</span>`);
+  if (t.who) out.push(`(added by ${esc(t.who)})`);
+  return out.join(', ');
+}
+
+// top 2 titles with a positive score, plus anything tied with #2
+function frontRunners(v) {
+  if (v.lockedT) return [v.lockedT];
+  const pos = v.titles.filter(t => t.score > 0);
+  if (!pos.length) return [];
+  const cutoff = pos[Math.min(1, pos.length - 1)].score;
+  return pos.filter(t => t.score >= cutoff).slice(0, 4);
+}
+
+function notesHTML(list, track, titleId) {
+  const fid = titleId || 't' + track;
+  return `${list.length ? list.map(n => `<div class="n"><b style="--pc:${person(n.who).color}">${esc(n.who)}:</b> ${esc(n.text)}<small>${ago(n.time)}${n.who === me ? ` &middot; <button data-act="unnote" data-id="${esc(n.id)}">delete</button>` : ''}</small></div>`).join('') : `<p class="empty">No notes yet.</p>`}
+    <form class="f" data-form="note" data-track="${track}" data-id="${esc(titleId || '')}">
+      <textarea rows="1" data-keep="note-${esc(fid)}" placeholder="${titleId ? 'why this one?' : 'notes on the song'}"></textarea>
+      <button class="btn">Post</button>
+    </form>`;
+}
+
+function optHTML(t, v, cls, lead) {
+  const mine = t.votes[me];
+  const locked = v.lockedId === t.id;
+  const notes = v.titleNotes(t.id);
+  const open = ui.notes.includes(t.id);
+  const who = whoLine(t);
+  return `<div class="opt ${cls}">
+    <div class="orow">
+      <div>
+        <div class="otitle">${locked ? LOCK : ''}<span class="t">${esc(t.text)}</span>${lead ? `<span class="lead">${lead}</span>` : ''}</div>
+        ${who ? `<div class="ometa">${who}</div>` : ''}
+      </div>
+      <div class="score ${t.score > 0 ? 'pos' : t.score < 0 ? 'neg' : ''}">${t.rated ? fmtScore(t.score) : ''}</div>
+      <div class="vote">${REACTIONS.map(r => `<button data-act="vote" data-id="${esc(t.id)}" data-v="${r.v}" class="v-${r.v}${mine === r.v ? ' on' : ''}">${r.label}</button>`).join('')}</div>
+      <button class="nbtn${notes.length ? ' has' : ''}" data-act="notes" data-id="${esc(t.id)}">${open ? 'close' : notes.length ? notes.length + (notes.length === 1 ? ' note' : ' notes') : 'note'}</button>
+    </div>
+    ${open ? `<div class="notes">${notesHTML(notes, v.n, t.id)}
+      <div class="more">
+        ${locked ? `<button class="btn" data-act="unlock" data-track="${v.n}">Unlock</button>` : `<button class="btn" data-act="lock" data-track="${v.n}" data-id="${esc(t.id)}">Make this the final title</button>`}
+        <button class="btn" data-act="hide" data-id="${esc(t.id)}" data-v="1">Remove</button>
+      </div></div>` : ''}
+  </div>`;
+}
+
+function songHTML(v) {
+  const st = v.status.value || 'open';
+  const fr = frontRunners(v);
+  const frIds = new Set(fr.map(t => t.id));
+  const rest = v.titles.filter(t => !frIds.has(t.id));
+  const showRest = !ui.topOnly || ui.peek.includes(v.n);
+  const headTitle = fr[0] || v.titles[0];
+  const meta = [];
+  if (v.label) meta.push('aka ' + esc(v.label));
+  meta.push(v.titles.length + (v.titles.length === 1 ? ' option' : ' options'));
+
+  let body = '';
+  if (fr.length) {
+    const isFinal = !!v.lockedT;
+    const uniqueLead = fr.length === 1 || fr[0].score > fr[1].score;
+    body += `<div class="group">${isFinal ? 'Final title' : 'Top picks'}</div>`;
+    body += fr.map(t => optHTML(t, v, isFinal ? 'final' : 'fr', !isFinal && t === fr[0] && uniqueLead && fr.length > 1 ? '&larr; leading' : '')).join('');
+  }
+  if (rest.length) {
+    if (showRest) {
+      if (fr.length) body += `<div class="group">Other ideas</div>`;
+      body += rest.map(t => optHTML(t, v, '', '')).join('');
+      if (ui.topOnly) body += `<div class="group"><button class="link" data-act="peek" data-track="${v.n}">hide other ideas</button></div>`;
+    } else {
+      body += `<div class="group"><button class="link" data-act="peek" data-track="${v.n}">${fr.length ? '' : 'no votes yet, '}show ${rest.length} other idea${rest.length === 1 ? '' : 's'}</button></div>`;
+    }
+  }
+
+  const adding = ui.adding.includes(v.n);
+  const sn = ui.songNotes.includes(v.n);
+  const sh = ui.showHidden.includes(v.n);
+  return `<section class="song st-${st}" id="track-${v.n}">
+    <div class="shead">
+      <div class="snum">${v.n}.</div>
+      <div class="stitle"><div class="t">${v.lockedT ? LOCK : ''}${headTitle ? esc(headTitle.text) : '?'}</div><div class="m">${meta.join(' &middot; ')}</div></div>
+      <select class="status ${st}" data-act="status" data-track="${v.n}" aria-label="Status for track ${v.n}">${STATUS.map(s => `<option value="${s.v}"${st === s.v ? ' selected' : ''}>${s.label}</option>`).join('')}</select>
+    </div>
+    ${body}
+    <div class="sfoot">
+      <div class="links">
+        <button class="link" data-act="adding" data-track="${v.n}">+ add idea</button>
+        <button class="link" data-act="songnotes" data-track="${v.n}">song notes${v.notes.length ? ' (' + v.notes.length + ')' : ''}</button>
+        <button class="link" data-act="label" data-track="${v.n}">${v.label ? 'edit nickname' : 'nickname'}</button>
+        ${v.hidden.length ? `<button class="link" data-act="showhidden" data-track="${v.n}">${sh ? 'hide removed' : v.hidden.length + ' removed'}</button>` : ''}
+      </div>
+      ${adding ? `<form class="f" data-form="add" data-track="${v.n}"><input data-keep="add-${v.n}" placeholder="new title" maxlength="140" autocomplete="off"><button class="btn dark">Add</button></form>` : ''}
+      ${sh ? `<div class="removed">${v.hidden.map(t => `<div><s>${esc(t.text)}</s><button class="link" data-act="hide" data-id="${esc(t.id)}" data-v="0">restore</button></div>`).join('')}</div>` : ''}
+      ${sn ? `<div>${notesHTML(v.notes, v.n, '')}</div>` : ''}
+    </div>
+  </section>`;
+}
+
+function gateHTML() {
+  return `<div class="gate">
+    <h1>${esc(ALBUM_NAME)}</h1>
+    <p>song titles</p>
+    <div class="me">${PEOPLE.map(p => `<button class="${gatePick === p.id ? 'on' : ''}" style="--pc:${p.color}" data-act="gatepick" data-v="${p.id}">${p.id}</button>`).join('')}</div>
+    <button class="btn dark" data-act="enter">Go</button>
+    ${gateError ? `<div class="err">${esc(gateError)}</div>` : ''}
+  </div>`;
+}
+
+function pageHTML(S) {
+  const views = TRACKS.map((_, i) => {
+    const v = trackView(S, i + 1);
+    v.lockedT = v.lockedId ? v.titles.find(t => t.id === v.lockedId) : null;
+    return v;
+  });
+  const counts = { all: views.length, open: 0, leaning: 0, locked: 0 };
+  views.forEach(v => counts[v.status.value || 'open']++);
+  const shown = views.filter(v => ui.filter === 'all' || (v.status.value || 'open') === ui.filter);
+  const [sc, stx] = syncText();
+
+  return `<div class="wrap">
+    <header>
+      <h1>${esc(ALBUM_NAME)}<small>song titles</small></h1>
+      <div class="me">I'm ${PEOPLE.map(p => `<button class="${me === p.id ? 'on' : ''}" style="--pc:${p.color}" data-act="me" data-v="${p.id}">${p.id}</button>`).join('')}<span id="sync" class="${sc}">${stx}</span></div>
+    </header>
+    ${!SCRIPT_URL ? `<div class="note-bar">Preview only. Votes are saved in this browser until the Google Sheet is hooked up.</div>` : ''}
+    <div class="toolbar">
+      Show:
+      ${[['all', 'all'], ['open', 'wide open'], ['leaning', 'leaning'], ['locked', 'locked']].map(([f, l]) => `<button data-act="filter" data-v="${f}" class="${ui.filter === f ? 'on' : ''}">${l} (${counts[f]})</button>`).join('')}
+      <label><input type="checkbox" data-act="topOnly" ${ui.topOnly ? 'checked' : ''}> top picks only</label>
+    </div>
+    ${shown.length ? `<main>${shown.map(songHTML).join('')}</main>` : '<div class="nothing">Nothing here.</div>'}
+    <p class="foot">Love = 2, Like = 1, Okay = 0, No = -1. Click again to undo. The top two in each song get highlighted. Set a song to Locked to make the leader the final title.</p>
+  </div>`;
+}
+
+function render() {
+  // keep whatever someone is typing across re-renders
+  const kept = {};
+  app.querySelectorAll('[data-keep]').forEach(el => { if (el.value) kept[el.dataset.keep] = el.value; });
+  const f = document.activeElement;
+  const focusKey = f && f.dataset ? f.dataset.keep : null;
+  const sel = focusKey ? [f.selectionStart, f.selectionEnd] : null;
+
+  const needGate = !me;
+  app.innerHTML = needGate ? gateHTML() : pageHTML(reduce(allEvents()));
+
+  Object.keys(kept).forEach(k => { const el = app.querySelector(`[data-keep="${k}"]`); if (el) el.value = kept[k]; });
+  if (focusKey) { const el = app.querySelector(`[data-keep="${focusKey}"]`); if (el) { el.focus({ preventScroll: true }); try { el.setSelectionRange(sel[0], sel[1]); } catch (e) {} } }
+}
+
+/* ---------- interactions ---------- */
+function currentState() { return reduce(allEvents()); }
+
+app.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (!b || b.tagName === 'INPUT' || b.tagName === 'SELECT') return;
+  const act = b.dataset.act, n = parseInt(b.dataset.track, 10), id = b.dataset.id, v = b.dataset.v;
+
+  switch (act) {
+    case 'gatepick': gatePick = v; render(); break;
+    case 'enter': {
+      if (!gatePick) { gateError = 'Pick your initials first.'; render(); break; }
+      me = gatePick; store.set('me', me);
+      gateError = ''; render(); syncNow();
+      break;
+    }
+    case 'me': me = v; store.set('me', me); render(); break;
+    case 'filter': ui.filter = v; saveUI(); render(); break;
+    case 'notes': toggleIn(ui.notes, id); saveUI(); render(); break;
+    case 'showhidden': toggleIn(ui.showHidden, n); saveUI(); render(); break;
+    case 'songnotes': toggleIn(ui.songNotes, n); saveUI(); render(); break;
+    case 'peek': toggleIn(ui.peek, n); saveUI(); render(); break;
+    case 'adding': {
+      toggleIn(ui.adding, n); saveUI(); render();
+      const inp = app.querySelector(`[data-keep="add-${n}"]`); if (inp) inp.focus();
+      break;
+    }
+    case 'vote': {
+      const S = currentState();
+      const cur = (S.votes[id] || {})[me];
+      emit('vote', { titleId: id, value: cur === v ? '' : v });
+      break;
+    }
+    case 'lock': emit('status', { track: n, value: 'locked', titleId: id }); break;
+    case 'unlock': emit('status', { track: n, value: 'leaning' }); break;
+    case 'hide':
+      if (v === '1' && !confirm('Remove this title? (You can restore it later.)')) break;
+      emit('hide', { titleId: id, value: v });
+      break;
+    case 'unnote': if (confirm('Delete your note?')) emit('unnote', { value: id }); break;
+    case 'label': {
+      const cur = currentState().labels[n] || '';
+      const t = prompt('Nickname for song ' + n + ' (leave blank to clear)', cur);
+      if (t !== null && t.trim() !== cur) emit('label', { track: n, text: t.trim().slice(0, 80) });
+      break;
+    }
+  }
+});
+
+app.addEventListener('change', e => {
+  const act = e.target.dataset.act;
+  if (act === 'topOnly') { ui[act] = e.target.checked; saveUI(); render(); }
+  if (act === 'status') {
+    const n = parseInt(e.target.dataset.track, 10), v = e.target.value;
+    if (v === 'locked') {
+      const lead = trackView(currentState(), n).leader;
+      if (lead) emit('status', { track: n, value: 'locked', titleId: lead.id }); else render();
+    } else emit('status', { track: n, value: v });
+  }
+});
+
+app.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey && e.target.tagName === 'TEXTAREA') { e.preventDefault(); e.target.form.requestSubmit(); }
+});
+
+app.addEventListener('submit', e => {
+  e.preventDefault();
+  const form = e.target, n = parseInt(form.dataset.track, 10);
+  const field = form.querySelector('input,textarea');
+  const text = field.value.trim();
+  if (!text) return;
+  if (form.dataset.form === 'add') {
+    const exists = trackView(currentState(), n).titles.some(t => t.text.toLowerCase() === text.toLowerCase());
+    if (exists) { alert('That title is already on the list for this song.'); return; }
+    field.value = '';
+    emit('add', { track: n, titleId: 'u' + uid(), text: text.slice(0, 140) });
+  } else {
+    field.value = '';
+    emit('note', { track: n, titleId: form.dataset.id, text: text.slice(0, 1500) });
+  }
+});
+
+/* ---------- start ---------- */
+render();
+if (SCRIPT_URL) {
+  syncNow();
+  setInterval(() => { if (document.visibilityState === 'visible') syncNow(); }, POLL_MS);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncNow(); });
+}
+setInterval(paintSync, 30000);
+})();
+</script>
+</body>
+</html>
