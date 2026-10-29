@@ -69,6 +69,8 @@ let T = [];                 // tracks: { num, title, disc, url }
 const S = { order: [], pos: 0, cur: null, nxt: null, gen: 0, playing: false, started: false, loading: false, shuffle: false };
 const cache = new Map();    // track index -> Promise<{buf, off, len}>
 let ctx = null;
+// Opened by double-clicking index.html: browsers block reading files that way, so fall back to plain <audio>.
+const LOCAL = location.protocol === 'file:';
 
 function getCtx() {
   if (!ctx) {
@@ -112,6 +114,7 @@ async function discover() {
   S.order = T.map((_, i) => i);
   buildList();
   if (!T.length) status('No .m4a files found.');
+  else if (LOCAL) status('Opened from your computer, so there may be tiny gaps between tracks. The web link plays seamlessly.');
 }
 
 function buildList() {
@@ -227,10 +230,37 @@ function sched(p, d, when, offset, g) {
   return n;
 }
 
-function kill(n) { if (!n) return; n.src.onended = null; try { n.src.stop(); } catch (e) {} n.src.disconnect(); }
+function kill(n) {
+  if (!n) return;
+  if (n.el) { n.el.onended = n.el.onerror = null; n.el.pause(); return; }
+  n.src.onended = null; try { n.src.stop(); } catch (e) {} n.src.disconnect();
+}
+
+function endAlbum() { kill(S.cur); kill(S.nxt); S.cur = S.nxt = null; S.started = false; S.playing = false; S.pos = 0; render(); }
+
+// Local-file fallback: one <audio> element per track, next one preloaded. Small gap at each change.
+function playLocal(p, offset, resume) {
+  const t = S.order[p];
+  if (S.cur && S.cur.el && S.cur.p === p && S.cur.t === t) {      // same track: just seek
+    S.cur.el.currentTime = offset; S.playing = resume; resume ? S.cur.el.play() : S.cur.el.pause();
+    return render();
+  }
+  const g = ++S.gen, reuse = S.nxt && S.nxt.t === t ? S.nxt : null;
+  kill(S.cur); if (!reuse) kill(S.nxt); S.nxt = null;
+  const el = reuse ? reuse.el : new Audio(T[t].url);
+  S.pos = p; S.started = true; S.playing = resume; S.loading = false;
+  S.cur = { p, t, el, get len() { return el.duration || 0; } };
+  el.onended = () => { if (g === S.gen) S.cur.p + 1 < S.order.length ? playLocal(S.cur.p + 1, 0, true) : endAlbum(); };
+  el.onerror = () => { if (g !== S.gen) return; S.playing = false; status(`Couldn't play "${T[t].title}".`); render(); };
+  if (offset) el.readyState ? el.currentTime = offset : el.addEventListener('loadedmetadata', () => el.currentTime = offset, { once: true });
+  if (resume) el.play().catch(() => {});
+  render();
+  queueNext(g);
+}
 
 async function playAt(p, offset = 0, resume = true) {
   if (p < 0 || p >= S.order.length) return;
+  if (LOCAL) return playLocal(p, offset, resume);
   const c = getCtx(), g = ++S.gen;
   kill(S.cur); kill(S.nxt); S.cur = S.nxt = null;
   S.pos = p; S.started = true; S.playing = resume; S.loading = true;
@@ -257,6 +287,7 @@ async function queueNext(g) {
   if (!S.cur) return;
   const p = S.cur.p + 1; if (p >= S.order.length) return;
   const t = S.order[p];
+  if (LOCAL) { const el = new Audio(T[t].url); el.preload = 'auto'; S.nxt = { p, t, el }; return; }
   let d; try { d = await load(t); } catch (e) { return; }
   if (g !== S.gen || !S.cur || S.cur.p !== p - 1 || S.order[p] !== t || S.nxt) return;
   S.nxt = sched(p, d, Math.max(S.cur.end, ctx.currentTime + 0.02), 0, g);
@@ -267,18 +298,22 @@ function onEnded(n, g) {
   n.src.disconnect();
   if (S.nxt) { S.cur = S.nxt; S.nxt = null; S.pos = S.cur.p; prune(); render(); queueNext(g); }
   else if (n.p + 1 < S.order.length) playAt(n.p + 1, 0, S.playing);     // next wasn't ready in time
-  else { S.cur = null; S.started = false; S.playing = false; S.pos = 0; render(); }   // end of album
+  else endAlbum();
 }
 
 function toggle() {
-  const c = getCtx();
   if (!S.started) return playAt(S.pos);
   S.playing = !S.playing;
-  S.playing ? c.resume() : c.suspend();
+  if (LOCAL) S.playing ? S.cur.el.play() : S.cur.el.pause();
+  else { const c = getCtx(); S.playing ? c.resume() : c.suspend(); }
   render();
 }
 
-function elapsed() { return S.cur ? Math.max(0, Math.min(S.cur.len, ctx.currentTime - S.cur.t0)) : 0; }
+function elapsed() {
+  if (!S.cur) return 0;
+  if (S.cur.el) return S.cur.el.currentTime || 0;
+  return Math.max(0, Math.min(S.cur.len, ctx.currentTime - S.cur.t0));
+}
 
 function setShuffle(on) {
   S.shuffle = on;
