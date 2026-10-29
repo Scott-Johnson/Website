@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Seek Love Destroy</title>
+<title>SEEK LOVE DESTROY</title>
 <!-- Link previews (iMessage etc.) and icons -->
-<meta property="og:title" content="Seek Love Destroy">
+<meta property="og:title" content="SEEK LOVE DESTROY">
 <meta property="og:type" content="website">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
@@ -24,7 +24,8 @@
         pointer-events: none; overflow: hidden; opacity: .38; transition: opacity 1.5s ease; }
   #bg.paused { opacity: .2; }
   #bg div { position: absolute; inset: -8%; background: center / cover no-repeat; opacity: 0;
-            transition: opacity 3s ease-in-out; animation: drift 80s ease-in-out infinite alternate; }
+            transition: opacity 9s ease-in-out;   /* <- how long the background fade between songs takes */
+            animation: drift 80s ease-in-out infinite alternate; }
   #bg div + div { animation-delay: -40s; }
   #bg div.on { opacity: 1; }
   @keyframes drift { from { transform: scale(1) translate(0, 0); } to { transform: scale(1.12) translate(-2%, 1.5%); } }
@@ -433,7 +434,8 @@ async function setBg(url) {
   nu.style.backgroundImage = `url("${url}")`;
   nu.style.zIndex = 2; old.style.zIndex = 1;
   nu.classList.add('on');
-  setTimeout(() => { if (tok === bgTok) old.classList.remove('on'); }, 3100);
+  const fadeMs = parseFloat(getComputedStyle(nu).transitionDuration) * 1000 || 0;   // follows the fade time set in the CSS
+  setTimeout(() => { if (tok === bgTok) old.classList.remove('on'); }, fadeMs + 100);
 }
 
 // ---------- UI ----------

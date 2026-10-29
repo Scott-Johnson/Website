@@ -3,13 +3,13 @@
 // songs show up without editing this file. This list is the backup.
 
 window.ALBUM = {
-  title: "Seek Love Destroy",          // shown at the top; leave "" to use the repo name
+  title: "SEEK LOVE DESTROY",          // shown at the top; leave "" to use the repo name
   artwork: "artwork-circle.webp",
   discStarts: [1, 13, 19],   // track numbers where Disc 1, Disc 2 and Disc 3 begin
   tracks: [
     "01 Free, Like a Bird.m4a",
     "02 Make Your Move.m4a",
-    "03 Show For Two.m4a",
+    "03 Where Horizons Meet.m4a",
     "04 Sinking Through Endless Sea.m4a",
     "05 Into the Kingdom of Control.m4a",
     "06 This Way.m4a",
