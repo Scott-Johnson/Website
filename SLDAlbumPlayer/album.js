@@ -4,7 +4,7 @@
 
 window.ALBUM = {
   title: "Seek Love Destroy",          // shown at the top; leave "" to use the repo name
-  artwork: "Seek Love Destroy [TEST].png",
+  artwork: "artwork-circle.webp",
   discStarts: [1, 13, 19],   // track numbers where Disc 1, Disc 2 and Disc 3 begin
   tracks: [
     "01 Free, Like a Bird.m4a",
