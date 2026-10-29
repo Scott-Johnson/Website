@@ -3,7 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Album review</title>
+<title>Seek Love Destroy</title>
+<!-- Link previews (iMessage etc.) and icons -->
+<meta property="og:title" content="Seek Love Destroy">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#111111">
 <style>
   :root { color-scheme: dark; --bg:#111; --fg:#eee; --muted:#8c8c8c; --line:rgba(255,255,255,.14); --hi:rgba(255,255,255,.07); }
   * { box-sizing: border-box; }
@@ -24,7 +31,7 @@
   @media (prefers-reduced-motion: reduce) { #bg div { animation: none; } }
   /* Round artwork, turning once every 4 minutes */
   #art { display: block; width: min(100%, 340px); aspect-ratio: 1; height: auto; margin: 8px auto 20px;
-         animation: spin 480s linear infinite; }
+         animation: spin 240s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   h1 { font-size: 20px; margin: 0 0 20px; text-align: center; }
   #now { border: 1px solid var(--line); background: rgba(17,17,17,.35); padding: 12px; margin-bottom: 24px; }
