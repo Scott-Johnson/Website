@@ -44,8 +44,8 @@
            border: 1px solid var(--line); padding: 6px 12px; cursor: pointer; }
   button:hover { background: var(--hi); }
   #play { min-width: 72px; font-weight: 600; }
-  #shuffle { margin-left: auto; }
-  #shuffle[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .modes { display: flex; gap: 6px; margin-left: auto; }
+  .modes button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
   #status { font-size: 13px; color: var(--muted); min-height: 1.2em; margin-top: 6px; }
   h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted);
        margin: 20px 0 4px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
@@ -73,7 +73,10 @@
       <button id="prev">Prev</button>
       <button id="play">Play</button>
       <button id="next">Next</button>
-      <button id="shuffle" aria-pressed="false">Shuffle: off</button>
+      <div class="modes">
+        <button id="shuffle" aria-pressed="false">Shuffle: off</button>
+        <button id="repeat" aria-pressed="false" title="Off → whole album → this song">Repeat: off</button>
+      </div>
     </div>
     <div id="status"></div>
   </div>
@@ -87,7 +90,7 @@
 const $ = id => document.getElementById(id);
 let A = {};                 // settings from album.js
 let T = [];                 // tracks: { num, title, disc, url }
-const S = { order: [], pos: 0, cur: null, nxt: null, gen: 0, playing: false, started: false, loading: false, shuffle: false };
+const S = { order: [], pos: 0, cur: null, nxt: null, gen: 0, playing: false, started: false, loading: false, shuffle: false, repeat: 'off' };
 const cache = new Map();    // track index -> Promise<{buf, off, len}>
 let ctx = null;
 // Opened by double-clicking index.html: browsers block reading files that way, so fall back to plain <audio>.
@@ -248,9 +251,30 @@ function load(i) {
 
 // Keep only the current and next track decoded (decoded audio is big).
 function prune() {
-  const keep = new Set([S.order[S.pos], S.order[S.pos + 1]]);
+  const keep = new Set([S.order[S.pos], S.order[after(S.pos)]]);
   for (const k of [...cache.keys()]) if (!keep.has(k)) cache.delete(k);
 }
+
+// What plays after position p finishes on its own (null = stop), given the repeat setting.
+function after(p) {
+  if (S.repeat === 'one') return p;
+  if (p + 1 < S.order.length) return p + 1;
+  return S.repeat === 'all' ? 0 : null;
+}
+
+function shuffled(a) {
+  a = a.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+// Looping the album on shuffle, every pass gets a new order:
+// prepPass (on the last song) picks a new first song; newPass (once it starts) reshuffles everything after it.
+function prepPass() {
+  const last = S.order.length - 1;
+  if (S.shuffle && S.pos === last) S.order = [...shuffled(S.order.slice(0, last)), S.order[last]];
+}
+function newPass() { if (S.shuffle) S.order = [S.order[0], ...shuffled(S.order.slice(1))]; }
 
 // ---------- playback ----------
 function sched(p, d, when, offset, g) {
@@ -282,7 +306,13 @@ function playLocal(p, offset, resume) {
   const el = reuse ? reuse.el : new Audio(T[t].url);
   S.pos = p; S.started = true; S.playing = resume; S.loading = false;
   S.cur = { p, t, el, get len() { return el.duration || 0; } };
-  el.onended = () => { if (g === S.gen) S.cur.p + 1 < S.order.length ? playLocal(S.cur.p + 1, 0, true) : endAlbum(); };
+  el.onended = () => {
+    if (g !== S.gen) return;
+    const from = S.cur.p, p = after(from);
+    if (p === null) return endAlbum();
+    if (p < from) newPass();
+    playLocal(p, 0, true);
+  };
   el.onerror = () => { if (g !== S.gen) return; S.playing = false; status(`Couldn't play "${T[t].title}".`); render(); };
   if (offset) el.readyState ? el.currentTime = offset : el.addEventListener('loadedmetadata', () => el.currentTime = offset, { once: true });
   if (resume) el.play().catch(() => {});
@@ -316,21 +346,38 @@ async function playAt(p, offset = 0, resume = true) {
 
 // Decode the next track and schedule it to start on the exact sample the current one ends.
 async function queueNext(g) {
-  if (!S.cur) return;
-  const p = S.cur.p + 1; if (p >= S.order.length) return;
+  const cur = S.cur; if (!cur) return;
+  const p = after(cur.p); if (p === null) return;
+  if (p < cur.p) prepPass();
   const t = S.order[p];
-  if (LOCAL) { const el = new Audio(T[t].url); el.preload = 'auto'; S.nxt = { p, t, el }; return; }
+  if (LOCAL) { if (p !== cur.p) { const el = new Audio(T[t].url); el.preload = 'auto'; S.nxt = { p, t, el }; } return; }
   let d; try { d = await load(t); } catch (e) { return; }
-  if (g !== S.gen || !S.cur || S.cur.p !== p - 1 || S.order[p] !== t || S.nxt) return;
-  S.nxt = sched(p, d, Math.max(S.cur.end, ctx.currentTime + 0.02), 0, g);
+  if (g !== S.gen || S.cur !== cur || after(cur.p) !== p || S.order[p] !== t || S.nxt) return;
+  S.nxt = sched(p, d, Math.max(cur.end, ctx.currentTime + 0.02), 0, g);
 }
 
 function onEnded(n, g) {
   if (g !== S.gen || n !== S.cur) return;
   n.src.disconnect();
-  if (S.nxt) { S.cur = S.nxt; S.nxt = null; S.pos = S.cur.p; prune(); render(); queueNext(g); }
-  else if (n.p + 1 < S.order.length) playAt(n.p + 1, 0, S.playing);     // next wasn't ready in time
-  else endAlbum();
+  if (S.nxt) {
+    const wrapped = S.nxt.p < n.p;
+    S.cur = S.nxt; S.nxt = null; S.pos = S.cur.p;
+    if (wrapped) newPass();
+    prune(); render(); queueNext(g);
+  } else {                                                  // next wasn't ready in time
+    const p = after(n.p);
+    if (p === null) return endAlbum();
+    if (p < n.p) newPass();
+    playAt(p, 0, S.playing);
+  }
+}
+
+// Repeat: 'off' → 'all' (loop the album) → 'one' (loop this song). Re-plan what plays next.
+function setRepeat(mode) {
+  S.repeat = mode;
+  kill(S.nxt); S.nxt = null;
+  if (S.cur) queueNext(S.gen);
+  prune(); render();
 }
 
 function toggle() {
@@ -352,8 +399,7 @@ function setShuffle(on) {
   const curT = S.started ? S.order[S.pos] : null;
   let order = T.map((_, i) => i);
   if (on) {
-    order = order.filter(i => i !== curT);
-    for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+    order = shuffled(order.filter(i => i !== curT));
     if (curT !== null) order.unshift(curT);
   }
   S.order = order;
@@ -398,10 +444,13 @@ function render() {
   const i = S.order[S.pos], t = T[i];
   setBg(S.started ? bgUrl(t) : null);
   $('bg').classList.toggle('paused', S.started && !S.playing);
-  if (S.started && T[S.order[S.pos + 1]]) bgLoad(bgUrl(T[S.order[S.pos + 1]]));   // get the next one ready
+  const nx = after(S.pos);
+  if (S.started && nx !== null && T[S.order[nx]]) bgLoad(bgUrl(T[S.order[nx]]));   // get the next one ready
   $('play').textContent = S.playing ? 'Pause' : 'Play';
   $('shuffle').textContent = 'Shuffle: ' + (S.shuffle ? 'on' : 'off');
   $('shuffle').setAttribute('aria-pressed', S.shuffle);
+  $('repeat').textContent = 'Repeat: ' + { off: 'off', all: 'album', one: 'song' }[S.repeat];
+  $('repeat').setAttribute('aria-pressed', S.repeat !== 'off');
   $('np').textContent = S.started && t ? `${new Set(T.map(x => x.disc)).size > 1 ? 'Disc ' + t.disc + ' · ' : ''}${t.num}. ${t.title}` : 'Press play to start';
   T.forEach((_, k) => {
     const li = $('t' + k), on = S.started && k === i;
@@ -422,9 +471,13 @@ function tick() {
 setInterval(tick, 250);
 
 $('play').onclick = toggle;
-$('next').onclick = () => S.pos + 1 < S.order.length && playAt(S.pos + 1);
+$('next').onclick = () => {
+  if (S.pos + 1 < S.order.length) playAt(S.pos + 1);
+  else if (S.repeat !== 'off') { prepPass(); newPass(); playAt(0); }   // on repeat, Next from the last song goes back to the top
+};
 $('prev').onclick = () => (S.cur && elapsed() > 3) || S.pos === 0 ? playAt(S.pos) : playAt(S.pos - 1);
 $('shuffle').onclick = () => setShuffle(!S.shuffle);
+$('repeat').onclick = () => setRepeat({ off: 'all', all: 'one', one: 'off' }[S.repeat]);
 $('list').onclick = e => { const b = e.target.closest('button[data-i]'); if (b) playAt(S.order.indexOf(+b.dataset.i)); };
 $('seek').oninput = () => { dragging = true; if (S.cur) $('cur').textContent = fmt($('seek').value / 1000 * S.cur.len); };
 $('seek').onchange = () => { dragging = false; if (S.cur) playAt(S.pos, $('seek').value / 1000 * S.cur.len, S.playing); };
