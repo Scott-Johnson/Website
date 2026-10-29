@@ -60,11 +60,10 @@
   <footer>Plays straight through with no gaps between tracks. Space = play/pause.</footer>
 </main>
 
-<script src="album.js"></script>
 <script>
 // ---------- setup ----------
 const $ = id => document.getElementById(id);
-const A = window.ALBUM || {};
+let A = {};                 // settings from album.js
 let T = [];                 // tracks: { num, title, disc, url }
 const S = { order: [], pos: 0, cur: null, nxt: null, gen: 0, playing: false, started: false, loading: false, shuffle: false };
 const cache = new Map();    // track index -> Promise<{buf, off, len}>
@@ -80,9 +79,20 @@ function getCtx() {
   return ctx;
 }
 
+// Load album.js at a new address each visit, so browsers and caches can't hand out an old track list.
+function loadSettings() {
+  return new Promise(done => {
+    const s = document.createElement('script');
+    s.src = LOCAL ? 'album.js' : 'album.js?t=' + Date.now();
+    s.onload = s.onerror = () => done(window.ALBUM || {});
+    document.head.appendChild(s);
+  });
+}
+
 // Find the tracks. On GitHub Pages, read the repo's file list so new uploads show up on their own;
 // otherwise (or if that fails) use the list in album.js.
 async function discover() {
+  A = await loadSettings();
   let files = (A.tracks || []).slice(), art = A.artwork || '', ver = {}, name = '';
   const gh = location.hostname.match(/^([^.]+)\.github\.io$/i);
   if (gh) {
@@ -90,7 +100,7 @@ async function discover() {
     const owner = gh[1], repo = seg[0] || owner + '.github.io', sub = seg.slice(1).join('/');
     name = seg[0] || '';
     try {
-      const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${sub}`);
+      const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${sub}`, { cache: 'no-cache' });
       if (r.ok) {
         const list = (await r.json()).filter(f => f.type === 'file');
         const songs = list.filter(f => /\.m4a$/i.test(f.name));
@@ -204,7 +214,7 @@ function fit(buf, g) {
 
 function load(i) {
   if (!cache.has(i)) {
-    const p = fetch(T[i].url)
+    const p = fetch(T[i].url, { cache: 'no-cache' })      // re-check with the server, so a replaced mix isn't served stale
       .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); })
       .then(async ab => { let g = null; try { g = gaplessInfo(ab); } catch (e) {}
                           return fit(await getCtx().decodeAudioData(ab), g); });
