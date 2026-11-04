@@ -7,6 +7,11 @@
 <!-- Link previews (iMessage etc.) and icons -->
 <meta property="og:title" content="SEEK LOVE DESTROY">
 <meta property="og:type" content="website">
+<meta property="og:image" content="preview.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="1200">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -93,13 +98,15 @@ let A = {};                 // settings from album.js
 let T = [];                 // tracks: { num, title, disc, url }
 const S = { order: [], pos: 0, cur: null, nxt: null, gen: 0, playing: false, started: false, loading: false, shuffle: false, repeat: 'off' };
 const cache = new Map();    // track index -> Promise<{buf, off, len}>
-let ctx = null;
+const ready = new Map();    // track index -> {buf, off, len}, once decoded
+let ctx = null, out = null;
 // Opened by double-clicking index.html: browsers block reading files that way, so fall back to plain <audio>.
 const LOCAL = location.protocol === 'file:';
 
 function getCtx() {
   if (!ctx) {
     ctx = new (window.AudioContext || window.webkitAudioContext)();
+    out = ctx.createGain(); out.connect(ctx.destination);
     if (navigator.audioSession) try { navigator.audioSession.type = 'playback'; } catch (e) {}  // iPhone: play with silent switch on
   }
   return ctx;
@@ -243,7 +250,9 @@ function load(i) {
     const p = fetch(T[i].url, { cache: 'no-cache' })      // re-check with the server, so a replaced mix isn't served stale
       .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); })
       .then(async ab => { let g = null; try { g = gaplessInfo(ab); } catch (e) {}
-                          return fit(await getCtx().decodeAudioData(ab), g); });
+                          const d = fit(await getCtx().decodeAudioData(ab), g);
+                          if (cache.get(i) === p) ready.set(i, d);
+                          return d; });
     p.catch(() => { if (cache.get(i) === p) cache.delete(i); });
     cache.set(i, p);
   }
@@ -253,7 +262,7 @@ function load(i) {
 // Keep only the current and next track decoded (decoded audio is big).
 function prune() {
   const keep = new Set([S.order[S.pos], S.order[after(S.pos)]]);
-  for (const k of [...cache.keys()]) if (!keep.has(k)) cache.delete(k);
+  for (const k of [...cache.keys()]) if (!keep.has(k)) { cache.delete(k); ready.delete(k); }
 }
 
 // What plays after position p finishes on its own (null = stop), given the repeat setting.
@@ -278,19 +287,100 @@ function prepPass() {
 function newPass() { if (S.shuffle) S.order = [S.order[0], ...shuffled(S.order.slice(1))]; }
 
 // ---------- playback ----------
-function sched(p, d, when, offset, g) {
-  const src = ctx.createBufferSource();
-  src.buffer = d.buf; src.connect(ctx.destination);
+// Play decoded audio from `offset` seconds, starting at context time `when` (optionally fading in).
+function sched(p, d, when, offset, g, fade = 0) {
+  const src = ctx.createBufferSource(), gain = ctx.createGain();
+  src.buffer = d.buf; src.connect(gain).connect(out);
+  if (fade) { gain.gain.setValueAtTime(0, when); gain.gain.linearRampToValueAtTime(1, when + fade); }
   src.start(when, d.off + offset, d.len - offset);
-  const n = { p, src, len: d.len, t0: when - offset, end: when + d.len - offset };
+  const n = { p, src, gain, len: d.len, t0: when - offset, end: when + d.len - offset };
   src.onended = () => onEnded(n, g);
   return n;
 }
 
 function kill(n) {
   if (!n) return;
-  if (n.el) { n.el.onended = n.el.onerror = null; n.el.pause(); return; }
+  if (n.el) {
+    n.el.onended = n.el.onerror = n.el.onplaying = null; n.el.pause();
+    if (n.stream) { n.node.disconnect(); n.el.removeAttribute('src'); n.el.load(); }   // stop downloading too
+    return;
+  }
   n.src.onended = null; try { n.src.stop(); } catch (e) {} n.src.disconnect();
+}
+
+// What happens when a song ends and the next one wasn't lined up in advance.
+function advance(p) {
+  const q = after(p);
+  if (q === null) return endAlbum();
+  if (q < p) { prepPass(); newPass(); }
+  playAt(q, 0, S.playing);
+}
+
+// Start a song instantly by streaming it (an <audio> element routed through the same audio graph).
+function stream(p, offset, g) {
+  const t = S.order[p], el = new Audio();
+  el.preload = 'auto';
+  el.src = T[t].url + (offset > 0 ? '#t=' + offset.toFixed(3) : '');
+  const node = ctx.createMediaElementSource(el), gain = ctx.createGain(), an = ctx.createAnalyser();
+  an.fftSize = 4096;
+  node.connect(gain).connect(out); node.connect(an);
+  const n = { p, t, el, node, gain, an, offset, stream: true, get len() { return el.duration || 0; } };
+  el.onplaying = () => { if (S.cur === n && S.loading) { S.loading = false; render(); } };
+  el.onended = () => { if (g === S.gen && S.cur === n) advance(n.p); };
+  el.onerror = () => {
+    if (g !== S.gen || S.cur !== n) return;
+    S.playing = S.loading = false; status(`Couldn't play "${T[t].title}".`); render();
+  };
+  if (S.playing) el.play().catch(() => {});
+  return n;
+}
+
+// Find exactly where the stream is: match the last ~85 ms it played against the decoded audio.
+// Returns the song position (seconds) at context time `at`.
+function locate(n, d) {
+  const sr = ctx.sampleRate, N = n.an.fftSize, w = new Float32Array(N);
+  n.an.getFloatTimeDomainData(w);
+  const at = ctx.currentTime, guess = n.el.currentTime, fallback = { pos: guess, at, score: 0 };
+  let ew = 0; for (let j = 0; j < N; j++) ew += w[j] * w[j];
+  if (ew < 1e-6) return fallback;                                    // near-silence: the estimate is plenty
+  const base = Math.round(d.off * sr), R = Math.round(0.3 * sr), endGuess = base + Math.round(guess * sr);
+  const lo = Math.max(base + N, endGuess - R), hi = Math.min(d.buf.length, endGuess + R);
+  if (hi <= lo) return fallback;
+  const s0 = lo - N, len = hi - s0, nch = d.buf.numberOfChannels, mono = new Float32Array(len);
+  for (let c = 0; c < nch; c++) { const x = d.buf.getChannelData(c); for (let i = 0; i < len; i++) mono[i] += x[s0 + i] / nch; }
+  const corr = (a, b, k, m) => { let s = 0, e = 0; for (let j = 0; j < m; j++) { const v = b[k + j]; s += a[j] * v; e += v * v; } return s / Math.sqrt(e + 1e-12); };
+  // coarse pass at 1/4 resolution, then exact pass around the best match
+  const D = 4, dec = a => { const r = new Float32Array(a.length / D | 0); for (let i = 0; i < r.length; i++) r[i] = a[i * D] + a[i * D + 1] + a[i * D + 2] + a[i * D + 3]; return r; };
+  const wd = dec(w), md = dec(mono);
+  let bk = 0, bc = -Infinity;
+  for (let k = 0; k + wd.length <= md.length; k++) { const c = corr(wd, md, k, wd.length); if (c > bc) { bc = c; bk = k; } }
+  let bi = bk * D; bc = -Infinity;
+  for (let i = Math.max(0, bk * D - 8); i <= Math.min(len - N, bk * D + 8); i++) { const c = corr(w, mono, i, N); if (c > bc) { bc = c; bi = i; } }
+  const score = bc / Math.sqrt(ew);
+  if (score < 0.6) return fallback;
+  return { pos: (s0 + bi + N - base) / sr, at, score };
+}
+
+// The whole song has decoded: swap the stream for the decoded copy at the same spot.
+// From here on, everything (including the join into the next song) is sample-accurate.
+function handover(n, d, g) {
+  if (g !== S.gen || S.cur !== n) return;
+  const fade = 0.04;
+  if (!S.playing || n.el.paused || n.el.readyState < 3) {            // not audibly playing: just switch
+    const pos = n.el.currentTime || n.offset || 0;
+    kill(n);
+    S.cur = sched(n.p, d, ctx.currentTime + 0.03, Math.min(pos, Math.max(0, d.len - 0.05)), g);
+  } else {
+    const m = locate(n, d), T0 = ctx.currentTime + 0.1, off = m.pos + (T0 - m.at);
+    S.lastLocate = { ...m, off };                                    // (for testing)
+    if (off > d.len - 0.2) return;                                   // nearly over: let the stream finish
+    S.cur = sched(n.p, d, T0, off, g, fade);
+    n.gain.gain.setValueAtTime(1, T0); n.gain.gain.linearRampToValueAtTime(0, T0 + fade);
+    n.el.onended = n.el.onerror = n.el.onplaying = null;
+    setTimeout(() => kill(n), (T0 + fade - ctx.currentTime) * 1000 + 200);
+  }
+  S.loading = false;
+  prune(); render(); queueNext(g);
 }
 
 function endAlbum() { kill(S.cur); kill(S.nxt); S.cur = S.nxt = null; S.started = false; S.playing = false; S.pos = 0; render(); }
@@ -321,28 +411,29 @@ function playLocal(p, offset, resume) {
   queueNext(g);
 }
 
-async function playAt(p, offset = 0, resume = true) {
+function playAt(p, offset = 0, resume = true) {
   if (p < 0 || p >= S.order.length) return;
   if (LOCAL) return playLocal(p, offset, resume);
-  const c = getCtx(), g = ++S.gen;
+  const c = getCtx(), g = ++S.gen, t = S.order[p];
   kill(S.cur); kill(S.nxt); S.cur = S.nxt = null;
-  S.pos = p; S.started = true; S.playing = resume; S.loading = true;
+  S.pos = p; S.started = true; S.playing = resume;
   resume ? c.resume() : c.suspend();
-  status(''); render();
-  let d;
-  try { d = await load(S.order[p]); }
-  catch (e) {
-    if (g !== S.gen) return;
-    S.loading = false; S.playing = false;
-    status(`Couldn't play "${T[S.order[S.pos]].title}" (${e.message || 'unsupported file'}).`);
-    return render();
+  status('');
+  const d = ready.get(t);
+  if (d) {                                                           // already decoded: start on the spot
+    S.loading = false;
+    S.cur = sched(p, d, c.currentTime + 0.03, Math.max(0, Math.min(offset, d.len - 0.05)), g);
+    prune(); render(); queueNext(g);
+    return;
   }
-  if (g !== S.gen) return;
-  S.loading = false;
-  offset = Math.max(0, Math.min(offset, d.len - 0.05));
-  S.cur = sched(S.pos, d, c.currentTime + 0.05, offset, g);
+  S.loading = true;
+  const n = S.cur = stream(p, offset, g);                            // play right away while the full file loads
   prune(); render();
-  queueNext(g);
+  // Load the full file for the seamless engine once the stream is going (so the two don't compete at the start).
+  let started = false;
+  const go = () => { if (started) return; started = true; load(t).then(d => handover(n, d, g), () => {}); };
+  n.el.addEventListener('playing', go, { once: true });
+  setTimeout(go, resume ? 2500 : 0);
 }
 
 // Decode the next track and schedule it to start on the exact sample the current one ends.
@@ -352,6 +443,7 @@ async function queueNext(g) {
   if (p < cur.p) prepPass();
   const t = S.order[p];
   if (LOCAL) { if (p !== cur.p) { const el = new Audio(T[t].url); el.preload = 'auto'; S.nxt = { p, t, el }; } return; }
+  if (cur.stream) return;                                           // lined up after the handover instead
   let d; try { d = await load(t); } catch (e) { return; }
   if (g !== S.gen || S.cur !== cur || after(cur.p) !== p || S.order[p] !== t || S.nxt) return;
   S.nxt = sched(p, d, Math.max(cur.end, ctx.currentTime + 0.02), 0, g);
@@ -365,12 +457,7 @@ function onEnded(n, g) {
     S.cur = S.nxt; S.nxt = null; S.pos = S.cur.p;
     if (wrapped) newPass();
     prune(); render(); queueNext(g);
-  } else {                                                  // next wasn't ready in time
-    const p = after(n.p);
-    if (p === null) return endAlbum();
-    if (p < n.p) newPass();
-    playAt(p, 0, S.playing);
-  }
+  } else advance(n.p);                                      // next wasn't ready in time
 }
 
 // Repeat: 'off' → 'all' (loop the album) → 'one' (loop this song). Re-plan what plays next.
@@ -384,8 +471,8 @@ function setRepeat(mode) {
 function toggle() {
   if (!S.started) return playAt(S.pos);
   S.playing = !S.playing;
-  if (LOCAL) S.playing ? S.cur.el.play() : S.cur.el.pause();
-  else { const c = getCtx(); S.playing ? c.resume() : c.suspend(); }
+  if (S.cur && S.cur.el) S.playing ? S.cur.el.play().catch(() => {}) : S.cur.el.pause();
+  if (!LOCAL) { const c = getCtx(); S.playing ? c.resume() : c.suspend(); }
   render();
 }
 
