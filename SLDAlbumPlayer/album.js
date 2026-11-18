@@ -26,5 +26,12 @@ window.ALBUM = {
     "17 The Place Beyond Mind's Cave.m4a",
     "18 Ascent into the Sun.m4a",
     "19 The State that Remains.m4a",
-  ]
+  ],
+  // Visualizer: each song's clip in visualizer/ was cut from the full video starting at `cut` (seconds),
+  // and the song begins at `start` (seconds into the full video). To nudge a song's visuals, change its
+  // `start` (later = visuals later). Stays in range as long as start is at least `cut`.
+  visualizer: {
+    cut:   [0.000, 220.944, 389.251, 617.600, 871.333, 1087.933, 1334.367, 1493.207, 1715.624, 1935.825, 2097.506, 2359.000, 2620.000, 2868.100, 3053.247, 3186.000, 3272.967, 3431.879, 3892.093],
+    start: [7.000, 230.946, 399.256, 627.600, 881.333, 1097.933, 1344.367, 1503.208, 1725.630, 1945.832, 2107.506, 2369.000, 2630.000, 2878.100, 3071.750, 3204.000, 3282.967, 3441.883, 3902.093]
+  }
 };

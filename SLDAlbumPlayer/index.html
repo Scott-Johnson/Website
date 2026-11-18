@@ -35,10 +35,33 @@
   #bg div.on { opacity: 1; }
   @keyframes drift { from { transform: scale(1) translate(0, 0); } to { transform: scale(1.12) translate(-2%, 1.5%); } }
   @media (prefers-reduced-motion: reduce) { #bg div { animation: none; } }
-  /* Round artwork, turning once every 4 minutes */
-  #art { display: block; width: min(100%, 340px); aspect-ratio: 1; height: auto; margin: 8px auto 20px;
-         animation: spin 240s linear infinite; }
+  /* The circle: the spinning artwork, or the visualizer playing inside the same circle */
+  #disc { position: relative; width: min(100%, 340px); aspect-ratio: 1; margin: 8px auto 12px; }
+  #art { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+         animation: spin 240s linear infinite;      /* <- artwork spin: seconds per full turn */
+         transition: opacity 1.6s ease, scale 1.6s ease; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  #disc video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+                opacity: 0; scale: .92; transition: opacity 1.6s ease, scale 1.6s ease; pointer-events: none; }
+  /* lens edge: darkens the rim of the video so it reads as a round window */
+  #disc::after { content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; z-index: 2;
+                 background: radial-gradient(circle, transparent 60%, rgba(0,0,0,.42) 71%);
+                 box-shadow: inset 0 0 0 1px rgba(255,255,255,.13), 0 0 80px rgba(0,0,0,.55);
+                 opacity: 0; transition: opacity 1.6s ease; }
+  /* thin halo ring that slowly circles the video */
+  #disc::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; padding: 1.5px; pointer-events: none;
+                  background: conic-gradient(rgba(255,255,255,.5), rgba(255,255,255,.03) 25%, rgba(255,255,255,.28) 50%,
+                                             rgba(255,255,255,.03) 75%, rgba(255,255,255,.5));
+                  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+                  -webkit-mask-composite: xor; mask-composite: exclude;
+                  animation: spin 30s linear infinite; opacity: 0; transition: opacity 1.6s ease; }
+  #disc.vis #art { opacity: 0; scale: 1.08; }
+  #disc.vis video.on { opacity: 1; scale: 1; }
+  #disc.vis::before, #disc.vis::after { opacity: 1; }
+  #view { display: block; margin: 0 auto 18px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+          color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; }
+  #view:hover { color: var(--fg); }
+  #view[hidden] { display: none; }
   h1 { font-size: 20px; margin: 0 0 20px; text-align: center; }
   #now { border: 1px solid var(--line); background: rgba(17,17,17,.35); padding: 12px; margin-bottom: 24px; }
   #np { font-weight: 600; min-height: 1.4em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -69,7 +92,12 @@
 <body>
 <div id="bg" aria-hidden="true"><div></div><div></div></div>
 <main>
-  <img id="art" alt="">
+  <div id="disc">
+    <img id="art" alt="">
+    <video id="vA" muted playsinline preload="auto"></video>
+    <video id="vB" muted playsinline preload="auto"></video>
+  </div>
+  <button id="view" hidden>Show artwork</button>
   <h1 id="title">Album review</h1>
 
   <div id="now">
@@ -525,6 +553,46 @@ async function setBg(url) {
   setTimeout(() => { if (tok === bgTok) old.classList.remove('on'); }, fadeMs + 100);
 }
 
+// ---------- visualizer ----------
+// visualizer/NN.mp4 is song NN's stretch of the full video (silent, square). album.js says where in each clip
+// the song begins, so the picture runs in step with the music. Two <video>s: one showing, one getting the next ready.
+const vids = [$('vA'), $('vB')], vis = { want: true, bad: {} };
+function visInfo(t) {
+  const V = (window.ALBUM || {}).visualizer, k = t && t.num - 1;
+  if (!V || !t || V.cut[k] == null || V.start[k] == null || vis.bad[t.num]) return null;
+  return { url: 'visualizer/' + String(t.num).padStart(2, '0') + '.mp4', shift: V.start[k] - V.cut[k] };
+}
+function visLoad(el, t, info) {
+  el.dataset.track = t.num; el.src = info.url;
+  el.onerror = () => { vis.bad[t.num] = true; el.dataset.track = ''; syncVis(); };
+  el.onloadeddata = () => syncVis();
+  el.addEventListener('loadedmetadata', () => { if (el.dataset.track == t.num && el.currentTime < 0.01) el.currentTime = info.shift; }, { once: true });
+}
+function syncVis() {
+  const t = S.started ? T[S.order[S.pos]] : null, info = visInfo(t);
+  $('view').hidden = !info;
+  $('view').textContent = vis.want ? 'Show artwork' : 'Show visualizer';
+  if (!info || !vis.want) { vids.forEach(v => v.pause()); $('disc').classList.remove('vis'); return; }
+  let el = vids.find(v => v.dataset.track == t.num);
+  if (!el) { el = vids.find(v => !v.classList.contains('on')) || vids[0]; visLoad(el, t, info); }
+  vids.forEach(v => { v.classList.toggle('on', v === el); if (v !== el && !v.paused) v.pause(); });
+  const want = elapsed() + info.shift;
+  const past = el.duration && want > el.duration - 0.05;              // video ends before the song does
+  $('disc').classList.toggle('vis', el.readyState >= 2 && !past);
+  if (S.playing && !S.loading && !past) {
+    if (el.readyState >= 1) {
+      const diff = el.currentTime - want;
+      if (Math.abs(diff) > 0.25) { el.currentTime = want; el.playbackRate = 1; }
+      else el.playbackRate = Math.abs(diff) > 0.04 ? (diff > 0 ? 0.97 : 1.03) : 1;   // gentle catch-up
+    }
+    if (el.paused) el.play().catch(() => {});
+  } else if (!el.paused) el.pause();
+  // get the next song's clip ready in the other player
+  const nx = after(S.pos), nt = nx === null ? null : T[S.order[nx]], ni = visInfo(nt), other = vids.find(v => v !== el);
+  if (ni && nt.num !== t.num && other.dataset.track != nt.num) visLoad(other, nt, ni);
+}
+$('view').onclick = () => { vis.want = !vis.want; syncVis(); };
+
 // ---------- UI ----------
 const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
 function status(msg) { $('status').textContent = msg; }
@@ -546,7 +614,7 @@ function render() {
     li.classList.toggle('on', on);
     li.querySelector('.s').textContent = on && S.loading ? 'loading…' : on ? (S.playing ? '▶︎' : 'paused') : '';
   });
-  tick();
+  tick(); syncVis();
 }
 
 let dragging = false;
@@ -557,7 +625,7 @@ function tick() {
   $('dur').textContent = fmt(len);
   $('seek').value = len ? Math.round(e / len * 1000) : 0;
 }
-setInterval(tick, 250);
+setInterval(() => { tick(); syncVis(); }, 250);
 
 $('play').onclick = toggle;
 $('next').onclick = () => {
@@ -574,7 +642,7 @@ document.addEventListener('keydown', e => {
   if (e.code === 'Space' && !/INPUT|BUTTON|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); toggle(); }
 });
 
-window.player = { S, T: () => T, playAt, setShuffle, gaplessInfo, fit };   // handy for debugging
+window.player = { vis, vids, S, T: () => T, playAt, setShuffle, gaplessInfo, fit };   // handy for debugging
 discover().then(render);
 </script>
 </body>
